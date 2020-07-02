@@ -31,11 +31,11 @@
 
 
 #define LISTEN_NUM 1
-#define THREAD_NUM 10
+#define THREAD_NUM 1
 
 #define MAXSIZE 1000
-#define SND_BUF_SIZE 32
-#define RCV_BUF_SIZE 88
+#define SND_BUF_SIZE 1068
+#define RCV_BUF_SIZE 1068
 #ifndef __STRUCT
 #define __STRUCT
 typedef struct msgtoServer{
