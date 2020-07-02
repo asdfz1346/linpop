@@ -144,7 +144,7 @@ void *MyServer::worker_thread_proc(void *args){
 		pthread_mutex_lock(&pthis->clientlist_mutex);
 		if(!pthis->clientlist.empty()){
        			MYSQL *m_conn = mysql_init(NULL);
-	        	MYSQL *m_sql = mysql_real_connect(m_conn,"localhost","root","a123456","PARKING",0,NULL,0);
+	        	MYSQL *m_sql = mysql_real_connect(m_conn,"localhost","root","a123456","linpop",0,NULL,0);
 		        if(!m_sql)
 			        printf("connect mysql fail\n");
 					
@@ -159,7 +159,12 @@ void *MyServer::worker_thread_proc(void *args){
 			/*recv CtoS msg*/
 			int num_rcv=0;
 			while((num_rcv=recv(fd,&rcv_buf,sizeof rcv_buf,0))>=0){
-				std::cout << rcv_buf<<std::endl; 			
+				CtoS ctos;
+				memcpy(&ctos,rcv_buf,sizeof ctos);
+				std::cout << ctos.cmd<<std::endl; 	
+				std::cout << ctos.target<<std::endl;
+				std::cout << ctos.text<<std::endl; 		
+					
 			}
         	mysql_close(m_sql);
 
