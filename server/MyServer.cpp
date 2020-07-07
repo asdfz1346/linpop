@@ -3,6 +3,41 @@
 MyServer::MyServer(){}
 MyServer::~MyServer(){}
 
+void regist(std::string str){
+	Json::Value JsonVal,data,json1;
+	//2.在定义一个Json阅读器
+	Json::Reader JsonRead;
+	JsonRead.parse(str, JsonVal);
+
+	json1 = JsonVal["json"];
+	data = JsonVal["data"];
+	
+	std::cout << "Type 	= " << json1["Type"].asInt()<< std::endl;
+	std::cout << "Data	= " << json1["Data"].asString()<< std::endl;
+	std::cout << "Id 	= " << data["Id"].asString() <<std::endl;
+	std::cout << "Password=" << data["Password"].asString()<<std::endl;
+
+
+	// if (JsonVal.isMember("Type") && JsonVal["Type"].isInt())
+	// {
+	// 	//使用时，记得先判断是否是该Json的字段，在判断是否是对应的类型，然后才可以转换成对应的类型
+	// 	std::cout << "JsonVal[Type] = " << JsonVal["Type"].asInt()<< std::endl;
+	// }
+	// if (JsonVal.isMember("Id") && JsonVal["Id"].isString())
+	// {
+	// 	std::cout << "JsonVal[Id] = " << JsonVal["Id"].asString()<< std::endl;
+	// }
+	// if (JsonVal.isMember("Password") && JsonVal["Password"].isString())
+	// {
+	// 	std::cout << "JsonVal[Password] = " << JsonVal["Password"].asString()<< std::endl;
+	// }
+	// 	if (JsonVal.isMember("Data") && JsonVal["Data"].isString())
+	// {
+	// 	std::cout << "JsonVal[Data] = " << JsonVal["Data"].asString()<< std::endl;
+	// }
+	
+};
+
 struct ARG{
 	MyServer* p;
 };
@@ -137,7 +172,6 @@ void MyServer::main_loop(){
 void *MyServer::worker_thread_proc(void *args){
 
 	MyServer *pthis =((ARG*)args)->p;
-	//StoC stoc;
 	char rcv_buf[SND_BUF_SIZE];
 	char snd_buf[RCV_BUF_SIZE];
 	while(pthis->nstop){
@@ -156,14 +190,11 @@ void *MyServer::worker_thread_proc(void *args){
 			pthis->clientlist.pop_front();
 			pthread_mutex_unlock(&pthis->clientlist_mutex);
 			
-			/*recv CtoS msg*/
+			/*recv msg*/
 			int num_rcv=0;
 			while((num_rcv=recv(fd,&rcv_buf,sizeof rcv_buf,0))>=0){
-				CtoS ctos;
-				memcpy(&ctos,rcv_buf,sizeof ctos);
-				std::cout << ctos.cmd<<std::endl; 	
-				std::cout << ctos.target<<std::endl;
-				std::cout << ctos.text<<std::endl; 		
+				std::string ctos(rcv_buf);
+				regist(ctos);	
 					
 			}
         	mysql_close(m_sql);
