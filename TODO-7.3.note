@@ -1,0 +1,56 @@
+
+# 结构体
+struct User {
+    bool    bOnline;			// 是否在线，在线为true
+    int     iGroup;             // 所属分组的SQL index
+    QString sId;                // 账号
+    QString sPassword;			// 密码
+    QString sIp;                // ip地址
+    QString sName;              // 昵称
+    QString sIcon;              // 头像路径
+};
+
+# 类型转换
+1. QString转string：QString str; str.toStdString();
+2. string转QString：string  str; QString(str.c_str());
+
+# QT
+1. 添加好友界面
+2. 界面美化
+3. 自定义标题栏
+4. 本地密码加密（chr）
+5. 添加修改密码界面
+
+# SQL
+1. 实现登陆、注册、获取分组和好友等操作
+	a. 登陆，验证用户名和密码函数示例：
+	/**
+	 * @brief	GetInfoByIdAndPassword
+	 * @param	rId：账户名，传入参数
+	 * @param	rPassword：密码，传入参数
+	 * @param	outInfo：需要构造的结构体变量，传入&传出参数
+	 * 			  如果传入的账户名和密码与数据库中的一致，则设置outInfo->sName和outInfo->sIcon
+	 * 			  其他成员不需要设置
+	 */
+	void GetInfoByIdAndPassword(const QString& rId, const QString& rPassword, struct Usr& outInfo);
+	b. 注册，需要判断用户名是否被注册，函数示例：
+	/**
+	 * @brief	isIdExist
+	 * @param	rId：账户名，传入参数
+	 * @return	如果需要注册帐户名已经存在，则返回true
+	 */
+	bool isIdExist(const QString& rId);
+	c. 获取分组名
+	/**
+	 * @brief	getGroupListById
+	 * @param	rId：账户名，传入参数
+	 * @param	groupNameList：需要构造的分组名List，传入&传出参数
+	 */
+	void getGroupListById(const QString& rId, QStringList& groupNameList);
+	d. 获取某个分组的所有好友
+	/**
+	 * @brief	getGroupListById
+	 * @param	groupId：分组名在SQL中对应的index，传入参数
+	 * @param	tFriendList：需要构造的分组名List，传入&传出参数
+	 */
+	void getFriendListByGroupId(const int groupId, QList<User> tFriendList);

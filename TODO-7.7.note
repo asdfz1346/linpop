@@ -1,0 +1,44 @@
+
+# QT
+1. TcpClient
+	a. 计划使用QObject::connect()规避以下多线程
+	b. （线程）监听其他人添加自己为好友的请求事件
+	c. （线程）监听其他人删除自己的请求事件
+	d. （线程）监听其他人发送的消息（包括但不限于字符串、图片）
+	e. 以下传输操作的底层接口
+
+# JSON枚举
+typedef enum {
+    Unknow,
+    Register           = 0x10,  	// 用户注册
+    Login,                      	// 用户登录
+    Logout,                     	// 用户注销
+    LoginRepeat,                	// 重复登录
+	MatchTips,						// 验证密码提示
+	RecoverPassword,            	// 修改密码
+
+    OnLineNotice       = 0x20,   	// 用户上线通知
+    OffLineNotice,             		// 用户下线通知
+    UpdateHeadNotice,           	// 用户更新头像
+
+    AddFriend           = 0x30,     // 添加好友
+    AddGroup,                       // 添加分组
+    AddFriendNotice,                // 添加好友同意通知
+
+    GetFriends          = 0x40,     // 获取好友列表
+    GetGroups,                    	// 获取分组名字
+
+    SendMsg             = 0x50,     // 发送消息
+	SendFace,                       // 发送表情
+    SendFile,                       // 发送文件
+    SendPicture,                    // 发送图片
+
+    DeleteFriend        = 0x70,     // 删除好友
+    DeleteGroup,                    // 删除分组
+
+    SendFileOk          = 0x60,     // 文件发送完成状态
+
+    GetFile             = 0x65,     // 获取文件（到服务器下载文件）
+    GetPicture,                     // 图片下载
+
+} E_MSG_TYPE;
