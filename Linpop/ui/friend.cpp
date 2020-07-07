@@ -2,6 +2,8 @@
 #include <friend.h>
 #include <ui_friend.h>
 
+#include <QFileDialog>
+
 Friend::Friend(QWidget* ptParent) : QWidget(ptParent), m_ptUi(new Ui::Friend) {
     m_ptUi->setupUi(this);
     m_ptGroup = new Group(this);
@@ -55,7 +57,16 @@ GroupItem* Friend::getGroupitemIndex(const int iIndex) {
 }
 
 void Friend::on_iconButton_clicked() {
-
+    QString sPath = QFileDialog::getOpenFileName(this, QStringLiteral("选择头像"), ".", "Image Files(*.png)");
+    if (sPath.length()) {
+        QImage tImage;
+        if (tImage.load(sPath)) {
+            // 更新全局用户成员
+            g_tMyselfInfo.sIcon = sPath;
+            m_ptUi->iconButton->setStyleSheet(QString("border-image: url(")
+                                              .append(g_tMyselfInfo.sIcon + ")"));
+        }
+     }
 }
 
 void Friend::initUserInofControls(/*const UserInfo& rtMyselfInfo*/) {

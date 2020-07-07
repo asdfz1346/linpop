@@ -16,7 +16,8 @@ RegisterId::~RegisterId() {
 void RegisterId::on_logButton_clicked() {
     // 判断数据有效性
     if (m_ptUi->idEdit->text().length()     && m_ptUi->passwordEdit->text().length() &&
-        m_ptUi->repassEdit->text().length() && m_ptUi->tipEdit->text().length()) {
+        m_ptUi->repassEdit->text().length() && m_ptUi->tipEdit->text().length()      &&
+        m_ptUi->nameEdit->text().length()) {
         // 判断两次密码输入是否一致
         if (m_ptUi->passwordEdit->text() != m_ptUi->repassEdit->text()) {
             QMessageBox tBox(QMessageBox::Warning, QStringLiteral("警告"),
