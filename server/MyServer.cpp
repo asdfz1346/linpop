@@ -2,45 +2,176 @@
 
 MyServer::MyServer(){}
 MyServer::~MyServer(){}
-
-void regist(std::string str){
+struct ARG{
+	MyServer* p;
+};
+bool sql_alter(std::string S);
+MYSQL * sql_conn();
+MYSQL_RES *sql_query(std::string S);
+void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal);
+void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
+void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
+void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal);
+template <typename T>
+void Debug(T a){
+	std::cout << a<<std::endl;
+	return ;
+}
+MYSQL * sql_conn(){
+	MYSQL *m_conn = mysql_init(NULL);
+	MYSQL *m_sql = mysql_real_connect(m_conn,"localhost","root","a123456","linpop",0,NULL,0);
+	if(!m_sql){
+		printf("connect mysql fail\n");
+		return NULL;
+	}
+	return m_sql;
+};
+void work(MyServer *pthis,int fd,std::string str){
 	Json::Value JsonVal,data,json1;
 	//2.在定义一个Json阅读器
 	Json::Reader JsonRead;
 	JsonRead.parse(str, JsonVal);
+	int cmd = JsonVal["Type"].asInt();
+	Debug<int>(cmd);
+	if(cmd == SMT_REGISTER){
+		REGISTER(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_LOGIN){
+		LOGIN(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_GETGROUP){
+		GETGROUP(pthis,fd,JsonVal);
+	}
+	if(cmd ==SMT_ADDGROUP){
 
-	json1 = JsonVal["json"];
-	data = JsonVal["data"];
-	
-	std::cout << "Type 	= " << json1["Type"].asInt()<< std::endl;
-	std::cout << "Data	= " << json1["Data"].asString()<< std::endl;
-	std::cout << "Id 	= " << data["Id"].asString() <<std::endl;
-	std::cout << "Password=" << data["Password"].asString()<<std::endl;
+	}
+	if(cmd == SMT_ADDFRIEND){
 
-
-	// if (JsonVal.isMember("Type") && JsonVal["Type"].isInt())
-	// {
-	// 	//使用时，记得先判断是否是该Json的字段，在判断是否是对应的类型，然后才可以转换成对应的类型
-	// 	std::cout << "JsonVal[Type] = " << JsonVal["Type"].asInt()<< std::endl;
-	// }
-	// if (JsonVal.isMember("Id") && JsonVal["Id"].isString())
-	// {
-	// 	std::cout << "JsonVal[Id] = " << JsonVal["Id"].asString()<< std::endl;
-	// }
-	// if (JsonVal.isMember("Password") && JsonVal["Password"].isString())
-	// {
-	// 	std::cout << "JsonVal[Password] = " << JsonVal["Password"].asString()<< std::endl;
-	// }
-	// 	if (JsonVal.isMember("Data") && JsonVal["Data"].isString())
-	// {
-	// 	std::cout << "JsonVal[Data] = " << JsonVal["Data"].asString()<< std::endl;
-	// }
-	
+	}
 };
 
-struct ARG{
-	MyServer* p;
-};
+void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal){
+	Json::Value tData;
+	tData = JsonVal["Data"];
+	std::string  id,password,tip,name,S1;
+	id = tData["Id"].asString();
+	password = tData["Password"].asString();
+	tip = tData["Tip"].asString();
+	name = tData["Name"].asString();
+	S1 = "INSERT INTO userinfo (id,passwd,name,tip)VALUE('";//asdfz1346','a123456','a','fu');";
+	S1 = S1 + id +"','";//a123456','a','fu');"
+	S1 = S1 + password +"','";//a','fu');"
+	S1 = S1 + name +"','";//fu');
+	S1 = S1 + tip + "');";
+	Json::Value J;
+	J["Type"] = SMT_REGISTER;
+	if(sql_alter(S1)){
+		Debug("REGISTER SUCCESS");
+		S1 = "CREATE TABLE groups_";
+		S1 +=id;
+		S1+="(groupid int PRIMARY KEY auto_increment,groupname VARCHAR(50));";
+		sql_alter(S1);
+
+		J["Data"]["Status"]=SST_REGISTER_SUCCESS;
+		S1 = "CREATE TABLE friends_";
+		S1 +=id;
+		S1+="(id VARCHAR(50),name VARCHAR(50),groups int);";
+		sql_alter(S1);
+
+	
+	}else{
+		Debug("REGISTER FAIL");
+		J["Data"]["Status"]=SST_REGISTER_FAILED;
+	}
+	//Debug(J);
+	Debug(send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0));
+
+}
+
+void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal){
+	Json::Value tData ,J;
+	tData = JsonVal["Data"];
+	std::string  id,password,S1;
+	id = tData["Id"].asString();
+	password = tData["Password"].asString();
+	S1 = "select * from userinfo where id ='";
+	S1 = S1 +id + "';";
+	MYSQL_RES *result = sql_query(S1);
+	J["Type"] = SMT_LOGIN;
+	J["Data"]["Status"]= SST_PASSWORD_ERROR;
+	if(result!=NULL){
+		MYSQL_ROW row = mysql_fetch_row(result);
+		std::string pswd(row[1]);
+		if(pswd==password){
+			Debug("password correct");
+			if(pthis->clientmap[id]!=0){
+				Debug("SST_LOGIN_REPEAT");
+				J["Data"]["Status"]= SST_LOGIN_REPEAT;
+				pthis->clientmap[id]=fd;
+			}
+			else{
+				Debug("SST_LOGIN_SUCCESS");
+				J["Data"]["Status"]= SST_LOGIN_SUCCESS;
+				J["Data"]["Name"] 	= row[2];
+				J["Data"]["ip"]	 	= pthis->ipmap[fd];	 
+				J["Data"]["Head"]	="";
+			}
+		}
+	}
+	Debug(J);
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
+	
+}
+
+void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id = JsonVal["Data"]["Id"].asString();
+	std::string S1 = "select * from groups_";
+	S1 +=id+";";
+	MYSQL_RES *result = sql_query(S1);
+	MYSQL_ROW row ;
+	Json::Value J;
+	J["Type"]=SMT_GETGROUP;
+	J["Data"]["Status"]=SST_GETGROUP_SUCCESS;
+	int i=0;
+	while(row = mysql_fetch_row(result)){
+		J["Data"]["Group"][i] = row[1];
+		i++;
+	}
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
+	Debug(J);
+}
+
+void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
+	
+}
+
+void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id = JsonVal["Data"]["Id"].asString();
+	int groupindex = JsonVal["Data"]["GroupIndex"].asInt();
+	std::string S1;
+}
+
+MYSQL_RES *sql_query(std::string S){
+	MYSQL *m_sql = sql_conn();
+	MYSQL_RES *ret;
+	if(!mysql_query(m_sql,const_cast<char *>(S.c_str()))){
+		ret =  mysql_store_result(m_sql);
+	}
+	mysql_close(m_sql);
+	return ret;
+
+}
+bool sql_alter(std::string S){
+	MYSQL *m_sql = sql_conn();
+	bool ret = mysql_query(m_sql, const_cast<char *>(S.c_str()));
+	mysql_close(m_sql);
+	return !ret;
+}
+
+
+
+
+
 /*server_listen(),accept,io,work*/
 void MyServer::link_startou(const char *ip,short port){
 	if(!server_listen(ip,port)){
@@ -56,6 +187,7 @@ void MyServer::link_startou(const char *ip,short port){
 	}
 
 }
+
 
 /*socket ,bind ,listen,epoll_create,epolladd*/
 bool MyServer::server_listen(const char *ip,short port){
@@ -124,10 +256,18 @@ void *MyServer::accept_thread_proc(void *args){
 			continue;
 		}
 		/*insert newfd to the set*/
-	pthread_mutex_lock(&pthis->clientset_mutex);
+		pthread_mutex_lock(&pthis->clientset_mutex);
 		pthis->clientset.insert(newfd);
 		pthread_mutex_unlock(&pthis->clientset_mutex);
 		std::cout << "new client connect fd:"<<newfd<<std::endl;
+		struct sockaddr_in clientaddr1;
+    	memset(&clientaddr1, 0x00, sizeof(clientaddr1));
+		/*insert ip to ipmap*/
+     	socklen_t nl=sizeof(clientaddr1);
+     	getpeername(newfd,(struct sockaddr*)&clientaddr1,&nl);
+     	std::string addr=inet_ntoa(clientaddr1.sin_addr); 
+		pthis->ipmap[newfd] = addr;
+		Debug(addr);
 		
 		/*add epoll*/
 		struct epoll_event e;
@@ -177,11 +317,6 @@ void *MyServer::worker_thread_proc(void *args){
 	while(pthis->nstop){
 		pthread_mutex_lock(&pthis->clientlist_mutex);
 		if(!pthis->clientlist.empty()){
-       			MYSQL *m_conn = mysql_init(NULL);
-	        	MYSQL *m_sql = mysql_real_connect(m_conn,"localhost","root","a123456","linpop",0,NULL,0);
-		        if(!m_sql)
-			        printf("connect mysql fail\n");
-					
 			memset(rcv_buf,0,sizeof rcv_buf);
 			memset(snd_buf, 0,sizeof snd_buf);
 			/*lock clientlist*/
@@ -192,13 +327,10 @@ void *MyServer::worker_thread_proc(void *args){
 			
 			/*recv msg*/
 			int num_rcv=0;
-			while((num_rcv=recv(fd,&rcv_buf,sizeof rcv_buf,0))>=0){
+			while((num_rcv=recv(fd,&rcv_buf,sizeof rcv_buf,0))>=1){
 				std::string ctos(rcv_buf);
-				regist(ctos);	
-					
+				work(pthis ,fd, ctos);	
 			}
-        	mysql_close(m_sql);
-
 		}
 		else {
 			pthread_mutex_unlock(&pthis->clientlist_mutex);
