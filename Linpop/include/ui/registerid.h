@@ -5,6 +5,7 @@
 #include <loggin.h>
 
 #include <QWidget>
+#include <QString>
 
 namespace Ui {
 class RegisterId;
@@ -18,6 +19,8 @@ class RegisterId : public QWidget {
 public:
     explicit RegisterId(QWidget *ptParent = nullptr);
     ~RegisterId();
+
+    QString getIdEditText(void);
 
 private slots:
     void on_logButton_clicked();

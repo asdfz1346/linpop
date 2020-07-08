@@ -102,6 +102,10 @@ void Group::delGroupItem(const int iIndex) {
     }
 }
 
+void Group::addFriendItem(const int iIndex, const FriendInfo& rtFriendInfo) {
+    m_lptGroupItem.at(iIndex)->addFriendItem(rtFriendInfo);
+}
+
 GroupItem* Group::getGroupitemIndex(const int iIndex) {
     return m_lptGroupItem.at(iIndex);
 }

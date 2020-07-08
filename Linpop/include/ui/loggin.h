@@ -24,8 +24,6 @@ class Loggin : public MoveableFramelessWindow, public Singleton<Loggin> {
 
 public:
     ~Loggin();
-    // 为注册界面提供的底层接口
-    void setEditText(const QString& rsId, const QString& rsPassword);
     // 向服务器发送注册信息
     void sendRegisterInfo(const QString& rsId,  const QString& rsPassword,
                           const QString& rsTip, const QString& rsName);
@@ -66,10 +64,14 @@ private:
     // 设置SocketClient
     void setSocketClient(void);
 
-    // 向服务器发送账号和密码
+    // 向服务器发送账号和密码，用于登陆操作
     void sendIdAndPassword(void);
-    //
+    // 向服务器发送账号，用于获取分组
+    void sendId(void);
     void recvUserInfo(void);
+
+    void showTipWindow(const QString& rsTitle, const QString& rsTip,
+                       const QString& rsButtonText = QStringLiteral("确定"));
 
     Ui::Loggin*       m_ptUi;
     Friend*           m_ptFriend;

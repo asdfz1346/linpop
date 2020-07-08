@@ -33,7 +33,7 @@ public:
 
     void addGroupItem(const QString& rsName = GROUPITEM_NAME_DEFAULT);
     void delGroupItem(const int iIndex);
-    void addFriendItem(const int iIndex, const FriendInfo& rtFriendInfo, bool isFriendListAppend = true);
+    void addFriendItem(const int iIndex, const FriendInfo& rtFriendInfo);
 
     GroupItem* getGroupitemIndex(const int iIndex);
 

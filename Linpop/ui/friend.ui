@@ -38,12 +38,12 @@
 }
 
 QScrollBar:vertical:hover {
-	background: rgb(221,225,228);
+	background: rgb(221, 225, 228);
 }
 
 QScrollBar::handle:vertical {
-	background: rgb(198,201,203);
-	border-radius:5px;
+	background: rgb(198, 201, 203);
+	border-radius: 5px;
 }
 
 QScrollBar::add-line:vertical {
@@ -52,7 +52,7 @@ QScrollBar::add-line:vertical {
 }
 
 QScrollBar::sub-line:vertical {
-	border:0px;
+	border: 0px;
 	height: 0px;
 }
 
@@ -61,17 +61,17 @@ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
 }
 
 QScrollBar::add-page:vertical{
-	border-top-left-radius:5px;
-	border-top-right-radius:5px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
 }
 
 QScrollBar::sub-page:vertical {
-	border-bottom-left-radius:5px;
-	border-bottom-right-radius:5px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
 }
 
 QScrollBar::add-page:vertical:hover, QScrollBar::sub-page:vertical:hover {
-	background: rgb(221,225,228);
+	background: rgb(221, 225, 228);
 }
 
 QScrollBar:horizontal {
@@ -80,7 +80,7 @@ QScrollBar:horizontal {
 }
 
 QScrollBar::handle:horizontal {
-	background: rgba(69,124,216,150);
+	background: rgba(69, 124, 216, 150);
 }
 
 QScrollBar::add-line:horizontal {
@@ -89,7 +89,7 @@ QScrollBar::add-line:horizontal {
 }
 
 QScrollBar::sub-line:horizontal {
-	border:0px;
+	border: 0px;
 	width: 0px;
 }
 
@@ -98,7 +98,7 @@ QScrollBar::up-arrow:horizontal, QScrollBar::down-arrow:horizontal {
 }
 
 QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
-	background: rgba(0,0,0,0);
+	background: rgba(0, 0, 0, 0);
 }
 </string>
   </property>
@@ -184,7 +184,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
           <number>8</number>
          </property>
          <item>
-          <widget class="QPushButton" name="iconButton">
+          <widget class="QPushButton" name="headButton">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -207,18 +207,18 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton#iconButton {
-    border-image: url(://icon/icon1.png);
+            <string notr="true">QPushButton#headButton {
+    border-image: url(:/head/6.png);
 	background-color: rgba(255, 255, 255, 0);
 	border-radius: 3px;
 }
 
-QPushButton#iconButton:focus {
+QPushButton#headButton:focus {
 	border:3px solid rgb(213, 213, 213);
 	border-radius: 12px;
 }
 
-QPushButton#iconButton:hover {
+QPushButton#headButton:hover {
 	border:3px solid rgba(0, 0, 0, 100);
 	border-radius: 12px;
 }

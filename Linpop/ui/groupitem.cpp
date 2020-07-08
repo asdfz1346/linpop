@@ -65,7 +65,7 @@ void GroupItem::pullFriendItemList(/*const UserInfo& rtMyselfInfo,*/) {
         int off      = qrand() % 3;
         FriendInfo usr = { (bool)off, m_iGroupIndex, QString::number(id),
                            (off) ? ipLib[libIndex] : "",            // 离线不显示IP
-                           nameLib[libIndex], QString("://icon/icon%1.png").arg(iconIdex)};
+                           nameLib[libIndex], QString(":/head/%1.png").arg(iconIdex)};
         m_ltFriendInfoList.append(usr);
     }
 #endif

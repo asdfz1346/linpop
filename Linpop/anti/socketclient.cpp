@@ -73,7 +73,9 @@ void SocketClient::onReadyRead() {
             QJsonValue tData = tObj.value("Data");
 
             int iType = tObj.value("Type").toInt();
-
+#ifdef _DEBUG_STATE
+            qDebug() << __FUNCTION__ << __LINE__ << iType;
+#endif
             switch (iType) {
                 case SMT_REGISTER: {
                     parseReister(tData);
@@ -92,6 +94,11 @@ void SocketClient::onReadyRead() {
                     break;
                 }
                 case SMT_GETFRIEND: {
+                    Q_EMIT sigMessage(SMT_GETFRIEND, tData);
+                    break;
+                }
+                case SMT_ADDFRIEND: {
+                    Q_EMIT sigMessage(SMT_ADDFRIEND, tData);
                     break;
                 }
                 case SMT_MATCHTIPS: {
@@ -100,6 +107,7 @@ void SocketClient::onReadyRead() {
                 case SMT_MODIFYPASSWORD: {
                     break;
                 }
+
             }
         }
     }
@@ -121,6 +129,9 @@ void SocketClient::onDisConnected() {
 }
 
 void SocketClient::parseLoginUserInfo(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
 
@@ -129,18 +140,28 @@ void SocketClient::parseLoginUserInfo(const QJsonValue& rtData) {
             g_tMyselfInfo.sName = tObj.value("Name").toString();
             g_tMyselfInfo.sIp   = tObj.value("Ip").toString();
             g_tMyselfInfo.sHead = tObj.value("Head").toString();
+            if (0 == g_tMyselfInfo.sHead.length()) {
+                // 设置默认值
+                g_tMyselfInfo.sHead = USER_HEAD_DEFAULT;
+            }
         }
         Q_EMIT sigStatus(iStatus);
     }
 }
 
 void SocketClient::parseGroup(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
         QJsonArray  tArr;
         if (tObj.value("Group").isArray()) {
             tArr = tObj.value("Group").toArray();
         }
+#ifdef _DEBUG_STATE
+        qDebug() << __FUNCTION__ << __LINE__ << tArr.size();
+#endif
 
         int iStatus = tObj.value("Status").toInt();
         if ((SST_GETGROUP_SUCCESS == iStatus) && tArr.size()) {

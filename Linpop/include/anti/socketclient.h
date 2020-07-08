@@ -105,9 +105,10 @@ private slots:
     void onDisConnected();
 
 private:
-    // 解析登陆返回信息
+    // 通用的全局变量相关解析放到SocketClient中，与界面相关的变量解析会放到Friend中
+    // 解析登陆返回信息并为全局的UserInfo赋值
     void parseLoginUserInfo(const QJsonValue& rtData);
-    // 解析分组信息
+    // 解析分组信息并为全局的QStringList赋值
     void parseGroup(const QJsonValue& rtData);
     // 解析注册返回信息
     void parseReister(const QJsonValue& rtData);
