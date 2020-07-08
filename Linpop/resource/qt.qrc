@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file>common/app.ico</file>
+        <file>common/close_normal.png</file>
+        <file>common/close_press.png</file>
+        <file>common/close_hover.png</file>
+        <file>common/min_hover.png</file>
+        <file>common/min_normal.png</file>
+        <file>common/min_press.png</file>
+        <file>loggin/set_hover.png</file>
+        <file>loggin/set_normal.png</file>
+        <file>loggin/set_press.png</file>
+        <file>loggin/bg.png</file>
+        <file>friend/arrow_d.png</file>
+        <file>friend/arrow_r.png</file>
+        <file>friend/bg.png</file>
+        <file>icon/icon1.png</file>
+        <file>icon/icon2.png</file>
+        <file>icon/icon4.png</file>
+        <file>icon/icon5.png</file>
+        <file>icon/icon3.png</file>
+        <file>icon/icon6.png</file>
+    </qresource>
+</RCC>

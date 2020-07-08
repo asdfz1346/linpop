@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Loggin</class>
+ <widget class="QWidget" name="Loggin">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>442</width>
+    <height>323</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>442</width>
+    <height>323</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Linpop</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#Loggin {
+	background-color: rgb(24, 131, 215);
+}</string>
+  </property>
+  <widget class="QStackedWidget" name="stackedWidget">
+   <property name="geometry">
+    <rect>
+     <x>1</x>
+     <y>38</y>
+     <width>440</width>
+     <height>284</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>440</width>
+     <height>284</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>440</width>
+     <height>284</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QStackedWidget#stackedWidget {
+	background-color: rgba(0, 0, 0, 0);
+}
+
+QWidget#logPage {
+	background-color: rgba(0, 0, 0, 0);
+}
+
+QWidget#setPage {
+	background-color: rgba(0, 0, 0, 0);
+}</string>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="logPage">
+    <widget class="QPushButton" name="logButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>140</y>
+       <width>115</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#logButton {
+	background-color: rgb(200, 200, 200);
+	border-radius: 3px;
+}
+
+QPushButton#logButton:hover {
+	background-color: rgb(170, 170, 170);
+	border-radius: 3px;
+}
+
+QPushButton#logButton:pressed {
+	background-color: rgb(150, 150, 150);
+	border-radius: 3px;
+}</string>
+     </property>
+     <property name="text">
+      <string>登 录</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="saveBox">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>105</y>
+       <width>141</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>记住我的密码</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>72</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>账户名称</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="idEdit">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>20</y>
+       <width>280</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLineEdit {
+	border: 1px solid;
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="maxLength">
+      <number>15</number>
+     </property>
+     <property name="placeholderText">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>60</y>
+       <width>72</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>密码</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="newButton">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>241</y>
+       <width>175</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#newButton {
+	background-color: rgb(200, 200, 200);
+	border-radius: 3px;
+}
+
+QPushButton#newButton:hover {
+	background-color: rgb(170, 170, 170);
+	border-radius: 3px;
+}
+
+QPushButton#newButton:pressed {
+	background-color: rgb(150, 150, 150);
+	border-radius: 3px;
+}</string>
+     </property>
+     <property name="text">
+      <string>注册新账户</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelButton">
+     <property name="geometry">
+      <rect>
+       <x>285</x>
+       <y>140</y>
+       <width>115</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#cancelButton {
+	background-color: rgb(200, 200, 200);
+	border-radius: 3px;
+}
+
+QPushButton#cancelButton:hover {
+	background-color: rgb(170, 170, 170);
+	border-radius: 3px;
+}
+
+QPushButton#cancelButton:pressed {
+	background-color: rgb(150, 150, 150);
+	border-radius: 3px;
+}</string>
+     </property>
+     <property name="text">
+      <string>取 消</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="losePasswordButton">
+     <property name="geometry">
+      <rect>
+       <x>225</x>
+       <y>198</y>
+       <width>175</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#losePasswordButton {
+	background-color: rgb(200, 200, 200);
+	border-radius: 3px;
+}
+
+QPushButton#losePasswordButton:hover {
+	background-color: rgb(170, 170, 170);
+	border-radius: 3px;
+}
+
+QPushButton#losePasswordButton:pressed {
+	background-color: rgb(150, 150, 150);
+	border-radius: 3px;
+}</string>
+     </property>
+     <property name="text">
+      <string>我无法登陆</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>187</y>
+       <width>400</width>
+       <height>5</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-top: 1px solid rgba(0, 0, 0, 50);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="passwordEdit">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>60</y>
+       <width>280</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLineEdit {
+	border: 1px solid;
+}</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="maxLength">
+      <number>15</number>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::Password</enum>
+     </property>
+     <property name="placeholderText">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>198</y>
+       <width>150</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>登陆时需要帮助吗？</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>241</y>
+       <width>150</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>还没有Linpop账户？</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="setPage">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>400</width>
+       <height>191</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="title">
+      <string>服务器设置</string>
+     </property>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>26</y>
+        <width>90</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>服务器地址</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="serverIpEdit">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>26</y>
+        <width>260</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QLineEdit {
+	border: 1px solid;
+}</string>
+      </property>
+      <property name="text">
+       <string>127.0.0.1</string>
+      </property>
+      <property name="maxLength">
+       <number>15</number>
+      </property>
+      <property name="placeholderText">
+       <string>示例：127.0.0.1</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QPushButton" name="sureSetButton">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>230</y>
+       <width>115</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#sureSetButton {
+	background-color: rgb(200, 200, 200);
+	border-radius: 3px;
+}
+
+QPushButton#sureSetButton:hover {
+	background-color: rgb(170, 170, 170);
+	border-radius: 3px;
+}
+
+QPushButton#sureSetButton:pressed {
+	background-color: rgb(150, 150, 150);
+	border-radius: 3px;
+}</string>
+     </property>
+     <property name="text">
+      <string>确 定</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="cancelSetButton">
+     <property name="geometry">
+      <rect>
+       <x>245</x>
+       <y>230</y>
+       <width>115</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QPushButton#cancelSetButton {
+	background-color: rgb(200, 200, 200);
+	border-radius: 3px;
+}
+
+QPushButton#cancelSetButton:hover {
+	background-color: rgb(170, 170, 170);
+	border-radius: 3px;
+}
+
+QPushButton#cancelSetButton:pressed {
+	background-color: rgb(150, 150, 150);
+	border-radius: 3px;
+}</string>
+     </property>
+     <property name="text">
+      <string>取 消</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QPushButton" name="setButton">
+   <property name="geometry">
+    <rect>
+     <x>265</x>
+     <y>1</y>
+     <width>58</width>
+     <height>37</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton#setButton {
+	border-image: url(:/loggin/set_normal.png);
+	border: none;
+}
+
+QPushButton#setButton:hover {
+	border-image: url(:/loggin/set_hover.png);
+}
+
+QPushButton#setButton:pressed {
+	border-image: url(:/loggin/set_press.png);
+}
+
+
+</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="minButton">
+   <property name="geometry">
+    <rect>
+     <x>326</x>
+     <y>1</y>
+     <width>58</width>
+     <height>37</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton#minButton {
+	border-image: url(:/common/min_normal.png);
+	border: none;
+}
+
+QPushButton#minButton:hover {
+	border-image: url(:/common/min_hover.png);
+}
+
+QPushButton#closeButton:pressed {
+	border-image: url(:/common/min_press.png);
+}
+
+
+</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="closeButton">
+   <property name="geometry">
+    <rect>
+     <x>383</x>
+     <y>1</y>
+     <width>58</width>
+     <height>37</height>
+    </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton#closeButton {
+	border-image: url(:/common/close_normal.png);
+	border: none;
+}
+
+QPushButton#closeButton:hover {
+	border-image: url(:/common/close_hover.png);
+}
+
+QPushButton#closeButton:pressed {
+	border-image: url(:/common/close_press.png);
+}
+</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="nameLabel">
+   <property name="geometry">
+    <rect>
+     <x>1</x>
+     <y>1</y>
+     <width>440</width>
+     <height>37</height>
+    </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>440</width>
+     <height>37</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(255, 255, 255);</string>
+   </property>
+   <property name="text">
+    <string>Linpop</string>
+   </property>
+   <property name="wordWrap">
+    <bool>false</bool>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <property name="indent">
+    <number>34</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="bgLabel">
+   <property name="geometry">
+    <rect>
+     <x>1</x>
+     <y>1</y>
+     <width>440</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel#bgLabel {
+	border-image: url(:/loggin/bg.png);
+	border: 2px;
+	border-color: rgb(24, 131, 215);
+}</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="iconLabel">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>9</y>
+     <width>21</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>34</width>
+     <height>34</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::PlainText</enum>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="../resource/qt.qrc">:/common/app.ico</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <zorder>bgLabel</zorder>
+  <zorder>nameLabel</zorder>
+  <zorder>stackedWidget</zorder>
+  <zorder>setButton</zorder>
+  <zorder>minButton</zorder>
+  <zorder>closeButton</zorder>
+  <zorder>iconLabel</zorder>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>idEdit</tabstop>
+  <tabstop>passwordEdit</tabstop>
+  <tabstop>saveBox</tabstop>
+  <tabstop>logButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>losePasswordButton</tabstop>
+  <tabstop>newButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../resource/qt.qrc"/>
+ </resources>
+ <connections/>
+</ui>

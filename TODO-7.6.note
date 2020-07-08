@@ -1,0 +1,38 @@
+
+# QT
+1. 本地密码加密（chr算法加了，调用函数还没写）
+2. TcpClient
+	a. 计划使用QObject::connect()规避以下多线程
+	b. （线程）监听其他人添加自己为好友的请求事件
+	c. （线程）监听其他人删除自己的请求事件
+	d. （线程）监听其他人发送的消息（包括但不限于字符串、图片）
+	e. 以下传输操作的底层接口
+
+# QT中使用SQL的位置
+1. loggon.cpp
+	a. on_logButton_clicked()	LINE87	pullUserInfo()			拉取待登陆的账号的个人信息，成功则填充结构体成员
+	b. ~Loggin()				LINE23							退出时更新分组信息和好友信息
+
+2. registerid.cpp
+	a. on_logButton_clicked()	LINE31	isIdExist()				判断待注册的账号是否存在
+
+3. recoverpassword.cpp
+	a. on_sureButton_clicked()	LINE15							验证待找回的账号对应的提示信息是否正确
+								LINE26							更新待找回的账号对应的密码
+
+4. friend.cpp
+	a. preInit()				LINE20	pullGroupItemList()		从服务器获取当前账号的分组名，并构成QStringList
+								LINE24	pullFriendItemList()	获取数据库中索引为index的分组名下的所有好友信息
+	
+5. group.cpp
+	a. addGroupItem()			LINE64							准备添加数据库分组操作
+	b. delGroupItem()			LINE89							准备添加数据库的删除并更新分组index操作和好友操作
+	c. addFriendItem()
+
+6. groupitem.cpp
+	a. addFriendItem()											添加好友
+	b. moveFriendItem()											移动好友
+	c. moveAllFriendItems()										移动某一分组内的全部好友至默认分组
+	d. delFriendItem()											删除好友
+	e. on_lineEdit_editingFinished()							更新分组名
+
