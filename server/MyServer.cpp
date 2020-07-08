@@ -9,6 +9,8 @@ bool sql_alter(std::string S);
 MYSQL * sql_conn();
 MYSQL_RES *sql_query(std::string S);
 void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal);
+void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
+void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
 void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal);
 template <typename T>
 void Debug(T a){
@@ -37,6 +39,15 @@ void work(MyServer *pthis,int fd,std::string str){
 	if(cmd == SMT_LOGIN){
 		LOGIN(pthis,fd,JsonVal);
 	}
+	if(cmd == SMT_GETGROUP){
+		GETGROUP(pthis,fd,JsonVal);
+	}
+	if(cmd ==SMT_ADDGROUP){
+
+	}
+	if(cmd == SMT_ADDFRIEND){
+
+	}
 };
 
 void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal){
@@ -56,7 +67,18 @@ void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal){
 	J["Type"] = SMT_REGISTER;
 	if(sql_alter(S1)){
 		Debug("REGISTER SUCCESS");
+		S1 = "CREATE TABLE groups_";
+		S1 +=id;
+		S1+="(groupid int PRIMARY KEY auto_increment,groupname VARCHAR(50));";
+		sql_alter(S1);
+
 		J["Data"]["Status"]=SST_REGISTER_SUCCESS;
+		S1 = "CREATE TABLE friends_";
+		S1 +=id;
+		S1+="(id VARCHAR(50),name VARCHAR(50),groups int);";
+		sql_alter(S1);
+
+	
 	}else{
 		Debug("REGISTER FAIL");
 		J["Data"]["Status"]=SST_REGISTER_FAILED;
@@ -100,6 +122,35 @@ void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal){
 	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
 	
 }
+
+void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id = JsonVal["Data"]["Id"].asString();
+	std::string S1 = "select * from groups_";
+	S1 +=id+";";
+	MYSQL_RES *result = sql_query(S1);
+	MYSQL_ROW row ;
+	Json::Value J;
+	J["Type"]=SMT_GETGROUP;
+	J["Data"]["Status"]=SST_GETGROUP_SUCCESS;
+	int i=0;
+	while(row = mysql_fetch_row(result)){
+		J["Data"]["Group"][i] = row[1];
+		i++;
+	}
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
+	Debug(J);
+}
+
+void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
+	
+}
+
+void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id = JsonVal["Data"]["Id"].asString();
+	int groupindex = JsonVal["Data"]["GroupIndex"].asInt();
+	std::string S1;
+}
+
 MYSQL_RES *sql_query(std::string S){
 	MYSQL *m_sql = sql_conn();
 	MYSQL_RES *ret;
