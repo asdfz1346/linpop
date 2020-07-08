@@ -27,6 +27,7 @@
 	#include <sys/stat.h>
 	#include <memory>
 	#include<string>
+	#include "socket.h"
 	#include<mysql/mysql.h>
 	#include <json/json.h>
 
@@ -44,6 +45,8 @@
 		~MyServer();
 		void link_startou(const char*ip,short port);	
 		void main_loop();
+		std::map<std::string,int> clientmap; // [id] = fd;
+		std::map<int,std::string> ipmap; //[fd] =ip;
 
 	private:
 		MyServer(const MyServer& a);//拷贝构造
@@ -65,20 +68,12 @@
 
 		std::list<int> clientlist;
 		std::set<int> clientset;
-		//MYSQL *m_sql;
-		//MYSQL_RES *sql_res;
-		//MYSQL_ROW row;
+
 
 		pthread_mutex_t accept_mutex 	= PTHREAD_MUTEX_INITIALIZER;
 		pthread_mutex_t	clientset_mutex	= PTHREAD_MUTEX_INITIALIZER;
-		//pthread_mutex_t worker_mutex	= PTHREAD_MUTEX_INITIALIZER;
-		//pthread_mutex_t io_mutex	= PTHREAD_MUTEX_INITIALIZER;
 		pthread_mutex_t clientlist_mutex= PTHREAD_MUTEX_INITIALIZER;
 		pthread_cond_t 	accept_cond	= PTHREAD_COND_INITIALIZER;
-		//pthread_cond_t	clientset_cond	= PTHREAD_COND_INITIALIZER;
-		//pthread_cond_t	worker_cond	= PTHREAD_COND_INITIALIZER;
-		//pthread_mutex_t io_cond 	= PTHREAD_COND_INITIALIZER;
-		//pthread_mutex_t clientlist_cond	= PTHREAD_COND_INITIALIZER;
 		
 		
 		bool nstop=true;
