@@ -5,6 +5,7 @@
 #include <singleton.h>
 #include <config.h>
 
+#include <QObject>
 #include <QString>
 #include <QTcpSocket>
 #include <QJsonValue>

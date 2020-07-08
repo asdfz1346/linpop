@@ -2,7 +2,6 @@
 #include <socketclient.h>
 #include <common.h>
 
-#include <QObject>
 #include <QByteArray>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -14,7 +13,7 @@ SocketClient::SocketClient(QObject* ptParent) : QObject(ptParent) {
 
     connect(m_ptTcpSocket, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
     connect(m_ptTcpSocket, SIGNAL(connected()), this, SLOT(onConnected()));
-    connect(m_ptTcpSocket, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+    connect(m_ptTcpSocket, SIGNAL(disconnected()), this, SLOT(onDisConnected()));
 }
 
 SocketClient::~SocketClient() {

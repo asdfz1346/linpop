@@ -91,6 +91,8 @@ void Loggin::on_closeButton_clicked() {
 void Loggin::on_sureSetButton_clicked() {
     // 更新全局的服务器ip
     g_tServerIpAddr = m_ptUi->serverIpEdit->text();
+    // 重新连接服务器
+    m_ptSocketClient->connectToServer(g_tServerIpAddr);
     // 显示set按键
     m_ptUi->setButton->setVisible(true);
     m_ptUi->stackedWidget->setCurrentIndex(0);
@@ -242,8 +244,10 @@ void Loggin::setControlsByConfig(void) {
 
 void Loggin::setSocketClient(void) {
     m_ptSocketClient = SocketClient::getInstance();
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__;
+#endif
     m_ptSocketClient->connectToServer(g_tServerIpAddr);
-
     connect(m_ptSocketClient, SIGNAL(sigStatus(int)), this, SLOT(onSigStatus(int)));
 }
 
