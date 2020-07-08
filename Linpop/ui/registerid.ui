@@ -344,6 +344,7 @@ QPushButton#logButton:pressed {
   <tabstop>passwordEdit</tabstop>
   <tabstop>repassEdit</tabstop>
   <tabstop>tipEdit</tabstop>
+  <tabstop>nameEdit</tabstop>
   <tabstop>logButton</tabstop>
   <tabstop>cancelButton</tabstop>
  </tabstops>
