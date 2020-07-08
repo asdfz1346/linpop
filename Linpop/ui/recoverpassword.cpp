@@ -6,6 +6,8 @@
 RecoverPassword::RecoverPassword(QWidget* ptParent) :
     QWidget(ptParent), m_ptUi(new Ui::RecoverPassword) {
     m_ptUi->setupUi(this);
+
+    this->setWindowFlags(windowFlags() &~Qt::WindowMinMaxButtonsHint);
 }
 
 RecoverPassword::~RecoverPassword() {

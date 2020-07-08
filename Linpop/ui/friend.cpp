@@ -3,6 +3,7 @@
 #include <ui_friend.h>
 
 #include <QFileDialog>
+#include <QMessageBox>
 
 Friend::Friend(QWidget* ptParent) : QWidget(ptParent), m_ptUi(new Ui::Friend) {
     m_ptUi->setupUi(this);
@@ -16,6 +17,8 @@ Friend::~Friend() {
 }
 
 void Friend::preInit(/*const UserInfo& rtMyselfInfo*/) {
+    // 在设置SocketClient之前，它的所有信号必须全部断开！
+
     // 设置个人信息
     initUserInofControls();
     // 获取并设置分组信息
@@ -62,18 +65,52 @@ void Friend::on_iconButton_clicked() {
         QImage tImage;
         if (tImage.load(sPath)) {
             // 更新全局用户成员
-            g_tMyselfInfo.sIcon = sPath;
+            g_tMyselfInfo.sHead = sPath;
             m_ptUi->iconButton->setStyleSheet(QString("border-image: url(")
-                                              .append(g_tMyselfInfo.sIcon + ")"));
+                                              .append(g_tMyselfInfo.sHead + ")"));
         }
-     }
+    }
+}
+
+void Friend::onSigMessage(int reType/* const Smt& reType */, const QJsonValue& rtData) {
+    switch (reType) {
+        case SMT_GETFRIEND: {
+            // 拉取好友信息
+            break;
+        }
+        case SMT_ADDFRIEND: {
+            QMessageBox tBox(QMessageBox::Warning, QStringLiteral("错误"),
+                             QStringLiteral("初始化失败！\n请重试！"));
+            tBox.setStandardButtons(QMessageBox::Ok);
+            tBox.setButtonText(QMessageBox::Ok, QString(QStringLiteral("确定")));
+            tBox.exec();
+            break;
+        }
+    }
+}
+
+void Friend::onSigStatus(int reType/* const Sst& reType */) {
+    switch (reType) {
+        case SST_GETFRIEND_SUCCESS: {
+            // 拉取好友信息
+            break;
+        }
+        case SST_GETFRIEND_FAILED: {
+            QMessageBox tBox(QMessageBox::Warning, QStringLiteral("错误"),
+                             QStringLiteral("初始化失败！\n请重试！"));
+            tBox.setStandardButtons(QMessageBox::Ok);
+            tBox.setButtonText(QMessageBox::Ok, QString(QStringLiteral("确定")));
+            tBox.exec();
+            break;
+        }
+    }
 }
 
 void Friend::initUserInofControls(/*const UserInfo& rtMyselfInfo*/) {
     m_ptUi->nameEdit->setText(g_tMyselfInfo.sName);
     m_ptUi->idLabel->setText(g_tMyselfInfo.sId);
     m_ptUi->iconButton->setStyleSheet(QString("border-image: url(")
-                                      .append(g_tMyselfInfo.sIcon + ")"));
+                                      .append(g_tMyselfInfo.sHead + ")"));
 }
 
 void Friend::initGroupItemControls(/*const UserInfo& rtMyselfInfo*/) {
@@ -84,4 +121,13 @@ void Friend::initGroupItemControls(/*const UserInfo& rtMyselfInfo*/) {
 void Friend::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex) {
     // GroupFriendList存放在GroupItem中
     m_ptGroup->initFriendItemControls(iIndex);
+}
+
+void Friend::setSocketClient(void) {
+    m_ptSocketClient = SocketClient::getInstance();
+    // 连接由Loggin完成
+//    m_ptSocketClient->connectToServer(g_tServerIpAddr);
+
+    connect(m_ptSocketClient, SIGNAL(sigMessage(int,QJsonValue)), this, SLOT(onSigMessage(int,QJsonValue)));
+    connect(m_ptSocketClient, SIGNAL(sigStatus(int)), this, SLOT(onSigStatus(int)));
 }

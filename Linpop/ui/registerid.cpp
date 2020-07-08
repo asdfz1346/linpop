@@ -1,12 +1,15 @@
 ﻿
 #include <registerid.h>
 #include <ui_registerid.h>
-#include <loggin.h>
 
 #include <QMessageBox>
 
 RegisterId::RegisterId(QWidget *ptParent) : QWidget(ptParent), m_ptUi(new Ui::RegisterId) {
     m_ptUi->setupUi(this);
+
+    this->setWindowFlags(windowFlags() &~Qt::WindowMinMaxButtonsHint);
+
+    m_ptLoggin = Loggin::getInstance();
 }
 
 RegisterId::~RegisterId() {
@@ -27,28 +30,19 @@ void RegisterId::on_logButton_clicked() {
             tBox.exec();
             return ;
         }
-        // 判断账号是否存在
-#ifdef _USE_SQL
-        if (isIdExist(m_ptUi->idEdit->text())) {
-            QMessageBox tBox(QMessageBox::Warning, QStringLiteral("警告"),
-                             QStringLiteral("当前账号名称已存在！\n请重新输入！"));
-            tBox.setStandardButtons(QMessageBox::Ok);
-            tBox.setButtonText(QMessageBox::Ok, QString(QStringLiteral("确定")));
-            tBox.exec();
-            return ;
-        }
-#endif
-        // 更新Loggin中的账号
-        Loggin* ptLoggin = Loggin::getInstance();
-        ptLoggin->setEditText(m_ptUi->idEdit->text(), ""/* m_ptUi->passwordEdit->text() */);
-        ptLoggin->show();
-        this->close();
+
+        // 将信息发送给数据库
+        m_ptLoggin->sendRegisterInfo(m_ptUi->idEdit->text(),  m_ptUi->passwordEdit->text(),
+                                     m_ptUi->tipEdit->text(), m_ptUi->nameEdit->text());
+        // 此处不需要更新全局的UserInfo，因为登录账号还没有确定
+        // 更新Loggin中的预设账号
+        m_ptLoggin->setEditText(m_ptUi->idEdit->text(), ""/* m_ptUi->passwordEdit->text() */);
+        on_cancelButton_clicked();
     }
 }
 
 void RegisterId::on_cancelButton_clicked() {
-    Loggin* ptLoggin = Loggin::getInstance();
-    ptLoggin->show();
+    m_ptLoggin->show();
     this->close();
 }
 

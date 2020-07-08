@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>common/app.ico</file>
         <file>common/close_normal.png</file>
         <file>common/close_press.png</file>
         <file>common/close_hover.png</file>

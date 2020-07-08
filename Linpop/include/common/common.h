@@ -12,7 +12,7 @@ struct UserInfo {
     QString sPassword;			// 密码
     QString sIp;                        // ip
     QString sName;                      // 昵称
-    QString sIcon;                      // 头像路径
+    QString sHead;                      // 头像路径
 };
 
 struct FriendInfo {
@@ -21,7 +21,7 @@ struct FriendInfo {
     QString sId;                        // 账号
     QString sIp;                        // ip
     QString sName;                      // 昵称
-    QString sIcon;                      // 头像路径
+    QString sHead;                      // 头像路径
 };
 
 extern UserInfo    g_tMyselfInfo;       // 个人信息

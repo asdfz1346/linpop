@@ -615,7 +615,7 @@ QPushButton#closeButton:pressed {
     <number>0</number>
    </property>
    <property name="indent">
-    <number>20</number>
+    <number>34</number>
    </property>
   </widget>
   <widget class="QLabel" name="bgLabel">
@@ -638,12 +638,41 @@ QPushButton#closeButton:pressed {
     <string/>
    </property>
   </widget>
+  <widget class="QLabel" name="iconLabel">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>9</y>
+     <width>21</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>34</width>
+     <height>34</height>
+    </size>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::PlainText</enum>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="../resource/qt.qrc">:/common/app.ico</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
   <zorder>bgLabel</zorder>
   <zorder>nameLabel</zorder>
   <zorder>stackedWidget</zorder>
   <zorder>setButton</zorder>
   <zorder>minButton</zorder>
   <zorder>closeButton</zorder>
+  <zorder>iconLabel</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
@@ -655,6 +684,8 @@ QPushButton#closeButton:pressed {
   <tabstop>losePasswordButton</tabstop>
   <tabstop>newButton</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../resource/qt.qrc"/>
+ </resources>
  <connections/>
 </ui>

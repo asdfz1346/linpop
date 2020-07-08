@@ -17,6 +17,8 @@ CONFIG  += c++11
 
 QMAKE_CXXFLAGS_WARN_ON += -wd4819       # 屏蔽 c4819 warning
 
+RC_ICONS = resource/common/app.ico
+
 SOURCES += \
     common/common.cpp \
     common/clientfile.cpp \

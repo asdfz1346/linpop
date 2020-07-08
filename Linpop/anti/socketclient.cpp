@@ -3,25 +3,33 @@
 #include <common.h>
 
 #include <QObject>
+#include <QByteArray>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonParseError>
+#include <QJsonArray>
 
 SocketClient::SocketClient(QObject* ptParent) : QObject(ptParent) {
     m_ptTcpSocket = new QTcpSocket(this);
 
     connect(m_ptTcpSocket, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
-    connect(m_ptTcpSocket, SIGNAL(connected()), this, SLOT(onConnect()));
-    connect(m_ptTcpSocket, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
+    connect(m_ptTcpSocket, SIGNAL(connected()), this, SLOT(onConnected()));
+    connect(m_ptTcpSocket, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 }
 
 SocketClient::~SocketClient() {
-    onSendOfflineMessage();
+    delete m_ptTcpSocket;
 }
 
-void SocketClient::checkConnect(void) {
-    if (QTcpSocket::ConnectedState != m_ptTcpSocket->state()) {
+bool SocketClient::checkConnect(void) {
+    if (!m_ptTcpSocket->isOpen()) {
         m_ptTcpSocket->connectToHost(g_tServerIpAddr, SOCKET_PORT_DEFAULT);
+        m_ptTcpSocket->waitForConnected(1000);
     }
+    if (!m_ptTcpSocket->isOpen()) {
+        return false;
+    }
+    return true;
 }
 
 void SocketClient::closeConnect(void) {
@@ -38,13 +46,9 @@ void SocketClient::connectToServer(const QString& rsServerIpAddr, const int iPor
     m_ptTcpSocket->connectToHost(rsServerIpAddr, iPort);
 }
 
-void SocketClient::onSendMessage(const Smt& reType, const QJsonValue& rtData) {
-    // 连接服务器
-    if (!m_ptTcpSocket->isOpen()) {
-        m_ptTcpSocket->connectToHost(g_tServerIpAddr, SOCKET_PORT_DEFAULT);
-        m_ptTcpSocket->waitForConnected(1000);
-    }
-    if (!m_ptTcpSocket->isOpen()) {
+void SocketClient::onSendMessage(int reType/* const Smt& reType */, const QJsonValue& rtData) {
+    // 判断连接
+    if (!checkConnect()) {
         return ;
     }
 
@@ -56,26 +60,109 @@ void SocketClient::onSendMessage(const Smt& reType, const QJsonValue& rtData) {
     tDocm.setObject(tJson);
     m_ptTcpSocket->write(tDocm.toJson(QJsonDocument::Compact));
 #ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__;
+    qDebug() << __FUNCTION__ << __LINE__;
 #endif
 }
 
-void SocketClient::onSendOnlineMessage() {
-
-}
-
-void SocketClient::onSendOfflineMessage() {
-
-}
-
 void SocketClient::onReadyRead() {
+    QByteArray      tReadArray = m_ptTcpSocket->readAll();
+    QJsonParseError tJsonError;
+    QJsonDocument   tDocm = QJsonDocument::fromJson(tReadArray, &tJsonError);
+    if (!tDocm.isNull() && (QJsonParseError::NoError == tJsonError.error)) {
+        if (tDocm.isObject()) {
+            QJsonObject tObj = tDocm.object();
+            QJsonValue tData = tObj.value("Data");
 
+            int iType = tObj.value("Type").toInt();
+
+            switch (iType) {
+                case SMT_REGISTER: {
+                    parseReister(tData);
+                    break;
+                }
+                case SMT_LOGIN: {
+                    parseLoginUserInfo(tData);
+                    break;
+                }
+                case SMT_LOGOUT: {
+                    closeConnect();
+                    break;
+                }
+                case SMT_GETGROUP: {
+                    parseGroup(tData);
+                    break;
+                }
+                case SMT_GETFRIEND: {
+                    break;
+                }
+                case SMT_MATCHTIPS: {
+                    break;
+                }
+                case SMT_MODIFYPASSWORD: {
+                    break;
+                }
+            }
+        }
+    }
 }
 
-void SocketClient::onDisconnect() {
+void SocketClient::onConnected() {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__;
+#endif
+    Q_EMIT sigStatus(SST_CONNECTED);
+}
+
+void SocketClient::onDisConnected() {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__;
+#endif
     m_ptTcpSocket->abort();
+    Q_EMIT sigStatus(SST_DISCONNECTED);
 }
 
-void SocketClient::onConnect() {
+void SocketClient::parseLoginUserInfo(const QJsonValue& rtData) {
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
 
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_LOGIN_SUCCESS == iStatus) {
+            g_tMyselfInfo.sName = tObj.value("Name").toString();
+            g_tMyselfInfo.sIp   = tObj.value("Ip").toString();
+            g_tMyselfInfo.sHead = tObj.value("Head").toString();
+        }
+        Q_EMIT sigStatus(iStatus);
+    }
+}
+
+void SocketClient::parseGroup(const QJsonValue& rtData) {
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+        QJsonArray  tArr;
+        if (tObj.value("Group").isArray()) {
+            tArr = tObj.value("Group").toArray();
+        }
+
+        int iStatus = tObj.value("Status").toInt();
+        if ((SST_GETGROUP_SUCCESS == iStatus) && tArr.size()) {
+            g_lsGroupTextList.clear();
+            for (int i = 0; i < tArr.size(); ++i) {
+                g_lsGroupTextList.append(tArr.at(i).toString());
+            }
+
+            Q_EMIT sigStatus(SST_GETGROUP_SUCCESS);
+            return ;
+        }
+        Q_EMIT sigStatus(SST_GETGROUP_FAILED);
+        return ;
+    }
+}
+
+void SocketClient::parseReister(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__;
+#endif
+    if (rtData.isObject()) {
+        Q_EMIT sigStatus(rtData.toObject().value("Status").toInt());
+    }
 }

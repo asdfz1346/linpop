@@ -6,6 +6,7 @@
 #include <common.h>
 #include <group.h>
 #include <groupitem.h>
+#include <socketclient.h>
 
 #include <QWidget>
 #include <QStringList>
@@ -63,15 +64,24 @@ protected:
     explicit Friend(QWidget *ptParent = nullptr);
 
 private slots:
+    // 修改头像按键
     void on_iconButton_clicked();
+    // 服务器消息处理
+    void onSigMessage(int reType/* const Smt& reType */, const QJsonValue& rtData);
+    // 服务器信息处理
+    void onSigStatus(int reType/* const Sst& reType */);
 
 private:
+    // 设置控件
     void initUserInofControls(/*const UserInfo& rtMyselfInfo*/);
     void initGroupItemControls(/*const UserInfo& rtMyselfInfo*/);
     void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
+    // 设置SocketClient
+    void setSocketClient(void);
 
-    Ui::Friend* m_ptUi;
-    Group*      m_ptGroup;
+    Ui::Friend*   m_ptUi;
+    Group*        m_ptGroup;
+    SocketClient* m_ptSocketClient;
 };
 
 #endif // LINPOP_FRIEND_H

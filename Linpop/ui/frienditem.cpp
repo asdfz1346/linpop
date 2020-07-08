@@ -13,7 +13,7 @@ FriendItem::FriendItem(const FriendInfo& rtFriendInfo, const int iFriendIndex, Q
     QWidget(ptParent), m_ptUi(new Ui::FriendItem) {
     m_ptUi->setupUi(this);
 
-    m_ptUi->iconLabel->setPixmap(QPixmap(rtFriendInfo.sIcon));
+    m_ptUi->iconLabel->setPixmap(QPixmap(rtFriendInfo.sHead));
     if (!rtFriendInfo.bOnline) {
         m_ptUi->iconLabel->setDisabled(true);
     }

@@ -2,6 +2,7 @@
 #ifndef LINPOP_SOCKETCLIENT_H
 #define LINPOP_SOCKETCLIENT_H
 
+#include <singleton.h>
 #include <config.h>
 
 #include <QString>
@@ -9,58 +10,109 @@
 #include <QJsonValue>
 
 typedef enum SOCKET_MESSAGE_TYPE {
-    Unknow,
-    Register            = 0x10,         // 用户注册
-    Login,                              // 用户登录
-    Logout,                             // 用户注销
-    LoginRepeat,                        // 重复登录
-    MatchTips,                          // 验证密码提示
-    ModifyPassword,                     // 修改密码
+    SMT_UNKNOW,
+
+    SMT_REGISTER            = 0x10,         // 用户注册
+    SMT_LOGIN,                              // 用户登录
+    SMT_LOGOUT,                             // 用户注销
+//    SMT_GETUSERINFO,                        // 获取用户信息，移动至SMT_LOGIN事件中
+    SMT_MATCHTIPS,                          // 验证密码提示
+    SMT_MODIFYPASSWORD,                     // 修改密码
+
+    SMT_GETGROUP            = 0x20,         // 拉取分组信息
+    SMT_ADDGROUP,
+    SMT_DELGROUP,
+    SMT_RENAMEGROUP,
+
+    SMT_GETFRIEND,                          // 拉取好友信息
+    SMT_ADDFRIEND,
+    SMT_DELFRIEND,
+    SMT_MOVEFRIEND,
+    SMT_MOVEALLFRIEND,
+
 } Smt;
+
+typedef enum SOCKET_STATUS_TYPE {
+    SST_UNKNOW,
+
+    SST_CONNECTED               = 0x10,     // 用于发送连接信号
+    SST_DISCONNECTED,                       // 用于发送取消连接信号
+
+    SST_LOGIN_SUCCESS           = 0x15,     // 用户登陆成功
+    SST_PASSWORD_ERROR,                     // 密码错误
+    SST_LOGIN_REPEAT,                       // 重复登录
+
+    SST_REGISTER_SUCCESS        = 0x20,     // 用户注册成功
+    SST_REGISTER_FAILED,
+
+    SST_MODIFYPASSWORD_SUCCESS  = 0x25,     // 修改密码
+    SST_MODIFYPASSWORD_FAILED,
+
+    SST_GETGROUP_SUCCESS        = 0x30,     // 获取分组
+    SST_GETGROUP_FAILED,
+    SST_ADDGROUP_SUCCESS,                   // 添加分组
+    SST_ADDGROUP_FAILED,
+    SST_RENAMEGROUP_SUCCESS,                // 重命名分组
+    SST_RENAMEGROUP_FAILED,
+    SST_DELGROUP_SUCCESS,                   // 删除分组
+    SST_DELGROUP_FAILED,
+
+    SST_GETFRIEND_SUCCESS       = 0x40,     // 获取分组
+    SST_GETFRIEND_FAILED,
+    SST_ADDFRIEND_SUCCESS,                  // 添加好友
+    SST_ADDFRIEND_FAILED,
+    SST_MOVEFRIEND_SUCCESS,                 // 移动好友
+    SST_MOVEFRIEND_FAILED,
+    SST_DELFRIEND_SUCCESS,                  // 删除还有
+    SST_DELFRIEND_FAILED,
+} Sst;
+
 
 /**
  * 准备改成单例模式
  */
-class SocketClient : public QObject {
+class SocketClient : public QObject, public Singleton<SocketClient> {
+    Q_OBJECT
+
 public:
-    explicit SocketClient(QObject* ptParent = nullptr);
     ~SocketClient();
 
-    void checkConnect(void);
+    bool checkConnect(void);
     void closeConnect(void);
 
     // 连接服务器
     void connectToServer(const QString& rsServerIpAddr = SOCKET_SERVER_DEFAULT, const int iPort = SOCKET_PORT_DEFAULT);
 
 signals:
-    void signalMessage(const Smt& reType, const QJsonValue& rtData);
-    void signalStatus(const Smt& reType);
+    void sigMessage(int reType/* const Smt& reType */, const QJsonValue& rtData);
+    void sigStatus(int reType/* const Sst reType */);
 
 public slots:
     // 发送消息函数
-    void onSendMessage(const Smt& reType, const QJsonValue& rtData);
-    // 上线通知
-    void onSendOnlineMessage(void);
-    // 下线通知
-    void onSendOfflineMessage(void);
+    void onSendMessage(int reType/* const Smt& reType */, const QJsonValue& rtData);
 
-private:
-    QTcpSocket* m_ptTcpSocket;
+protected:
+    friend class Singleton<SocketClient>;
+    explicit SocketClient(QObject* ptParent = nullptr);
 
 private slots:
-    // 与服务器断开链接
-    void onDisconnect(void);
-    // 链接上服务器
-    void onConnect(void);
-    // tcp消息处理
-    void onReadyRead(void);
-#if 0
+    // 缓存消息处理
+    void onReadyRead();
+    // 连接服务器
+    void onConnected();
+    // 与服务器断开连接
+    void onDisConnected();
+
 private:
     // 解析登陆返回信息
-    void ParseLogin(const QJsonValue &dataVal);
+    void parseLoginUserInfo(const QJsonValue& rtData);
+    // 解析分组信息
+    void parseGroup(const QJsonValue& rtData);
     // 解析注册返回信息
-    void ParseReister(const QJsonValue &dataVal);
-#endif
+    void parseReister(const QJsonValue& rtData);
+
+    QTcpSocket* m_ptTcpSocket;
+    bool        m_bIsConnected;
 };
 
 #endif // LINPOP_SOCKETCLIENT_H
