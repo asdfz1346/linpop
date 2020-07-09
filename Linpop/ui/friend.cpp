@@ -157,7 +157,7 @@ void Friend::sendToGetFriendList(const int iGroupIndex) {
 
 void Friend::sendToAddFriendRequest(const int iGroupIndex) {
     QJsonObject tData;
-    tData.insert("Id", g_tMyselfInfo.sId);
+    tData.insert("Id", "5");
     tData.insert("GroupIndex", iGroupIndex);
 
     m_ptSocketClient->onSendMessage(SMT_ADDFRIEND, tData);
@@ -188,7 +188,7 @@ void Friend::parseAddFriendStatus(const QJsonValue& rtData) {
         QJsonObject tObj = rtData.toObject();
 
         int iStatus = tObj.value("Status").toInt();
-        if (SST_GETFRIEND_SUCCESS == iStatus) {
+        if (SST_ADDFRIEND_SUCCESS == iStatus) {
             int iIndex      = tObj.value("GroupIndex").toInt();
             QJsonValue tVal = tObj.value("Friend");
             // 解析出FriendInfo

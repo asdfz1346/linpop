@@ -32,6 +32,7 @@ SOURCES += \
     ui/group.cpp \
     ui/groupitem.cpp \
     ui/frienditem.cpp \
+    ui/addfriend.cpp \
     main.cpp
 
 INCLUDEPATH += \
@@ -49,7 +50,8 @@ HEADERS += \
     include/ui/friend.h \
     include/ui/group.h \
     include/ui/groupitem.h \
-    include/ui/frienditem.h
+    include/ui/frienditem.h \
+    include/ui/addfriend.h
 
 FORMS += \
     ui/loggin.ui \
@@ -58,7 +60,8 @@ FORMS += \
     ui/friend.ui \
     ui/group.ui \
     ui/groupitem.ui \
-    ui/frienditem.ui
+    ui/frienditem.ui \
+    ui/addfriend.ui
 
 RESOURCES += \
     resource/qt.qrc

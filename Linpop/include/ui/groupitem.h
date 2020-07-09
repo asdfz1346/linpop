@@ -53,6 +53,7 @@ private slots:
     void onAddGroupItem(void);
     void onRenameGroupItem(void);
     void onDelGroupItem(void);
+    void onAddFriendItem(void);
 
     void on_lineEdit_editingFinished();
 

@@ -188,6 +188,7 @@ bool GroupItem::eventFilter(QObject* ptWatched, QEvent* ptEvent) {
         if (m_iGroupIndex) {
             ptMenu->addAction(QStringLiteral("删除此分组"), this, &GroupItem::onDelGroupItem);
         }
+        ptMenu->addAction(QStringLiteral("向此分组添加好友"), this, &GroupItem::onAddFriendItem);
         ptMenu->exec(QCursor::pos());
 
         m_ptUi->itemLayout->setStyleSheet("itemLayout {\n\tbackground-color: rgba(0, 0, 0, 0);\n}");
@@ -210,6 +211,10 @@ void GroupItem::onRenameGroupItem(void) {
 
 void GroupItem::onDelGroupItem(void) {
     Friend::getInstance()->delGroupItem(m_iGroupIndex);
+}
+
+void GroupItem::onAddFriendItem(void) {
+    // 显示添加好友界面
 }
 
 static bool g_bFlagEnter = false;
