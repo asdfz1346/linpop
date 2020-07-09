@@ -1,36 +1,24 @@
 ﻿
-#ifndef LINPOP_FRIENDITEM_H
-#define LINPOP_FRIENDITEM_H
+#ifndef LINPOP_ADDFRIEND_H
+#define LINPOP_ADDFRIEND_H
 
 #include <common.h>
 
 #include <QWidget>
-#include <QContextMenuEvent>
 
 namespace Ui {
-class FriendItem;
+class AddFriend;
 }
 
-class FriendItem : public QWidget {
+class AddFriend : public QWidget {
     Q_OBJECT
 
 public:
-    explicit FriendItem(const FriendInfo& rtFriendInfo, const int iFriendIndex, QWidget* ptParent = nullptr);
-    ~FriendItem();
-
-    void setFriendItemIndex(const int iIndex);
-
-protected:
-    virtual void contextMenuEvent(QContextMenuEvent* ptEvent);
-
-private slots:
-    void onMoveFriendItem(QAction* ptAct);
-    void onDelFriendItem(void);
+    explicit AddFriend(const FriendInfo& rtFriendInfo, QWidget* ptParent = nullptr);
+    ~AddFriend();
 
 private:
-    Ui::FriendItem* m_ptUi;
-    QWidget*        m_ptGroupItem;          // 指向上一层的GroupItem
-    int             m_iFriendIndex;         // 当前FriendItem为指向上一层的GroupItem的第几个
+    Ui::AddFriend* m_ptUi;
 };
 
-#endif // LINPOP_FRIENDITEM_H
+#endif // LINPOP_ADDFRIEND_H
