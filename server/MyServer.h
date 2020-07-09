@@ -46,6 +46,7 @@
 		void link_startou(const char*ip,short port);	
 		void main_loop();
 		std::map<std::string,int> clientmap; // [id] = fd;
+		std::map<int,std::string> fdtoidmap; // [fd]= id;
 		std::map<int,std::string> ipmap; //[fd] =ip;
 
 	private:

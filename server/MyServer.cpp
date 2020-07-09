@@ -11,6 +11,7 @@ MYSQL_RES *sql_query(std::string S);
 void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal);
 void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
 void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
+void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal);
 template <typename T>
 void Debug(T a){
@@ -46,7 +47,7 @@ void work(MyServer *pthis,int fd,std::string str){
 
 	}
 	if(cmd == SMT_ADDFRIEND){
-
+		ADDFRIEND(pthis,fd,JsonVal);
 	}
 };
 
@@ -83,8 +84,7 @@ void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal){
 		Debug("REGISTER FAIL");
 		J["Data"]["Status"]=SST_REGISTER_FAILED;
 	}
-	//Debug(J);
-	Debug(send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0));
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
 
 }
 
@@ -104,10 +104,10 @@ void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal){
 		std::string pswd(row[1]);
 		if(pswd==password){
 			Debug("password correct");
+			Debug(pthis->clientmap[id]);
 			if(pthis->clientmap[id]!=0){
 				Debug("SST_LOGIN_REPEAT");
 				J["Data"]["Status"]= SST_LOGIN_REPEAT;
-				pthis->clientmap[id]=fd;
 			}
 			else{
 				Debug("SST_LOGIN_SUCCESS");
@@ -115,10 +115,11 @@ void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal){
 				J["Data"]["Name"] 	= row[2];
 				J["Data"]["ip"]	 	= pthis->ipmap[fd];	 
 				J["Data"]["Head"]	="";
+				pthis->clientmap[id]=fd;
+				pthis->fdtoidmap[fd]=id;
 			}
 		}
 	}
-	Debug(J);
 	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
 	
 }
@@ -138,7 +139,6 @@ void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 		i++;
 	}
 	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
-	Debug(J);
 }
 
 void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
@@ -146,9 +146,44 @@ void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 }
 
 void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
-	std::string id = JsonVal["Data"]["Id"].asString();
-	int groupindex = JsonVal["Data"]["GroupIndex"].asInt();
-	std::string S1;
+	std::string id =  JsonVal["Data"]["Id"].asString();
+	std::string groupindex = std::to_string(JsonVal["Data"]["GroupIndex"].asInt());
+	std::string S1= "select * from userinfo where id = '";//id'";
+	std::string sourceid = pthis->fdtoidmap[fd];
+	int targetfd = pthis->clientmap[id];
+	S1+=id+"';";
+	MYSQL_RES *result=NULL;
+	MYSQL_ROW row;
+	Json::Value J;
+	J["Type"] = SMT_ADDFRIEND;
+	J["Data"]["Status"] = SST_ADDFRIEND_FAILED;
+	result = sql_query(S1);
+	if(result!=NULL){
+		Debug("regiested");
+		if(row = mysql_fetch_row(result)){
+			J["Data"]["Status"] = SST_ADDFRIEND_SUCCESS;
+			J["Data"]["Id"] = id;
+			J["Data"]["Name"] = row[2];
+			J["Data"]["Head"] = "";
+			J["Data"]["Ip"] = "";
+			J["Data"]["Online"] = 0;
+			if(pthis ->ipmap[targetfd]!=""){
+				J["Data"]["Ip"]   = pthis ->ipmap[targetfd];
+				J["Data"]["Online"] = 1;
+			}
+			/*updata friends_*/
+			//insert into friends_zhangsan (id,name,groups) VALUE ('id','name',groupindex);
+			S1 = " insert INTO friends_";
+			S1 += sourceid + " (id,name,groups) VALUE ('";
+			S1 +=id + "','" + row[2] + "'," + groupindex + ");";
+			sql_alter(S1);
+		}
+	}else{
+		Debug("not regieste");
+	}
+	Debug(J);
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
+
 }
 
 MYSQL_RES *sql_query(std::string S){
