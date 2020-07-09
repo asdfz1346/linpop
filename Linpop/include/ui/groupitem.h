@@ -27,10 +27,6 @@ public:
     explicit GroupItem(const int iGroupIndex, QWidget* ptParent = nullptr);
     ~GroupItem();
 
-    // Group的底层接口
-    void pullFriendItemList(/*const UserInfo& rtMyselfInfo,*/);
-    void pushFriendItemList(/*const UserInfo& rtMyselfInfo,*/);
-
     void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
 
     void addFriendItem(const FriendInfo& rtFriendInfo);
@@ -64,7 +60,7 @@ private:
     Ui::GroupItem*     m_ptUi;
     QList<FriendItem*> m_lptFriendItem;
 
-    QWidget*           m_ptGroup;           // 指向上一层的Group
+//    QWidget*           m_ptGroup;           // 指向上一层的Group
     int                m_iGroupIndex;       // 当前GroupItem为Group的第几个
 
     QList<FriendInfo>  m_ltFriendInfoList;

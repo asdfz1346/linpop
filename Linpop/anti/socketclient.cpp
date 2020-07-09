@@ -20,6 +20,14 @@ SocketClient::~SocketClient() {
     delete m_ptTcpSocket;
 }
 
+void SocketClient::startConnect(const QString& rsServerIpAddr, const int iPort) {
+    if (m_ptTcpSocket->isOpen()) {
+        m_ptTcpSocket->abort();
+    }
+
+    m_ptTcpSocket->connectToHost(rsServerIpAddr, iPort);
+}
+
 bool SocketClient::checkConnect(void) {
     if (!m_ptTcpSocket->isOpen()) {
         m_ptTcpSocket->connectToHost(g_tServerIpAddr, SOCKET_PORT_DEFAULT);
@@ -35,14 +43,6 @@ void SocketClient::closeConnect(void) {
     if (m_ptTcpSocket->isOpen()) {
 		m_ptTcpSocket->abort();
     }
-}
-
-void SocketClient::connectToServer(const QString& rsServerIpAddr, const int iPort) {
-    if (m_ptTcpSocket->isOpen()) {
-		m_ptTcpSocket->abort();
-    }
-	
-    m_ptTcpSocket->connectToHost(rsServerIpAddr, iPort);
 }
 
 void SocketClient::onSendMessage(int reType/* const Smt& reType */, const QJsonValue& rtData) {
@@ -77,10 +77,6 @@ void SocketClient::onReadyRead() {
             qDebug() << __FUNCTION__ << __LINE__ << iType;
 #endif
             switch (iType) {
-                case SMT_REGISTER: {
-                    parseReister(tData);
-                    break;
-                }
                 case SMT_LOGIN: {
                     parseLoginUserInfo(tData);
                     break;
@@ -89,8 +85,12 @@ void SocketClient::onReadyRead() {
                     closeConnect();
                     break;
                 }
+                case SMT_REGISTER: {
+                    parseReisterUserInfo(tData);
+                    break;
+                }
                 case SMT_GETGROUP: {
-                    parseGroup(tData);
+                    parseGroupList(tData);
                     break;
                 }
                 case SMT_GETFRIEND: {
@@ -149,7 +149,16 @@ void SocketClient::parseLoginUserInfo(const QJsonValue& rtData) {
     }
 }
 
-void SocketClient::parseGroup(const QJsonValue& rtData) {
+void SocketClient::parseReisterUserInfo(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__;
+#endif
+    if (rtData.isObject()) {
+        Q_EMIT sigStatus(rtData.toObject().value("Status").toInt());
+    }
+}
+
+void SocketClient::parseGroupList(const QJsonValue& rtData) {
 #ifdef _DEBUG_STATE
     qDebug() << __FUNCTION__ << __LINE__ << rtData;
 #endif
@@ -159,9 +168,6 @@ void SocketClient::parseGroup(const QJsonValue& rtData) {
         if (tObj.value("Group").isArray()) {
             tArr = tObj.value("Group").toArray();
         }
-#ifdef _DEBUG_STATE
-        qDebug() << __FUNCTION__ << __LINE__ << tArr.size();
-#endif
 
         int iStatus = tObj.value("Status").toInt();
         if ((SST_GETGROUP_SUCCESS == iStatus) && tArr.size()) {
@@ -175,14 +181,5 @@ void SocketClient::parseGroup(const QJsonValue& rtData) {
         }
         Q_EMIT sigStatus(SST_GETGROUP_FAILED);
         return ;
-    }
-}
-
-void SocketClient::parseReister(const QJsonValue& rtData) {
-#ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__;
-#endif
-    if (rtData.isObject()) {
-        Q_EMIT sigStatus(rtData.toObject().value("Status").toInt());
     }
 }

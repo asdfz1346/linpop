@@ -24,9 +24,9 @@ class Loggin : public MoveableFramelessWindow, public Singleton<Loggin> {
 
 public:
     ~Loggin();
-    // 向服务器发送注册信息
-    void sendRegisterInfo(const QString& rsId,  const QString& rsPassword,
-                          const QString& rsTip, const QString& rsName);
+    // 根据注册界面信息拉取注册用户信息
+    void sendToGetRegisterInfo(const QString& rsId,  const QString& rsPassword,
+                               const QString& rsTip, const QString& rsName);
 
 protected:
     friend class Singleton<Loggin>;
@@ -61,17 +61,16 @@ private:
     void setServerIpInputFormat(void);
     // 通过配置文件设置控件信息
     void setControlsByConfig(void);
-    // 设置SocketClient
-    void setSocketClient(void);
-
-    // 向服务器发送账号和密码，用于登陆操作
-    void sendIdAndPassword(void);
-    // 向服务器发送账号，用于获取分组
-    void sendId(void);
-    void recvUserInfo(void);
-
+    // 显示错误或警告信息
     void showTipWindow(const QString& rsTitle, const QString& rsTip,
                        const QString& rsButtonText = QStringLiteral("确定"));
+
+    // 设置SocketClient
+    void setSocketClient(void);
+    // 根据账号密码拉取登录用户信息
+    void sendToGetUserInfo(void);
+    // 根据账号拉取分组信息
+    void sendToGetGroupList(void);
 
     Ui::Loggin*       m_ptUi;
     Friend*           m_ptFriend;

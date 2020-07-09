@@ -36,8 +36,8 @@ void RegisterId::on_logButton_clicked() {
         }
 
         // 将信息发送给数据库
-        m_ptLoggin->sendRegisterInfo(m_ptUi->idEdit->text(),  m_ptUi->passwordEdit->text(),
-                                     m_ptUi->tipEdit->text(), m_ptUi->nameEdit->text());
+        m_ptLoggin->sendToGetRegisterInfo(m_ptUi->idEdit->text(),  m_ptUi->passwordEdit->text(),
+                                          m_ptUi->tipEdit->text(), m_ptUi->nameEdit->text());
         // 后续所有操作都放到接受事件中完成
         // 后续操作包括：判断是否注册成功、向Loggin界面传递文本框内容、关闭本界面
     }

@@ -48,8 +48,8 @@ Loggin::~Loggin() {
     delete m_ptUi;
 }
 
-void Loggin::sendRegisterInfo(const QString& rsId,  const QString& rsPassword,
-                              const QString& rsTip, const QString& rsName) {
+void Loggin::sendToGetRegisterInfo(const QString& rsId,  const QString& rsPassword,
+                                   const QString& rsTip, const QString& rsName) {
     QJsonObject tData;
     tData.insert("Id", rsId);
     tData.insert("Password", rsPassword);
@@ -79,24 +79,6 @@ void Loggin::on_closeButton_clicked() {
     this->close();
 }
 
-void Loggin::on_sureSetButton_clicked() {
-    // 更新全局的服务器ip
-    g_tServerIpAddr = m_ptUi->serverIpEdit->text();
-    // 重新连接服务器
-    m_ptSocketClient->connectToServer(g_tServerIpAddr);
-    // 显示set按键
-    m_ptUi->setButton->setVisible(true);
-    m_ptUi->stackedWidget->setCurrentIndex(0);
-}
-
-void Loggin::on_cancelSetButton_clicked() {
-    // 还原之前的值
-    m_ptUi->serverIpEdit->setText(g_tServerIpAddr);
-    // 显示set按键
-    m_ptUi->setButton->setVisible(true);
-    m_ptUi->stackedWidget->setCurrentIndex(0);
-}
-
 void Loggin::on_logButton_clicked() {
     // 判断数据正确性
     if (0 == m_ptUi->idEdit->text().length() || 0 == m_ptUi->passwordEdit->text().length()) {
@@ -105,22 +87,12 @@ void Loggin::on_logButton_clicked() {
     // 更新全局的个人信息
     g_tMyselfInfo.sId       = m_ptUi->idEdit->text();
     g_tMyselfInfo.sPassword = m_ptUi->passwordEdit->text();
-    // 读取数据库，判断账号密码是否正确
-    sendIdAndPassword();
+    // 根据账号密码拉取登录用户信息
+    sendToGetUserInfo();
     // 服务器在接到数据之后，若账户和密码正确，则构造UserInfo并发送给客户端
     // 客户端接收到数据之后，调用SocketClient::onReadyRead()解析数据，并赋值给全局的UserInfo
     // 随后调用SocketClient::sigStatus()触发Loggin::onSigStatus()
     // Loggin::onSigStatus()根据服务器数据的状态位进行判断和错误处理
-
-#if 0
-    recvUserInfo();
-    // 显示好友界面
-    m_ptFriend->preInit();
-    m_ptFriend->show();
-    m_ptFriend->postInit();
-    // 关闭登录界面
-    this->hide();
-#endif
 }
 
 void Loggin::on_cancelButton_clicked() {
@@ -142,6 +114,24 @@ void Loggin::on_newButton_clicked() {
     this->hide();
 }
 
+void Loggin::on_sureSetButton_clicked() {
+    // 更新全局的服务器ip
+    g_tServerIpAddr = m_ptUi->serverIpEdit->text();
+    // 重新连接服务器
+    m_ptSocketClient->startConnect(g_tServerIpAddr);
+    // 显示set按键
+    m_ptUi->setButton->setVisible(true);
+    m_ptUi->stackedWidget->setCurrentIndex(0);
+}
+
+void Loggin::on_cancelSetButton_clicked() {
+    // 还原之前的值
+    m_ptUi->serverIpEdit->setText(g_tServerIpAddr);
+    // 显示set按键
+    m_ptUi->setButton->setVisible(true);
+    m_ptUi->stackedWidget->setCurrentIndex(0);
+}
+
 void Loggin::onSigStatus(int reType/* const Sst& reType */) {
 #ifdef _DEBUG_STATE
     qDebug() << __FUNCTION__ << __LINE__ << reType;
@@ -154,8 +144,8 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
             break;
         }
         case SST_LOGIN_SUCCESS: {
-            // 根据用户ID拉取分组信息
-            sendId();
+            // 根据账号拉取分组信息
+            sendToGetGroupList();
             break;
         }
         case SST_PASSWORD_ERROR: {
@@ -167,7 +157,6 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
             break;
         }
         case SST_REGISTER_SUCCESS: {
-            // 此处不需要更新全局的UserInfo，因为登录账号还没有确定
             // 更新Loggin中的预设账号
             m_ptUi->idEdit->setText(m_ptRegisterId->getIdEditText());
             // 关闭注册界面
@@ -189,7 +178,7 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
         case SST_GETGROUP_SUCCESS: {
             // 拉取好友信息准备在Friend的preInit()中完成
             // 取消信号连接
-//            disconnect(m_ptSocketClient, SIGNAL(sigStatus(int)), this, SLOT(onSigStatus(int)));
+            disconnect(m_ptSocketClient, SIGNAL(sigStatus(int)), this, SLOT(onSigStatus(int)));
             // Friend界面预初始化以及显示
             m_ptFriend->preInit();
             m_ptFriend->show();
@@ -225,11 +214,11 @@ void Loggin::setSocketClient(void) {
 #ifdef _DEBUG_STATE
     qDebug() << __FUNCTION__ << __LINE__;
 #endif
-    m_ptSocketClient->connectToServer(g_tServerIpAddr);
+    m_ptSocketClient->startConnect(g_tServerIpAddr);
     connect(m_ptSocketClient, SIGNAL(sigStatus(int)), this, SLOT(onSigStatus(int)));
 }
 
-void Loggin::sendIdAndPassword(void) {
+void Loggin::sendToGetUserInfo(void) {
     QJsonObject tData;
     tData.insert("Id", g_tMyselfInfo.sId);
     tData.insert("Password", g_tMyselfInfo.sPassword);
@@ -237,7 +226,7 @@ void Loggin::sendIdAndPassword(void) {
     m_ptSocketClient->onSendMessage(SMT_LOGIN, tData);
 }
 
-void Loggin::sendId(void) {
+void Loggin::sendToGetGroupList(void) {
     QJsonObject tData;
     tData.insert("Id", g_tMyselfInfo.sId);
 
@@ -250,17 +239,4 @@ void Loggin::showTipWindow(const QString& rsTitle, const QString& rsTip,
     tBox.setStandardButtons(QMessageBox::Ok);
     tBox.setButtonText(QMessageBox::Ok, rsButtonText);
     tBox.exec();
-}
-
-void Loggin::recvUserInfo(void) {
-    // 用于填充或清空UserInfo结构体
-#ifdef _DEBUG_STATE
-    g_tMyselfInfo.sName = QStringLiteral("张三");
-    g_tMyselfInfo.sHead = USER_HEAD_DEFAULT;
-#else
-    QJsonObject tData;
-    tData.insert("Id", g_tMyselfInfo.sId);
-
-    m_ptSocketClient->onRecvMessage(SMT_GETUSERINFO, tData);
-#endif
 }
