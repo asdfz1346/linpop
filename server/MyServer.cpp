@@ -11,7 +11,11 @@ MYSQL_RES *sql_query(std::string S);
 void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal);
 void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
 void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
+void DELGROUPD(MyServer *pthis,int fd,Json::Value JsonVal);
 void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
+void RENAMEGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
+void MODIFYPASSWORD(MyServer *pthis,int fd,Json::Value JsonVal);
+void MATCHTIPS(MyServer *pthis,int fd,Json::Value JsonVal);
 void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal);
 template <typename T>
 void Debug(T a){
@@ -44,10 +48,22 @@ void work(MyServer *pthis,int fd,std::string str){
 		GETGROUP(pthis,fd,JsonVal);
 	}
 	if(cmd ==SMT_ADDGROUP){
-
+		ADDGROUP(pthis,fd,JsonVal);
 	}
 	if(cmd == SMT_ADDFRIEND){
 		ADDFRIEND(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_MODIFYPASSWORD){
+		MODIFYPASSWORD(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_DELGROUP){
+		DELGROUPD(pthis,fd,JsonVal);
+	}
+	if(cmd ==SMT_RENAMEGROUP){
+		RENAMEGROUP(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_MATCHTIPS){
+		MATCHTIPS(pthis,fd,JsonVal);
 	}
 };
 
@@ -142,6 +158,19 @@ void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 }
 
 void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id = JsonVal["Data"]["Id"].asString();
+	//std::string sourceid = pthis->fdtoidmap[fd];
+	//insert into groups_sourceid ('groupname') VALUE (' ');
+	std::string groupname =JsonVal["Data"]["GroupName"].asString();
+	std::string S1 = "insert into groups_" + id + " ('";
+	S1 += groupname+"');";
+	Json::Value J;
+	J["Type"] = SMT_ADDGROUP;
+	J["Data"]["Status"] = SST_ADDGROUP_FAILED;
+	if(sql_alter(S1)){
+		J["Data"]["Status"] = SST_ADDGROUP_SUCCESS;
+	}
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
 	
 }
 
@@ -162,11 +191,11 @@ void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
 		Debug("regiested");
 		if(row = mysql_fetch_row(result)){
 			J["Data"]["Status"] = SST_ADDFRIEND_SUCCESS;
-			J["Data"]["Id"] = id;
-			J["Data"]["Name"] = row[2];
-			J["Data"]["Head"] = "";
-			J["Data"]["Ip"] = "";
-			J["Data"]["Online"] = 0;
+			J["Data"]["Friend"]["Id"] = id;
+			J["Data"]["Friend"]["Name"] = row[2];
+			J["Data"]["Friend"]["Head"] = "";
+			J["Data"]["Friend"]["Ip"] = "";
+			J["Data"]["Friend"]["Online"] = 0;
 			if(pthis ->ipmap[targetfd]!=""){
 				J["Data"]["Ip"]   = pthis ->ipmap[targetfd];
 				J["Data"]["Online"] = 1;
@@ -184,6 +213,63 @@ void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
 	Debug(J);
 	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
 
+}
+
+void MODIFYPASSWORD(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id = JsonVal["Data"]["Id"].asString();
+	std::string password = JsonVal["Data"]["Password"].asString();
+	std::string S1 = "update userinfo SET passwd = '"+password + "' WhERE id='" +id +"';";
+	Json::Value J;
+	J["Type"] = SMT_MODIFYPASSWORD;
+	if(sql_alter(S1)){
+		J["Data"]["Status"] =SST_MODIFYPASSWORD_SUCCESS;
+	}else{
+		J["Data"]["Status"] =SST_MODIFYPASSWORD_FAILED;
+	}
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
+}
+
+void DELGROUPD(MyServer *pthis,int fd,Json::Value JsonVal){
+
+}
+
+void RENAMEGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id =  JsonVal["Data"]["Id"].asString();
+	std::string groupindex = std::to_string(JsonVal["Data"]["GroupIndex"].asInt());
+	std::string groupname = JsonVal["Data"]["GroupName"].asString();
+	std::string S1  = "UPDATE groups_"+ id +" SET groupname = '";
+	S1+= groupname+"' WHERE groupid = "+groupindex;
+	Json::Value J;
+	J["Type"] = SMT_RENAMEGROUP;
+	if(sql_alter(S1)){
+		J["Data"]["Status"] =SST_RENAMEGROUP_SUCCESS;
+	}else
+	{
+		J["Data"]["Status"] =SST_RENAMEGROUP_FAILED;
+	}
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
+}
+
+void MATCHTIPS(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id = JsonVal["Data"]["Id"].asString();
+	std::string S1 = "SELECT * FROM userinfo WHERE id ='";
+	S1 += id +"';";
+	
+	MYSQL_RES *result;
+	MYSQL_ROW row;
+	Json::Value J;
+	result = sql_query(S1);
+	J["Type"] = SMT_MATCHTIPS;
+	J["Data"]["Id"] = id;
+	J["Data"]["Status"] = SST_MATCHTIPS_FAILED;
+	if(result!=NULL){
+		if(row = mysql_fetch_row(result)){
+			if(row[3]==JsonVal["Data"]["Tip"].asString()){
+				J["Data"]["Status"] = SST_MATCHTIPS_SUCCESS;
+			}
+		}
+	}
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
 }
 
 MYSQL_RES *sql_query(std::string S){
@@ -362,7 +448,22 @@ void *MyServer::worker_thread_proc(void *args){
 			
 			/*recv msg*/
 			int num_rcv=0;
-			while((num_rcv=recv(fd,&rcv_buf,sizeof rcv_buf,0))>=1){
+			while((num_rcv=recv(fd,&rcv_buf,sizeof rcv_buf,0))>=0){
+				if (num_rcv==0){
+					pthread_mutex_lock(&pthis->clientset_mutex);
+        			pthis->clientset.erase(fd);
+        			pthread_mutex_unlock(&pthis->clientset_mutex);
+					std::string id = pthis->fdtoidmap[fd];
+					pthis->fdtoidmap[fd]="";
+					pthis->clientmap[id]= 0;
+					pthis->ipmap[fd] = "";
+       				struct epoll_event e;
+       				memset (&e,0,sizeof e);
+       				e.data.fd = fd;
+					e.events=EPOLLIN;
+       				epoll_ctl(pthis->epollfd, EPOLL_CTL_DEL, fd,&e);
+       				close(fd);
+				}
 				std::string ctos(rcv_buf);
 				work(pthis ,fd, ctos);	
 			}
