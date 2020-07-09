@@ -16,6 +16,10 @@ RegisterId::~RegisterId() {
     delete m_ptUi;
 }
 
+QString RegisterId::getIdEditText(void) {
+    return m_ptUi->idEdit->text();
+}
+
 void RegisterId::on_logButton_clicked() {
     // 判断数据有效性
     if (m_ptUi->idEdit->text().length()     && m_ptUi->passwordEdit->text().length() &&
@@ -32,12 +36,10 @@ void RegisterId::on_logButton_clicked() {
         }
 
         // 将信息发送给数据库
-        m_ptLoggin->sendRegisterInfo(m_ptUi->idEdit->text(),  m_ptUi->passwordEdit->text(),
-                                     m_ptUi->tipEdit->text(), m_ptUi->nameEdit->text());
-        // 此处不需要更新全局的UserInfo，因为登录账号还没有确定
-        // 更新Loggin中的预设账号
-        m_ptLoggin->setEditText(m_ptUi->idEdit->text(), ""/* m_ptUi->passwordEdit->text() */);
-        on_cancelButton_clicked();
+        m_ptLoggin->sendToGetRegisterInfo(m_ptUi->idEdit->text(),  m_ptUi->passwordEdit->text(),
+                                          m_ptUi->tipEdit->text(), m_ptUi->nameEdit->text());
+        // 后续所有操作都放到接受事件中完成
+        // 后续操作包括：判断是否注册成功、向Loggin界面传递文本框内容、关闭本界面
     }
 }
 

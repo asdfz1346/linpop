@@ -68,24 +68,21 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_DELFRIEND_FAILED,
 } Sst;
 
-
-/**
- * 准备改成单例模式
- */
 class SocketClient : public QObject, public Singleton<SocketClient> {
     Q_OBJECT
 
 public:
     ~SocketClient();
-
+    // 连接服务器操作
+    void startConnect(const QString& rsServerIpAddr = SOCKET_SERVER_DEFAULT,
+                      const int iPort = SOCKET_PORT_DEFAULT);
     bool checkConnect(void);
     void closeConnect(void);
 
-    // 连接服务器
-    void connectToServer(const QString& rsServerIpAddr = SOCKET_SERVER_DEFAULT, const int iPort = SOCKET_PORT_DEFAULT);
-
 signals:
+    // 让下层自己对消息进行判断
     void sigMessage(int reType/* const Smt& reType */, const QJsonValue& rtData);
+    // 主要对全局变量进行解析，只向下层发送成功或失败的状态信号
     void sigStatus(int reType/* const Sst reType */);
 
 public slots:
@@ -97,20 +94,21 @@ protected:
     explicit SocketClient(QObject* ptParent = nullptr);
 
 private slots:
-    // 缓存消息处理
+    // 接收消息函数
     void onReadyRead();
-    // 连接服务器
+    // 连接服务器的槽函数
     void onConnected();
-    // 与服务器断开连接
+    // 断开服务器的槽函数
     void onDisConnected();
 
 private:
-    // 解析登陆返回信息
+    // 通用的全局变量相关解析放到SocketClient中，与界面相关的变量解析会放到Friend中
+    // 解析登陆返回信息并为全局的UserInfo赋值
     void parseLoginUserInfo(const QJsonValue& rtData);
-    // 解析分组信息
-    void parseGroup(const QJsonValue& rtData);
     // 解析注册返回信息
-    void parseReister(const QJsonValue& rtData);
+    void parseReisterUserInfo(const QJsonValue& rtData);
+    // 解析分组信息并为全局的QStringList赋值
+    void parseGroupList(const QJsonValue& rtData);
 
     QTcpSocket* m_ptTcpSocket;
     bool        m_bIsConnected;

@@ -14,11 +14,11 @@
         <file>friend/arrow_d.png</file>
         <file>friend/arrow_r.png</file>
         <file>friend/bg.png</file>
-        <file>icon/icon1.png</file>
-        <file>icon/icon2.png</file>
-        <file>icon/icon4.png</file>
-        <file>icon/icon5.png</file>
-        <file>icon/icon3.png</file>
-        <file>icon/icon6.png</file>
+        <file>head/1.png</file>
+        <file>head/2.png</file>
+        <file>head/4.png</file>
+        <file>head/5.png</file>
+        <file>head/3.png</file>
+        <file>head/6.png</file>
     </qresource>
 </RCC>

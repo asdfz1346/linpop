@@ -36,7 +36,6 @@ GroupItem::GroupItem(const int iGroupIndex, QWidget* ptParent) : QWidget(ptParen
 
     m_tGroupUserCount = { 0 };
     m_iGroupIndex = iGroupIndex;
-    m_ptGroup     = ptParent;
 
     setGroupItemTextUseCount();
     m_ptUi->conLayout->setVisible(false);       // 默认为关闭分组的状态
@@ -46,7 +45,7 @@ GroupItem::GroupItem(const int iGroupIndex, QWidget* ptParent) : QWidget(ptParen
 GroupItem::~GroupItem() {
     delete m_ptUi;
 }
-
+#if 0
 void GroupItem::pullFriendItemList(/*const UserInfo& rtMyselfInfo,*/) {
     m_ltFriendInfoList.clear();
 #ifdef _USE_SQL
@@ -65,7 +64,7 @@ void GroupItem::pullFriendItemList(/*const UserInfo& rtMyselfInfo,*/) {
         int off      = qrand() % 3;
         FriendInfo usr = { (bool)off, m_iGroupIndex, QString::number(id),
                            (off) ? ipLib[libIndex] : "",            // 离线不显示IP
-                           nameLib[libIndex], QString("://icon/icon%1.png").arg(iconIdex)};
+                           nameLib[libIndex], QString(":/head/%1.png").arg(iconIdex)};
         m_ltFriendInfoList.append(usr);
     }
 #endif
@@ -74,7 +73,7 @@ void GroupItem::pullFriendItemList(/*const UserInfo& rtMyselfInfo,*/) {
 void GroupItem::pushFriendItemList(/*const UserInfo& rtMyselfInfo,*/) {
 
 }
-
+#endif
 void GroupItem::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex) {
     for (int i = 0; i < m_ltFriendInfoList.length(); ++i) {
         FriendItem* ptItem = new FriendItem(m_ltFriendInfoList.at(i), i, this);
@@ -189,6 +188,7 @@ bool GroupItem::eventFilter(QObject* ptWatched, QEvent* ptEvent) {
         if (m_iGroupIndex) {
             ptMenu->addAction(QStringLiteral("删除此分组"), this, &GroupItem::onDelGroupItem);
         }
+        ptMenu->addAction(QStringLiteral("向此分组添加好友"), this, &GroupItem::onAddFriendItem);
         ptMenu->exec(QCursor::pos());
 
         m_ptUi->itemLayout->setStyleSheet("itemLayout {\n\tbackground-color: rgba(0, 0, 0, 0);\n}");
@@ -199,7 +199,8 @@ bool GroupItem::eventFilter(QObject* ptWatched, QEvent* ptEvent) {
 }
 
 void GroupItem::onAddGroupItem(void) {
-    ((Group*)m_ptGroup)->addGroupItem();
+    Friend::getInstance()->addGroupItem();
+//    ((Group*)m_ptGroup)->addGroupItem();
 }
 
 void GroupItem::onRenameGroupItem(void) {
@@ -209,7 +210,11 @@ void GroupItem::onRenameGroupItem(void) {
 }
 
 void GroupItem::onDelGroupItem(void) {
-    ((Group*)m_ptGroup)->delGroupItem(m_iGroupIndex);
+    Friend::getInstance()->delGroupItem(m_iGroupIndex);
+}
+
+void GroupItem::onAddFriendItem(void) {
+    // 显示添加好友界面
 }
 
 static bool g_bFlagEnter = false;
@@ -220,7 +225,7 @@ void GroupItem::on_lineEdit_editingFinished() {
         setGroupItemTextUseCount();
         m_ptUi->stackedWidget->setCurrentIndex(0);
         g_bFlagEnter = false;
-        m_ptGroup->setFocus();
+        Friend::getInstance()->setFocus();
     }
     else if(!g_bFlagEnter) {
         g_lsGroupTextList.replace(m_iGroupIndex, m_ptUi->lineEdit->text());

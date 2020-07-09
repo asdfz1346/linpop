@@ -11,7 +11,7 @@ Group::Group(QWidget* ptParent) : QWidget(ptParent), m_ptUi(new Ui::Group) {
 Group::~Group() {
     delete m_ptUi;
 }
-
+#if 0
 int  Group::pullGroupItemList(/*const UserInfo& rtMyselfInfo*/) {
     g_lsGroupTextList.clear();
 #ifdef _USE_SQL
@@ -39,6 +39,7 @@ void Group::pullFriendItemList(/*const UserInfo& rtMyselfInfo,*/ const int iInde
 void Group::pushFriendItemList(/*const UserInfo& rtMyselfInfo,*/ const int iIndex) {
     m_lptGroupItem.at(iIndex)->pushFriendItemList();
 }
+#endif
 
 void Group::initGroupItemControls(/*const UserInfo& rtMyselfInfo*/) {
     for (int i = 0; i < g_lsGroupTextList.length(); ++i) {
@@ -53,6 +54,10 @@ void Group::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int i
     m_lptGroupItem.at(iIndex)->initFriendItemControls(iIndex);
 }
 
+GroupItem* Group::getGroupitemIndex(const int iIndex) {
+    return m_lptGroupItem.at(iIndex);
+}
+
 void Group::addGroupItem(const QString& rsName) {
     // 在GroupItem的构造函数中使用了index对应的g_lsGroupTextList
     g_lsGroupTextList.append(rsName);
@@ -61,6 +66,10 @@ void Group::addGroupItem(const QString& rsName) {
     m_ptUi->widgetLayout->layout()->addWidget(ptItem);      // 优先显示
 
     m_lptGroupItem.append(ptItem);
+}
+
+void Group::renameGroupItem(const int iIndex) {
+
 }
 
 void Group::delGroupItem(const int iIndex) {
@@ -102,8 +111,16 @@ void Group::delGroupItem(const int iIndex) {
     }
 }
 
-GroupItem* Group::getGroupitemIndex(const int iIndex) {
-    return m_lptGroupItem.at(iIndex);
+void Group::addFriendItem(const int iGroupIndex, const FriendInfo& rtFriendInfo){
+    m_lptGroupItem.at(iGroupIndex)->addFriendItem(rtFriendInfo);
+}
+
+void Group::moveFriendItem(const int iSrcGroupIndex, const int iDestGroupIndex, const int iIndex) {
+    m_lptGroupItem.at(iSrcGroupIndex)->moveFriendItem(iIndex, iDestGroupIndex);
+}
+
+void Group::delFriendItem(const int iGroupIndex, const int iIndex) {
+    m_lptGroupItem.at(iGroupIndex)->delFriendItem(iIndex);
 }
 
 int  Group::findDefaultGroupItem(const int iIndex) {

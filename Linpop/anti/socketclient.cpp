@@ -20,6 +20,14 @@ SocketClient::~SocketClient() {
     delete m_ptTcpSocket;
 }
 
+void SocketClient::startConnect(const QString& rsServerIpAddr, const int iPort) {
+    if (m_ptTcpSocket->isOpen()) {
+        m_ptTcpSocket->abort();
+    }
+
+    m_ptTcpSocket->connectToHost(rsServerIpAddr, iPort);
+}
+
 bool SocketClient::checkConnect(void) {
     if (!m_ptTcpSocket->isOpen()) {
         m_ptTcpSocket->connectToHost(g_tServerIpAddr, SOCKET_PORT_DEFAULT);
@@ -35,14 +43,6 @@ void SocketClient::closeConnect(void) {
     if (m_ptTcpSocket->isOpen()) {
 		m_ptTcpSocket->abort();
     }
-}
-
-void SocketClient::connectToServer(const QString& rsServerIpAddr, const int iPort) {
-    if (m_ptTcpSocket->isOpen()) {
-		m_ptTcpSocket->abort();
-    }
-	
-    m_ptTcpSocket->connectToHost(rsServerIpAddr, iPort);
 }
 
 void SocketClient::onSendMessage(int reType/* const Smt& reType */, const QJsonValue& rtData) {
@@ -73,12 +73,10 @@ void SocketClient::onReadyRead() {
             QJsonValue tData = tObj.value("Data");
 
             int iType = tObj.value("Type").toInt();
-
+#ifdef _DEBUG_STATE
+            qDebug() << __FUNCTION__ << __LINE__ << iType;
+#endif
             switch (iType) {
-                case SMT_REGISTER: {
-                    parseReister(tData);
-                    break;
-                }
                 case SMT_LOGIN: {
                     parseLoginUserInfo(tData);
                     break;
@@ -87,11 +85,20 @@ void SocketClient::onReadyRead() {
                     closeConnect();
                     break;
                 }
+                case SMT_REGISTER: {
+                    parseReisterUserInfo(tData);
+                    break;
+                }
                 case SMT_GETGROUP: {
-                    parseGroup(tData);
+                    parseGroupList(tData);
                     break;
                 }
                 case SMT_GETFRIEND: {
+                    Q_EMIT sigMessage(SMT_GETFRIEND, tData);
+                    break;
+                }
+                case SMT_ADDFRIEND: {
+                    Q_EMIT sigMessage(SMT_ADDFRIEND, tData);
                     break;
                 }
                 case SMT_MATCHTIPS: {
@@ -100,6 +107,7 @@ void SocketClient::onReadyRead() {
                 case SMT_MODIFYPASSWORD: {
                     break;
                 }
+
             }
         }
     }
@@ -121,6 +129,9 @@ void SocketClient::onDisConnected() {
 }
 
 void SocketClient::parseLoginUserInfo(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
 
@@ -129,12 +140,28 @@ void SocketClient::parseLoginUserInfo(const QJsonValue& rtData) {
             g_tMyselfInfo.sName = tObj.value("Name").toString();
             g_tMyselfInfo.sIp   = tObj.value("Ip").toString();
             g_tMyselfInfo.sHead = tObj.value("Head").toString();
+            if (0 == g_tMyselfInfo.sHead.length()) {
+                // 设置默认值
+                g_tMyselfInfo.sHead = USER_HEAD_DEFAULT;
+            }
         }
         Q_EMIT sigStatus(iStatus);
     }
 }
 
-void SocketClient::parseGroup(const QJsonValue& rtData) {
+void SocketClient::parseReisterUserInfo(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__;
+#endif
+    if (rtData.isObject()) {
+        Q_EMIT sigStatus(rtData.toObject().value("Status").toInt());
+    }
+}
+
+void SocketClient::parseGroupList(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
         QJsonArray  tArr;
@@ -154,14 +181,5 @@ void SocketClient::parseGroup(const QJsonValue& rtData) {
         }
         Q_EMIT sigStatus(SST_GETGROUP_FAILED);
         return ;
-    }
-}
-
-void SocketClient::parseReister(const QJsonValue& rtData) {
-#ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__;
-#endif
-    if (rtData.isObject()) {
-        Q_EMIT sigStatus(rtData.toObject().value("Status").toInt());
     }
 }

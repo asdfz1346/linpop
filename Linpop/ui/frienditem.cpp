@@ -13,9 +13,9 @@ FriendItem::FriendItem(const FriendInfo& rtFriendInfo, const int iFriendIndex, Q
     QWidget(ptParent), m_ptUi(new Ui::FriendItem) {
     m_ptUi->setupUi(this);
 
-    m_ptUi->iconLabel->setPixmap(QPixmap(rtFriendInfo.sHead));
+    m_ptUi->headLabel->setPixmap(QPixmap(rtFriendInfo.sHead));
     if (!rtFriendInfo.bOnline) {
-        m_ptUi->iconLabel->setDisabled(true);
+        m_ptUi->headLabel->setDisabled(true);
     }
     m_ptUi->nameLabel->setText(rtFriendInfo.sName);
     m_ptUi->idLabel->setText(rtFriendInfo.sId);

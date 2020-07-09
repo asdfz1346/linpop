@@ -20,7 +20,7 @@
 #define CLIENT_SET_FILE		("config.ini")
 
 // 服务器相关
-#define SOCKET_SERVER_DEFAULT   ("127.0.0.1")
+#define SOCKET_SERVER_DEFAULT   ("175.24.5.212")
 #define SOCKET_PORT_DEFAULT     (12345)
 
 // QT界面相关
@@ -28,6 +28,6 @@
 
 #define GROUPITEM_NAME_DEFAULT	QStringLiteral("我的好友")
 
-#define FRIEND_ICON_DEFAULT     (":/icon/icon6.png")
+#define USER_HEAD_DEFAULT       (":/head/6.png")
 
 #endif // LINPOP_CONFIG_H
