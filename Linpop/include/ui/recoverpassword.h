@@ -15,6 +15,8 @@ public:
     explicit RecoverPassword(QWidget* ptParent = nullptr);
     ~RecoverPassword();
 
+    void showPageByClient(const int iIndex);
+
 private slots:
     void on_sureButton_clicked();
     void on_cancelButton_clicked();

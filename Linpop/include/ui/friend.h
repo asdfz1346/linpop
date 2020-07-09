@@ -52,13 +52,20 @@ public:
 
     // 分组操作，添加分组直接添加到分组列表的末尾
     void addGroupItem(const QString& rsName = GROUPITEM_NAME_DEFAULT);
-    void renameGroupItem(const int iIndex);
+    void renameGroupItem(const int iIndex, const QString& rsName);
     void delGroupItem(const int iIndex);
 
     // 好友操作，添加好友直接添加到iIndex分组的末尾
     void addFriendItem(const int iGroupIndex, const FriendInfo& rtFriendInfo);
     void moveFriendItem(const int iSrcGroupIndex, const int iDestGroupIndex, const int iIndex);
     void delFriendItem(const int iGroupIndex, const int iIndex);
+
+    // 发送添加分组
+    void sendToAddGroupItem(const QString& rsId, const QString& rsName);
+    // 发送重命名分组
+    void sendToRenameGroupItem(const QString& rsId, const int iIndex, const QString& rsName);
+    // 发送删除分组
+    void sendToDelGroupItem(const QString& rsId, const int iGroupIndex);
 
 protected:
     friend class Singleton<Friend>;
@@ -85,6 +92,13 @@ private:
     // 向服务器发送id查询好友是否存在
     // 添加好友请求
     void sendToAddFriendRequest(const int iGroupIndex);
+
+    // 解析添加分组信息
+    void parseAddGroupItem(const QJsonValue& rtData);
+    // 解析删除分组信息
+    void parseDelGroupItem(const QJsonValue& rtData);
+    // 解析重命名分组信息
+    void parseRenameGroupItem(const QJsonValue& rtData);
 
     // 解析好友列表
     void parseGetFriendList(const QJsonValue& rtData);

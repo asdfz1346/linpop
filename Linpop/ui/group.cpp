@@ -61,15 +61,19 @@ GroupItem* Group::getGroupitemIndex(const int iIndex) {
 void Group::addGroupItem(const QString& rsName) {
     // 在GroupItem的构造函数中使用了index对应的g_lsGroupTextList
     g_lsGroupTextList.append(rsName);
-
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << g_lsGroupTextList;
+#endif
     GroupItem* ptItem = new GroupItem(g_lsGroupTextList.length() - 1, this);
     m_ptUi->widgetLayout->layout()->addWidget(ptItem);      // 优先显示
 
     m_lptGroupItem.append(ptItem);
 }
 
-void Group::renameGroupItem(const int iIndex) {
-
+void Group::renameGroupItem(const int iIndex, const QString& rsName) {
+    g_lsGroupTextList.replace(iIndex, rsName);
+    m_lptGroupItem.at(iIndex)->setGroupItemTextUseCount();
+    m_lptGroupItem.at(iIndex)->showPageByClient(0);
 }
 
 void Group::delGroupItem(const int iIndex) {

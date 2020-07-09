@@ -52,8 +52,11 @@ void Friend::addGroupItem(const QString& rsName) {
     m_ptGroup->addGroupItem(rsName);
 }
 
-void Friend::renameGroupItem(const int iIndex) {
-
+void Friend::renameGroupItem(const int iIndex, const QString& rsName) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << iIndex << rsName;
+#endif
+    m_ptGroup->renameGroupItem(iIndex, rsName);
 }
 
 void Friend::delGroupItem(const int iIndex) {
@@ -71,6 +74,35 @@ void Friend::moveFriendItem(const int iSrcGroupIndex, const int iDestGroupIndex,
 
 void Friend::delFriendItem(const int iGroupIndex, const int iIndex) {
     m_ptGroup->delFriendItem(iGroupIndex, iIndex);
+}
+
+void Friend::sendToAddGroupItem(const QString& rsId, const QString& rsName) {
+    QJsonObject tData;
+    tData.insert("Id", rsId);
+    tData.insert("GroupName", rsName);
+
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << tData;
+#endif
+
+    m_ptSocketClient->onSendMessage(SMT_ADDGROUP, tData);
+}
+
+void Friend::sendToRenameGroupItem(const QString& rsId, const int iIndex, const QString& rsName){
+    QJsonObject tData;
+    tData.insert("Id", rsId);
+    tData.insert("GroupIndex", iIndex);
+    tData.insert("GroupName", rsName);
+
+    m_ptSocketClient->onSendMessage(SMT_RENAMEGROUP, tData);
+}
+
+void Friend::sendToDelGroupItem(const QString& rsId, const int iGroupIndex) {
+    QJsonObject tData;
+    tData.insert("Id", rsId);
+    tData.insert("GroupIndex", iGroupIndex);
+
+    m_ptSocketClient->onSendMessage(SMT_DELGROUP, tData);
 }
 
 void Friend::on_headButton_clicked() {
@@ -96,6 +128,21 @@ void Friend::onSigMessage(int reType/* const Smt& reType */, const QJsonValue& r
         case SMT_ADDFRIEND: {
             // 解析添加好友状态
             parseAddFriendStatus(rtData);
+            break;
+        }
+        case SMT_ADDGROUP: {
+            // 解析添加分组状态
+            parseAddGroupItem(rtData);
+            break;
+        }
+        case SMT_DELGROUP: {
+            // 解析删除分组状态
+            parseDelGroupItem(rtData);
+            break;
+        }
+        case SMT_RENAMEGROUP: {
+            // 解析重命名分组状态
+            parseRenameGroupItem(rtData);
             break;
         }
     }
@@ -163,6 +210,69 @@ void Friend::sendToAddFriendRequest(const int iGroupIndex) {
     m_ptSocketClient->onSendMessage(SMT_ADDFRIEND, tData);
 }
 
+void Friend::parseAddGroupItem(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_ADDGROUP_SUCCESS == iStatus) {
+            // 添加分组
+            addGroupItem();
+            Q_EMIT m_ptSocketClient->sigStatus(SST_ADDGROUP_SUCCESS);
+            return ;
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(SST_ADDFRIEND_FAILED);
+        return ;
+    }
+}
+
+void Friend::parseDelGroupItem(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_DELGROUP_SUCCESS == iStatus) {
+            // 删除分组
+            delGroupItem(tObj.value("GroupIndex").toInt());
+            Q_EMIT m_ptSocketClient->sigStatus(SST_DELGROUP_SUCCESS);
+            return ;
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(SST_DELGROUP_FAILED);
+        return ;
+    }
+}
+
+void Friend::parseRenameGroupItem(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_RENAMEGROUP_SUCCESS == iStatus) {
+            // 重命名
+            renameGroupItem(tObj.value("GroupIndex").toInt(), tObj.value("GroupName").toString());
+            Q_EMIT m_ptSocketClient->sigStatus(SST_RENAMEGROUP_SUCCESS);
+            return ;
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(SST_RENAMEGROUP_FAILED);
+        return ;
+    }
+}
+
+#if 0
+void Friend::sendToGetAddFriendInfo() {
+
+}
+#endif
+
 void Friend::parseGetFriendList(const QJsonValue& rtData) {
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
@@ -206,6 +316,9 @@ void Friend::parseAddFriendStatus(const QJsonValue& rtData) {
 }
 
 void Friend::parseAddFriendInfo(const QJsonValue& rtData, FriendInfo& rtFriendInfo) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
         // 解析出FriendInfo

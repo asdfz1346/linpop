@@ -160,6 +160,10 @@ int  GroupItem::getGroupItemCount(void) {
     return m_tGroupUserCount.iTotalCount;
 }
 
+void GroupItem::showPageByClient(const int iIndex) {
+    m_ptUi->stackedWidget->setCurrentIndex(iIndex);
+}
+
 bool GroupItem::eventFilter(QObject* ptWatched, QEvent* ptEvent) {
     if (QEvent::MouseButtonPress != ptEvent->type()) {
         return false;
@@ -199,7 +203,7 @@ bool GroupItem::eventFilter(QObject* ptWatched, QEvent* ptEvent) {
 }
 
 void GroupItem::onAddGroupItem(void) {
-    Friend::getInstance()->addGroupItem();
+    Friend::getInstance()->sendToAddGroupItem(0, GROUPITEM_NAME_DEFAULT);
 //    ((Group*)m_ptGroup)->addGroupItem();
 }
 
@@ -214,6 +218,8 @@ void GroupItem::onDelGroupItem(void) {
 }
 
 void GroupItem::onAddFriendItem(void) {
+    // 获取待添加好友的信息
+
     // 显示添加好友界面
 }
 
@@ -221,9 +227,7 @@ static bool g_bFlagEnter = false;
 void GroupItem::on_lineEdit_editingFinished() {
     if (m_ptUi->lineEdit->hasFocus()) {
         g_bFlagEnter = true;
-        g_lsGroupTextList.replace(m_iGroupIndex, m_ptUi->lineEdit->text());
-        setGroupItemTextUseCount();
-        m_ptUi->stackedWidget->setCurrentIndex(0);
+        Friend::getInstance()->sendToRenameGroupItem(0, m_iGroupIndex, m_ptUi->lineEdit->text());
         g_bFlagEnter = false;
         Friend::getInstance()->setFocus();
     }

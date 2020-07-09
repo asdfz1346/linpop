@@ -27,6 +27,10 @@ public:
     // 根据注册界面信息拉取注册用户信息
     void sendToGetRegisterInfo(const QString& rsId,  const QString& rsPassword,
                                const QString& rsTip, const QString& rsName);
+    // 根据账户和密码提示判断是否正确
+    void sendToGetPosswordTip(const QString& rsId, const QString& rsTip);
+    // 更新服务器中的密码
+    void sendToGetModifyPossword(const QString& rsId, const QString& rsPassword);
 
 protected:
     friend class Singleton<Loggin>;
@@ -53,7 +57,9 @@ private slots:
     void on_sureSetButton_clicked();
     // 取消设置服务器ip按键
     void on_cancelSetButton_clicked();
-    // 服务器登录信息处理
+    // 服务器消息处理
+    void onSigMessage(int reType/* const Smt& reType */, const QJsonValue& rtData);
+    // 服务器信息处理
     void onSigStatus(int reType/* const Sst& reType */);
 
 private:
@@ -71,6 +77,11 @@ private:
     void sendToGetUserInfo(void);
     // 根据账号拉取分组信息
     void sendToGetGroupList(void);
+
+    // 解析匹配信息
+    void parseMatchTipsStatus(const QJsonValue& rtData);
+    // 解析修改密码信息
+    void parseModifyPasswordStatus(const QJsonValue& rtData);
 
     Ui::Loggin*       m_ptUi;
     Friend*           m_ptFriend;

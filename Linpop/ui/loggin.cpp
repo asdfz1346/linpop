@@ -59,6 +59,22 @@ void Loggin::sendToGetRegisterInfo(const QString& rsId,  const QString& rsPasswo
     m_ptSocketClient->onSendMessage(SMT_REGISTER, tData);
 }
 
+void Loggin::sendToGetPosswordTip(const QString& rsId, const QString& rsTip) {
+    QJsonObject tData;
+    tData.insert("Id", rsId);
+    tData.insert("Tip", rsTip);
+
+    m_ptSocketClient->onSendMessage(SMT_MATCHTIPS, tData);
+}
+
+void Loggin::sendToGetModifyPossword(const QString& rsId, const QString& rsPassword) {
+    QJsonObject tData;
+    tData.insert("Id", rsId);
+    tData.insert("Password", rsPassword);
+
+    m_ptSocketClient->onSendMessage(SMT_MODIFYPASSWORD, tData);
+}
+
 QWidget* Loggin::getDragnWidget() {
     return m_ptUi->nameLabel;
 }
@@ -132,6 +148,21 @@ void Loggin::on_cancelSetButton_clicked() {
     m_ptUi->stackedWidget->setCurrentIndex(0);
 }
 
+void Loggin::onSigMessage(int reType/* const Smt& reType */, const QJsonValue& rtData) {
+    switch (reType) {
+        case SMT_MATCHTIPS: {
+            // 解析匹配信息
+            parseMatchTipsStatus(rtData);
+            break;
+        }
+        case SMT_MODIFYPASSWORD: {
+            // 解析修改密码信息
+            parseModifyPasswordStatus(rtData);
+            break;
+        }
+    }
+}
+
 void Loggin::onSigStatus(int reType/* const Sst& reType */) {
 #ifdef _DEBUG_STATE
     qDebug() << __FUNCTION__ << __LINE__ << reType;
@@ -178,6 +209,7 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
         case SST_GETGROUP_SUCCESS: {
             // 拉取好友信息准备在Friend的preInit()中完成
             // 取消信号连接
+            disconnect(m_ptSocketClient, SIGNAL(sigMessage(int,QJsonValue)), this, SLOT(onSigMessage(int,QJsonValue)));
             disconnect(m_ptSocketClient, SIGNAL(sigStatus(int)), this, SLOT(onSigStatus(int)));
             // Friend界面预初始化以及显示
             m_ptFriend->preInit();
@@ -215,6 +247,7 @@ void Loggin::setSocketClient(void) {
     qDebug() << __FUNCTION__ << __LINE__;
 #endif
     m_ptSocketClient->startConnect(g_tServerIpAddr);
+    connect(m_ptSocketClient, SIGNAL(sigMessage(int,QJsonValue)), this, SLOT(onSigMessage(int,QJsonValue)));
     connect(m_ptSocketClient, SIGNAL(sigStatus(int)), this, SLOT(onSigStatus(int)));
 }
 
@@ -231,6 +264,46 @@ void Loggin::sendToGetGroupList(void) {
     tData.insert("Id", g_tMyselfInfo.sId);
 
     m_ptSocketClient->onSendMessage(SMT_GETGROUP, tData);
+}
+
+void Loggin::parseMatchTipsStatus(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_MATCHTIPS_SUCCESS == iStatus) {
+            // 显示修改密码界面
+            m_ptRecoverPassword->showPageByClient(1);
+
+            Q_EMIT m_ptSocketClient->sigStatus(SST_MATCHTIPS_SUCCESS);
+            return ;
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(SST_MATCHTIPS_FAILED);
+        return ;
+    }
+}
+
+void Loggin::parseModifyPasswordStatus(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_MODIFYPASSWORD_SUCCESS == iStatus) {
+            // 关闭修改密码界面
+            m_ptRecoverPassword->showPageByClient(0);
+
+            Q_EMIT m_ptSocketClient->sigStatus(SST_MODIFYPASSWORD_SUCCESS);
+            return ;
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(SST_MODIFYPASSWORD_FAILED);
+        return ;
+    }
 }
 
 void Loggin::showTipWindow(const QString& rsTitle, const QString& rsTip,

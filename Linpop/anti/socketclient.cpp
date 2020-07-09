@@ -102,12 +102,25 @@ void SocketClient::onReadyRead() {
                     break;
                 }
                 case SMT_MATCHTIPS: {
+                    Q_EMIT sigMessage(SMT_MATCHTIPS, tData);
                     break;
                 }
                 case SMT_MODIFYPASSWORD: {
+                    Q_EMIT sigMessage(SMT_MODIFYPASSWORD, tData);
                     break;
                 }
-
+                case SMT_ADDGROUP: {
+                    Q_EMIT sigMessage(SMT_ADDGROUP, tData);
+                    break;
+                }
+                case SMT_DELGROUP: {
+                    Q_EMIT sigMessage(SMT_DELGROUP, tData);
+                    break;
+                }
+                case SMT_RENAMEGROUP: {
+                    Q_EMIT sigMessage(SMT_RENAMEGROUP, tData);
+                    break;
+                }
             }
         }
     }

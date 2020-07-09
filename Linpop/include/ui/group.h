@@ -28,7 +28,7 @@ public:
 
     // 分组操作，添加分组直接添加到分组列表的末尾
     void addGroupItem(const QString& rsName);
-    void renameGroupItem(const int iIndex);
+    void renameGroupItem(const int iIndex, const QString& rsName);
     void delGroupItem(const int iIndex);
 
     // 好友操作，添加好友直接添加到iIndex分组的末尾
