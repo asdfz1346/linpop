@@ -57,11 +57,14 @@
      <height>100</height>
     </size>
    </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
    <widget class="QWidget" name="page">
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>24</x>
+       <x>22</x>
        <y>35</y>
        <width>70</width>
        <height>30</height>
@@ -89,7 +92,7 @@
     <widget class="QLineEdit" name="idEdit">
      <property name="geometry">
       <rect>
-       <x>99</x>
+       <x>101</x>
        <y>35</y>
        <width>205</width>
        <height>30</height>
@@ -314,7 +317,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QPushButton" name="logButton">
+  <widget class="QPushButton" name="sureButton">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -327,17 +330,17 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">QPushButton#logButton {
+    <string notr="true">QPushButton#sureButton {
 	background-color: rgb(200, 200, 200);
 	border-radius: 3px;
 }
 
-QPushButton#logButton:hover {
+QPushButton#sureButton:hover {
 	background-color: rgb(170, 170, 170);
 	border-radius: 3px;
 }
 
-QPushButton#logButton:pressed {
+QPushButton#sureButton:pressed {
 	background-color: rgb(150, 150, 150);
 	border-radius: 3px;
 }</string>

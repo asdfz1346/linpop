@@ -90,6 +90,16 @@ void SocketClient::onReadyRead() {
                     closeConnect();
                     break;
                 }
+                // Friend
+                case SMT_ADDGROUP:
+                case SMT_RENAMEGROUP:
+                case SMT_DELGROUP:
+                case SMT_SEARCHFRIEND:
+                case SMT_ADDFRIENDSENDREQUEST:
+                case SMT_ADDFRIEND:
+                case SMT_MOVEFRIEND:
+                case SMT_DELFRIEND:
+                case SMT_ADDFRIEND:
                 case SMT_GETFRIENDLIST: {
                     Q_EMIT sigMessage(SMT_GETFRIENDLIST, tData);
                     break;

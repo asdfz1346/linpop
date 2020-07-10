@@ -51,6 +51,10 @@ void Group::initGroupItemControls(/*const UserInfo& rtMyselfInfo*/) {
     // 从此处开始，m_lptGroupItem和g_lsGroupTextList的设置都由客户端同步完成
 }
 
+void Group::initFriendItemListAppend(const int iIndex, const FriendInfo& rtFriendInfo) {
+    m_lptGroupItem.at(iIndex)->initFriendItemListAppend(rtFriendInfo);
+}
+
 void Group::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex) {
     m_lptGroupItem.at(iIndex)->initFriendItemControls(iIndex);
 }

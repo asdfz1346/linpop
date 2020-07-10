@@ -9,14 +9,14 @@
 
 struct UserInfo {
     QString sId;                        // 账号
-    QString sPassword;			// 密码
+    QString sPassword;                  // 密码
     QString sIp;                        // ip
     QString sName;                      // 昵称
     QString sHead;                      // 头像路径
 };
 
 struct FriendInfo {
-    bool    bOnline;			// 是否在线
+    bool    bOnline;                    // 是否在线
     int     iGroup;                     // 所属分组的index
     QString sId;                        // 账号
     QString sIp;                        // ip

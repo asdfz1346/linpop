@@ -27,6 +27,7 @@ public:
     explicit GroupItem(const int iGroupIndex, QWidget* ptParent = nullptr);
     ~GroupItem();
 
+    void initFriendItemListAppend(const FriendInfo& rtFriendInfo);
     void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
 
     void addFriendItem(const FriendInfo& rtFriendInfo);

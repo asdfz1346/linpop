@@ -22,6 +22,7 @@ public:
     ~Group();
 
     void initGroupItemControls(/*const UserInfo& rtMyselfInfo*/);
+    void initFriendItemListAppend(const int iIndex, const FriendInfo& rtFriendInfo);
     void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
 
     GroupItem* getGroupitemIndex(const int iIndex);
