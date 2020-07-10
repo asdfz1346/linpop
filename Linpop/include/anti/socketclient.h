@@ -64,8 +64,8 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_DELGROUP_SUCCESS,                   // 删除分组
     SST_DELGROUP_FAILED,
 
-    SST_GETFRIEND_SUCCESS       = 0x45,     // 获取好友列表
-    SST_GETFRIEND_FAILED,
+    SST_GETFRIENDLIST_SUCCESS   = 0x45,     // 获取好友列表
+    SST_GETFRIENDLIST_FAILED,
     SST_SEARCHFRIEND_SUCCESS,               // 搜索好友
     SST_SEARCHFRIEND_FAILED,
     SST_ADDFRIENDSENDREQUEST_SUCCESS,       // 添加好友请求

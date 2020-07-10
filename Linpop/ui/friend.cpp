@@ -26,8 +26,12 @@ void Friend::preInit(/*const UserInfo& rtMyselfInfo*/) {
     // 设置分组控件
     initGroupItemControls();
 
+    for (int i = 0; i < g_lsGroupTextList.length(); ++i) {
+        sendToGetFriendList(i);
+    }
+
     // 添加好友请求示例（暂时未实现添加好友功能）
-    sendToAddFriendItem(0, "5");
+    //sendToAddFriendItem(0, "5");
 #if 0
     // 获取并设置每个分组的好友信息
     int iLength = g_lsGroupTextList.length();
@@ -279,12 +283,13 @@ void Friend::parseGetFriendList(const QJsonValue& rtData) {
 
         int iStatus = tObj.value("Status").toInt();
         int iIndex  = tObj.value("GroupIndex").toInt();
-        if ((SST_GETFRIEND_SUCCESS == iStatus) && tArr.size()) {
-            // 填充FriendItem，
-//            Q_EMIT sigStatus(SST_GETFRIEND_SUCCESS);
+        if ((SST_GETFRIENDLIST_SUCCESS == iStatus) && tArr.size()) {
+            // 填充FriendItem
+            initFriendItemControls(iIndex);
+            Q_EMIT m_ptSocketClient->sigStatus(SST_GETFRIENDLIST_SUCCESS);
             return ;
         }
-//        Q_EMIT sigStatus(SST_GETFRIEND_FAILED);
+        Q_EMIT m_ptSocketClient->sigStatus(SST_GETFRIENDLIST_FAILED);
         return ;
     }
 }
@@ -351,11 +356,7 @@ void Friend::onSigMessage(int reType/* const Smt& reType */, const QJsonValue& r
 
 void Friend::onSigStatus(int reType/* const Sst& reType */) {
     switch (reType) {
-        case SST_GETFRIEND_SUCCESS: {
-            // 获取好友列表
-            break;
-        }
-        case SST_GETFRIEND_FAILED: {
+        case SST_GETFRIENDLIST_FAILED: {
             QMessageBox tBox(QMessageBox::Warning, QStringLiteral("错误"),
                              QStringLiteral("初始化失败！\n请重试！"));
             tBox.setStandardButtons(QMessageBox::Ok);
@@ -363,9 +364,6 @@ void Friend::onSigStatus(int reType/* const Sst& reType */) {
             tBox.exec();
             break;
         }
-        case SST_ADDFRIEND_SUCCESS: {
-            /* Nothing */
-            break;
-        }
+        // 其他错误处理还没写
     }
 }
