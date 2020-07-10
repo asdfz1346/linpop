@@ -77,36 +77,25 @@ void SocketClient::onReadyRead() {
             qDebug() << __FUNCTION__ << __LINE__ << iType;
 #endif
             switch (iType) {
-                case SMT_LOGIN: {
-                    parseLoginUserInfo(tData);
+                // Loggin
+                case SMT_REGISTER:
+                case SMT_MATCHTIPS:
+                case SMT_MODIFYPASSWORD:
+                case SMT_LOGIN:
+                case SMT_GETGROUP: {
+                    Q_EMIT sigMessage(iType, tData);
                     break;
                 }
                 case SMT_LOGOUT: {
                     closeConnect();
                     break;
                 }
-                case SMT_REGISTER: {
-                    parseReisterUserInfo(tData);
-                    break;
-                }
-                case SMT_GETGROUP: {
-                    parseGroupList(tData);
-                    break;
-                }
-                case SMT_GETFRIEND: {
-                    Q_EMIT sigMessage(SMT_GETFRIEND, tData);
+                case SMT_GETFRIENDLIST: {
+                    Q_EMIT sigMessage(SMT_GETFRIENDLIST, tData);
                     break;
                 }
                 case SMT_ADDFRIEND: {
                     Q_EMIT sigMessage(SMT_ADDFRIEND, tData);
-                    break;
-                }
-                case SMT_MATCHTIPS: {
-                    Q_EMIT sigMessage(SMT_MATCHTIPS, tData);
-                    break;
-                }
-                case SMT_MODIFYPASSWORD: {
-                    Q_EMIT sigMessage(SMT_MODIFYPASSWORD, tData);
                     break;
                 }
                 case SMT_ADDGROUP: {
@@ -121,6 +110,8 @@ void SocketClient::onReadyRead() {
                     Q_EMIT sigMessage(SMT_RENAMEGROUP, tData);
                     break;
                 }
+                default:
+                    break;
             }
         }
     }
@@ -139,60 +130,4 @@ void SocketClient::onDisConnected() {
 #endif
     m_ptTcpSocket->abort();
     Q_EMIT sigStatus(SST_DISCONNECTED);
-}
-
-void SocketClient::parseLoginUserInfo(const QJsonValue& rtData) {
-#ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__ << rtData;
-#endif
-    if (rtData.isObject()) {
-        QJsonObject tObj = rtData.toObject();
-
-        int iStatus = tObj.value("Status").toInt();
-        if (SST_LOGIN_SUCCESS == iStatus) {
-            g_tMyselfInfo.sName = tObj.value("Name").toString();
-            g_tMyselfInfo.sIp   = tObj.value("Ip").toString();
-            g_tMyselfInfo.sHead = tObj.value("Head").toString();
-            if (0 == g_tMyselfInfo.sHead.length()) {
-                // 设置默认值
-                g_tMyselfInfo.sHead = USER_HEAD_DEFAULT;
-            }
-        }
-        Q_EMIT sigStatus(iStatus);
-    }
-}
-
-void SocketClient::parseReisterUserInfo(const QJsonValue& rtData) {
-#ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__;
-#endif
-    if (rtData.isObject()) {
-        Q_EMIT sigStatus(rtData.toObject().value("Status").toInt());
-    }
-}
-
-void SocketClient::parseGroupList(const QJsonValue& rtData) {
-#ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__ << rtData;
-#endif
-    if (rtData.isObject()) {
-        QJsonObject tObj = rtData.toObject();
-        QJsonArray  tArr;
-        if (tObj.value("Group").isArray()) {
-            tArr = tObj.value("Group").toArray();
-        }
-
-        int iStatus = tObj.value("Status").toInt();
-        if ((SST_GETGROUP_SUCCESS == iStatus) && tArr.size()) {
-            g_lsGroupTextList.clear();
-            for (int i = 0; i < tArr.size(); ++i) {
-                g_lsGroupTextList.append(tArr.at(i).toString());
-            }
-
-            Q_EMIT sigStatus(SST_GETGROUP_SUCCESS);
-            return ;
-        }
-        Q_EMIT sigStatus(SST_GETGROUP_FAILED);
-        return ;
-    }
 }

@@ -1,6 +1,7 @@
 ﻿
 #include <group.h>
 #include <ui_group.h>
+#include <friend.h>
 
 #include <QMessageBox>
 
@@ -58,56 +59,30 @@ GroupItem* Group::getGroupitemIndex(const int iIndex) {
     return m_lptGroupItem.at(iIndex);
 }
 
-void Group::addGroupItem(const QString& rsName) {
+void Group::addGroupItemControls(const QString& rsName) {
     // 在GroupItem的构造函数中使用了index对应的g_lsGroupTextList
     g_lsGroupTextList.append(rsName);
-#ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__ << g_lsGroupTextList;
-#endif
     GroupItem* ptItem = new GroupItem(g_lsGroupTextList.length() - 1, this);
     m_ptUi->widgetLayout->layout()->addWidget(ptItem);      // 优先显示
 
     m_lptGroupItem.append(ptItem);
 }
 
-void Group::renameGroupItem(const int iIndex, const QString& rsName) {
+void Group::renameGroupItemControls(const int iIndex, const QString& rsName) {
     g_lsGroupTextList.replace(iIndex, rsName);
     m_lptGroupItem.at(iIndex)->setGroupItemTextUseCount();
-    m_lptGroupItem.at(iIndex)->showPageByClient(0);
+    m_lptGroupItem.at(iIndex)->showStackPage(0);
 }
 
-void Group::delGroupItem(const int iIndex) {
-    // 删除分组前必须确定分组个数大于等于两个
-    int iDestIndex = findDefaultGroupItem(iIndex);
-    if (-1 == iDestIndex) {
-        QMessageBox tBox(QMessageBox::Warning, QStringLiteral("删除分组"), QStringLiteral("默认分组无法删除！"));
-        tBox.setStandardButtons(QMessageBox::Ok);
-        tBox.setButtonText(QMessageBox::Ok, QString(QStringLiteral("确定")));
-        tBox.exec();
-        return ;
-    }
-
-    QString sTips = QStringLiteral("删除此分组后，系统会将好友移动至\n默认分组\"");
-    sTips.append(g_lsGroupTextList.at(iDestIndex));
-    sTips.append(QStringLiteral("\"中"));
-    QMessageBox tBox(QMessageBox::Warning, QStringLiteral("删除分组"), sTips);
-    tBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    tBox.setButtonText(QMessageBox::Yes, QString(QStringLiteral("确定")));
-    tBox.setButtonText(QMessageBox::No,  QString(QStringLiteral("取消")));
-    int iRet = tBox.exec();
-    if (QMessageBox::No == iRet) {
-        return ;
-    }
-
+void Group::delGroupItemControls(const int iSrcGroupIndex, const int iDestGroupIndex) {
     // 将待删除分组内的好友移动至第一个分组中
-    m_lptGroupItem.at(iIndex)->moveAllFriendItems(iDestIndex);
-
+    m_lptGroupItem.at(iSrcGroupIndex)->moveAllFriendItems(iDestGroupIndex);
     // 删除分组
-    m_lptGroupItem.at(iIndex)->setVisible(false);
-    m_ptUi->widgetLayout->layout()->removeWidget(m_lptGroupItem.at(iIndex));
+    m_lptGroupItem.at(iSrcGroupIndex)->setVisible(false);
+    m_ptUi->widgetLayout->layout()->removeWidget(m_lptGroupItem.at(iSrcGroupIndex));
 
-    m_lptGroupItem.removeAt(iIndex);
-    g_lsGroupTextList.removeAt(iIndex);
+    m_lptGroupItem.removeAt(iSrcGroupIndex);
+    g_lsGroupTextList.removeAt(iSrcGroupIndex);
 
     // 更新GroupItem的index
     for (int i = 0; i < m_lptGroupItem.length(); ++i) {

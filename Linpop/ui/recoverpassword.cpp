@@ -14,7 +14,7 @@ RecoverPassword::~RecoverPassword() {
     delete m_ptUi;
 }
 
-void RecoverPassword::showPageByClient(const int iIndex) {
+void RecoverPassword::showStackPage(const int iIndex) {
     if (iIndex) {
         m_ptUi->stackedWidget->setCurrentIndex(1);
         m_ptUi->sureButton->setText(QStringLiteral("确 定"));
