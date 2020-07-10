@@ -29,22 +29,13 @@ void Friend::preInit(/*const UserInfo& rtMyselfInfo*/) {
     // 设置分组控件
     initGroupItemControls();
 
-    for (int i = 0; i < g_lsGroupTextList.length(); ++i) {
-        sendToGetFriendList(i);
+    QMap<int, QString>::iterator tIter = g_msGroupTextMap.begin();
+    while (tIter != g_msGroupTextMap.end()) {
+        sendToGetFriendList(tIter.key());
     }
 
     // 添加好友请求示例（暂时未实现添加好友功能）
     //sendToAddFriendItem(0, "5");
-#if 0
-    // 获取并设置每个分组的好友信息
-    int iLength = g_lsGroupTextList.length();
-    for (int i = 0; i < iLength; ++i) {
-        // 构造
-        sendIdAndGroupIndex(i);
-        // 初始化FriendItems控件放在
-//        initFriendItemControls(i);
-    }
-#endif
 }
 
 void Friend::postInit(/*const UserInfo& rtMyselfInfo*/) {
@@ -66,8 +57,8 @@ void Friend::showAddFriendUi(const int iIndex) {
     this->hide();
 }
 
-void Friend::addGroupItemControls(void) {
-    m_ptGroup->addGroupItemControls(GROUPITEM_NAME_DEFAULT);
+void Friend::addGroupItemControls(const int iIndex) {
+    m_ptGroup->addGroupItemControls(iIndex, GROUPITEM_NAME_DEFAULT);
 }
 
 void Friend::renameGroupItemControls(const int iIndex, const QString& rsName) {
@@ -78,8 +69,8 @@ void Friend::delGroupItemControls(const int iSrcGroupIndex, const int iDestGroup
     m_ptGroup->delGroupItemControls(iSrcGroupIndex, iDestGroupIndex);
 }
 
-void Friend::addFriendItemControls(const int iGroupIndex, const FriendInfo& rtFriendInfo) {
-    m_ptGroup->addFriendItem(iGroupIndex, rtFriendInfo);
+void Friend::addFriendItemControls(const int iIndex, const FriendInfo& rtFriendInfo) {
+    m_ptGroup->addFriendItem(iIndex, rtFriendInfo);
 }
 
 void Friend::moveFriendItemControls(const int iSrcGroupIndex, const int iDestGroupIndex,
@@ -212,7 +203,7 @@ void Friend::parseAddGroupItem(const QJsonValue& rtData) {
         int iStatus = tObj.value("Status").toInt();
         if (SST_ADDGROUP_SUCCESS == iStatus) {
             // 添加分组
-            addGroupItemControls();
+            addGroupItemControls(tObj.value("GroupIndex").toInt());
         }
         Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }

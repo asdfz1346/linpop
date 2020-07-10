@@ -53,12 +53,12 @@ public:
     void showAddFriendUi(const int iIndex);
 
     // 分组操作，添加分组直接添加到分组列表的末尾
-    void addGroupItemControls(void);
+    void addGroupItemControls(const int iIndex);
     void renameGroupItemControls(const int iIndex, const QString& rsName);
     void delGroupItemControls(const int iSrcGroupIndex, const int iDestGroupIndex);
 
     // 好友操作，添加好友直接添加到iIndex分组的末尾
-    void addFriendItemControls(const int iGroupIndex, const FriendInfo& rtFriendInfo);
+    void addFriendItemControls(const int iIndex, const FriendInfo& rtFriendInfo);
     void moveFriendItemControls(const int iSrcGroupIndex, const int iDestGroupIndex, const int iIndex);
     void delFriendItemControls(const int iGroupIndex, const int iIndex);
 

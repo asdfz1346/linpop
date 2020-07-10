@@ -191,7 +191,7 @@ void Loggin::sendToGetLoginUserInfo(void) {
     m_ptSocketClient->onSendMessage(SMT_LOGIN, tData);
 }
 
-void Loggin::sendToGetGroupList(void) {
+void Loggin::sendToGetGroupMap(void) {
     QJsonObject tData;
     tData.insert("Id", g_tMyselfInfo.sId);
 
@@ -264,28 +264,29 @@ void Loggin::parseLoginUserInfo(const QJsonValue& rtData) {
                 g_tMyselfInfo.sHead = USER_HEAD_DEFAULT;
             }
             // 根据UserInfo拉取分组信息
-            sendToGetGroupList();
+            sendToGetGroupMap();
         }
         Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }
 }
 
-void Loggin::parseGroupList(const QJsonValue& rtData) {
+void Loggin::parseGroupMap(const QJsonValue& rtData) {
 #ifdef _DEBUG_STATE
     qDebug() << __FUNCTION__ << __LINE__ << rtData;
 #endif
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
-        QJsonArray  tArr;
-        if (tObj.value("Group").isArray()) {
-            tArr = tObj.value("Group").toArray();
+        QJsonArray  tGroup, tIndex;
+        if (tObj.value("Group").isArray() && tObj.value("GroupIndex").isArray()) {
+            tGroup = tObj.value("Group").toArray();
+            tIndex = tObj.value("GroupIndex").toArray();
         }
 
-        if ((SST_GETGROUP_SUCCESS == tObj.value("Status").toInt()) && tArr.size()) {
+        if ((SST_GETGROUP_SUCCESS == tObj.value("Status").toInt()) && tGroup.size() && tIndex.size()) {
             // 填充全局的分组名List
-            g_lsGroupTextList.clear();
-            for (int i = 0; i < tArr.size(); ++i) {
-                g_lsGroupTextList.append(tArr.at(i).toString());
+            g_msGroupTextMap.clear();
+            for (int i = 0; i < tGroup.size(); ++i) {
+                g_msGroupTextMap.insert(tIndex.at(i).toInt(), tGroup.at(i).toString());
             }
             // 取消信号连接，不用再发送SST_GETGROUP_SUCCESS信号
             disconnect(m_ptSocketClient, SIGNAL(sigMessage(int,QJsonValue)), this, SLOT(onSigMessage(int,QJsonValue)));
@@ -321,7 +322,7 @@ void Loggin::onSigMessage(int reType/* const Smt& reType */, const QJsonValue& r
             break;
         }
         case SMT_GETGROUP: {
-            parseGroupList(rtData);
+            parseGroupMap(rtData);
             break;
         }
         default:

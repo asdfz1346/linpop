@@ -51,7 +51,7 @@ void GroupItem::initFriendItemListAppend(const FriendInfo& rtFriendInfo) {
     m_ltFriendInfoList.append(rtFriendInfo);
 }
 
-void GroupItem::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex) {
+void GroupItem::initFriendItemControls(void) {
     for (int i = 0; i < m_ltFriendInfoList.length(); ++i) {
         FriendItem* ptItem = new FriendItem(m_ltFriendInfoList.at(i), i, this);
         m_ptUi->conLayout->layout()->addWidget(ptItem);
@@ -119,7 +119,7 @@ void GroupItem::delFriendItem(const int iIndex) {
 }
 
 void GroupItem::setGroupItemTextUseCount(void) {
-    QString tNameText = QString("%1 (%2/%3)").arg(g_lsGroupTextList.at(m_iGroupIndex),
+    QString tNameText = QString("%1 (%2/%3)").arg(g_msGroupTextMap[m_iGroupIndex],
                                                   QString::number(m_tGroupUserCount.iOnlineCount),
                                                   QString::number(m_tGroupUserCount.iTotalCount));
     m_ptUi->textLabel->setText(tNameText);
@@ -184,7 +184,7 @@ void GroupItem::onAddGroupItem(void) {
 }
 
 void GroupItem::onRenameGroupItem(void) {
-    m_ptUi->lineEdit->setText(g_lsGroupTextList.at(m_iGroupIndex));
+    m_ptUi->lineEdit->setText(g_msGroupTextMap[m_iGroupIndex]);
     m_ptUi->stackedWidget->setCurrentIndex(1);
     m_ptUi->lineEdit->setFocus();
     // 服务器事件放在Edit处理事件中
@@ -201,7 +201,7 @@ void GroupItem::onDelGroupItem(void) {
     }
 
     QString sTips = QStringLiteral("删除此分组后，系统会将好友移动至\n默认分组\"");
-    sTips.append(g_lsGroupTextList.at(0));
+    sTips.append(g_msGroupTextMap.first());
     sTips.append(QStringLiteral("\"中"));
     QMessageBox tBox(QMessageBox::Warning, QStringLiteral("删除分组"), sTips);
     tBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -234,7 +234,7 @@ void GroupItem::on_lineEdit_editingFinished() {
         Friend::getInstance()->setFocus();
     }
     else if(!g_bFlagEnter) {
-        g_lsGroupTextList.replace(m_iGroupIndex, m_ptUi->lineEdit->text());
+        g_msGroupTextMap[m_iGroupIndex] = m_ptUi->lineEdit->text();
         setGroupItemTextUseCount();
         m_ptUi->stackedWidget->setCurrentIndex(0);
     }

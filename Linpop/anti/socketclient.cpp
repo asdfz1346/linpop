@@ -96,28 +96,12 @@ void SocketClient::onReadyRead() {
                 case SMT_DELGROUP:
                 case SMT_SEARCHFRIEND:
                 case SMT_ADDFRIENDSENDREQUEST:
+                case SMT_ADDFRIENDRECVREQUEST:
                 case SMT_ADDFRIEND:
                 case SMT_MOVEFRIEND:
                 case SMT_DELFRIEND:
-                case SMT_ADDFRIEND:
                 case SMT_GETFRIENDLIST: {
-                    Q_EMIT sigMessage(SMT_GETFRIENDLIST, tData);
-                    break;
-                }
-                case SMT_ADDFRIEND: {
-                    Q_EMIT sigMessage(SMT_ADDFRIEND, tData);
-                    break;
-                }
-                case SMT_ADDGROUP: {
-                    Q_EMIT sigMessage(SMT_ADDGROUP, tData);
-                    break;
-                }
-                case SMT_DELGROUP: {
-                    Q_EMIT sigMessage(SMT_DELGROUP, tData);
-                    break;
-                }
-                case SMT_RENAMEGROUP: {
-                    Q_EMIT sigMessage(SMT_RENAMEGROUP, tData);
+                    Q_EMIT sigMessage(iType, tData);
                     break;
                 }
                 default:
