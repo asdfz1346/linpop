@@ -19,6 +19,7 @@ void Group::initGroupItemControls(/*const UserInfo& rtMyselfInfo*/) {
         GroupItem* ptItem = new GroupItem(tIter.key(), this);
         m_ptUi->widgetLayout->layout()->addWidget(ptItem);  // 优先显示
         m_mptGroupItem.insert(tIter.key(), ptItem);
+        ++tIter;
     }
     // 从此处开始，m_lptGroupItem和g_lsGroupTextList的设置都由客户端同步完成
 }

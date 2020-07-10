@@ -47,6 +47,7 @@ void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
         }
         QAction* ptAct = ptMoveMenu->addAction(tIter.value());
         ptAct->setData(tIter.key());
+        ++tIter;
     }
     QObject::connect(ptMoveMenu, SIGNAL(triggered(QAction*)), this, SLOT(onMoveFriendItem(QAction*)));
     ptMoveAct->setMenu(ptMoveMenu);

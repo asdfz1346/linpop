@@ -362,6 +362,7 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
             break;
         } 
         case SST_GETGROUP_FAILED: {
+            // 退出当前登录状态
             showTipWindow(QStringLiteral("错误"), QStringLiteral("初始化失败！\n请重试！"));
             break;
         }

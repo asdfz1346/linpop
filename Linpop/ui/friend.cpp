@@ -32,6 +32,7 @@ void Friend::preInit(/*const UserInfo& rtMyselfInfo*/) {
     QMap<int, QString>::iterator tIter = g_msGroupTextMap.begin();
     while (tIter != g_msGroupTextMap.end()) {
         sendToGetFriendList(tIter.key());
+        ++tIter;
     }
 
     // 添加好友请求示例（暂时未实现添加好友功能）
@@ -361,7 +362,7 @@ void Friend::parseGetFriendList(const QJsonValue& rtData) {
         int iStatus = tObj.value("Status").toInt();
         int iIndex  = tObj.value("GroupIndex").toInt();
         int iSize   = tArr.size();
-        if ((SST_GETFRIENDLIST_SUCCESS == iStatus) && iSize) {
+        if (SST_GETFRIENDLIST_SUCCESS == iStatus && iSize) {
             // 填充FriendItem
             FriendInfo tUserInfo = { 0 };
             tUserInfo.iGroup = iIndex;
@@ -372,10 +373,8 @@ void Friend::parseGetFriendList(const QJsonValue& rtData) {
             }
             // 初始化界面
             initFriendItemControls(iIndex);
-            Q_EMIT m_ptSocketClient->sigStatus(SST_GETFRIENDLIST_SUCCESS);
-            return ;
         }
-        Q_EMIT m_ptSocketClient->sigStatus(SST_GETFRIENDLIST_FAILED);
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }
 }
 
