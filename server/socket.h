@@ -16,7 +16,10 @@ typedef enum SOCKET_MESSAGE_TYPE {
     SMT_DELGROUP,
     SMT_RENAMEGROUP,
 
-    SMT_GETFRIEND,                          // 拉取好友信息
+    SMT_GETFRIENDLIST,                      // 拉取好友信息
+    SMT_SEARCHFRIEND,
+    SMT_ADDFRIENDSENDREQUEST,
+    SMT_ADDFRIENDRECVREQUEST,
     SMT_ADDFRIEND,
     SMT_DELFRIEND,
     SMT_MOVEFRIEND,
@@ -36,8 +39,8 @@ typedef enum SOCKET_STATUS_TYPE {
 
     SST_REGISTER_SUCCESS        = 0x20,     // 用户注册成功
     SST_REGISTER_FAILED,
-    
-    SST_MATCHTIPS_SUCCESS       = 0x25,     // 修改密码
+
+    SST_MATCHTIPS_SUCCESS       = 0x25,     // 匹配提示信息
     SST_MATCHTIPS_FAILED,
 
     SST_MODIFYPASSWORD_SUCCESS  = 0x30,     // 修改密码
@@ -52,8 +55,14 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_DELGROUP_SUCCESS,                   // 删除分组
     SST_DELGROUP_FAILED,
 
-    SST_GETFRIEND_SUCCESS       = 0x45,     // 获取分组
+    SST_GETFRIEND_SUCCESS       = 0x45,     // 获取好友列表
     SST_GETFRIEND_FAILED,
+    SST_SEARCHFRIEND_SUCCESS,               // 搜索好友
+    SST_SEARCHFRIEND_FAILED,
+    SST_ADDFRIENDSENDREQUEST_SUCCESS,       // 添加好友请求
+    SST_ADDFRIENDSENDREQUEST_FAILED,
+    SST_ADDFRIENDRECVREQUEST_SUCCESS,       // 接收添加好友请求
+    SST_ADDFRIENDRECVREQUEST_FAILED,
     SST_ADDFRIEND_SUCCESS,                  // 添加好友
     SST_ADDFRIEND_FAILED,
     SST_MOVEFRIEND_SUCCESS,                 // 移动好友
