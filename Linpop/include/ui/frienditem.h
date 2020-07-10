@@ -30,7 +30,7 @@ private slots:
 private:
     Ui::FriendItem* m_ptUi;
     QWidget*        m_ptGroupItem;          // 指向上一层的GroupItem
-    int             m_iFriendIndex;         // 当前FriendItem为指向上一层的GroupItem的第几个
+    int             m_iFriendIndex;         // 当前FriendItem位于上一层Map中的index
 };
 
 #endif // LINPOP_FRIENDITEM_H

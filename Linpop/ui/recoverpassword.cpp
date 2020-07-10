@@ -28,15 +28,13 @@ void RecoverPassword::on_sureButton_clicked() {
     if (0 == m_ptUi->stackedWidget->currentIndex()) {
         // 验证账号对应的提示信息是否正确
         if (m_ptUi->idEdit->text().length() && m_ptUi->tipEdit->text().length()) {
-            Loggin* ptLoggin = Loggin::getInstance();
-            ptLoggin->sendToGetPosswordTip(m_ptUi->idEdit->text(), m_ptUi->tipEdit->text());
+            Loggin::getInstance()->sendToGetPosswordTip(m_ptUi->idEdit->text(), m_ptUi->tipEdit->text());
         }
         return ;
     }
 
     if (m_ptUi->passwordEdit->text().length() && m_ptUi->repassEdit->text().length()) {
-        Loggin* ptLoggin = Loggin::getInstance();
-        ptLoggin->sendToGetModifyPossword(m_ptUi->idEdit->text(), m_ptUi->passwordEdit->text());
+        Loggin::getInstance()->sendToGetModifyPossword(m_ptUi->idEdit->text(), m_ptUi->passwordEdit->text());
     }
 }
 
@@ -44,7 +42,6 @@ void RecoverPassword::on_cancelButton_clicked() {
     m_ptUi->stackedWidget->setCurrentIndex(0);
     m_ptUi->sureButton->setText(QStringLiteral("找 回"));
 
-    Loggin* ptLoggin = Loggin::getInstance();
-    ptLoggin->show();
+    Loggin::getInstance()->show();
     this->close();
 }

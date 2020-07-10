@@ -36,6 +36,7 @@ GroupItem::GroupItem(const int iGroupIndex, QWidget* ptParent) : QWidget(ptParen
 
     m_tGroupUserCount = { 0 };
     m_iGroupIndex = iGroupIndex;
+    m_ltFriendInfoList.clear();
 
     setGroupItemTextUseCount();
     m_ptUi->conLayout->setVisible(false);       // 默认为关闭分组的状态
@@ -45,36 +46,12 @@ GroupItem::GroupItem(const int iGroupIndex, QWidget* ptParent) : QWidget(ptParen
 GroupItem::~GroupItem() {
     delete m_ptUi;
 }
-#if 0
-void GroupItem::pullFriendItemList(/*const UserInfo& rtMyselfInfo,*/) {
-    m_ltFriendInfoList.clear();
-#ifdef _USE_SQL
-    getFriendListByGroupId(g_tMyselfInfo.sId, m_iGroupIndex, m_ltFriendInfoList);
-#else
-    QTime tTime;
-    tTime= QTime::currentTime();
-    qsrand(tTime.msec() + tTime.second() * 1000);
 
-    // 随机产生好友数目
-    int iCount  = qrand() % 15 + 1;
-    for (int i = 0; i < iCount; ++i) {
-        int id       = (qrand() % 90) * 20000 + (qrand() % 90) * 200 + (qrand() % 90) * 2 + 100000;
-        int libIndex = qrand() % 16;
-        int iconIdex = qrand() % 4 + 1;
-        int off      = qrand() % 3;
-        FriendInfo usr = { (bool)off, m_iGroupIndex, QString::number(id),
-                           (off) ? ipLib[libIndex] : "",            // 离线不显示IP
-                           nameLib[libIndex], QString(":/head/%1.png").arg(iconIdex)};
-        m_ltFriendInfoList.append(usr);
-    }
-#endif
+void GroupItem::initFriendItemListAppend(const FriendInfo& rtFriendInfo) {
+    m_ltFriendInfoList.append(rtFriendInfo);
 }
 
-void GroupItem::pushFriendItemList(/*const UserInfo& rtMyselfInfo,*/) {
-
-}
-#endif
-void GroupItem::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex) {
+void GroupItem::initFriendItemControls(void) {
     for (int i = 0; i < m_ltFriendInfoList.length(); ++i) {
         FriendItem* ptItem = new FriendItem(m_ltFriendInfoList.at(i), i, this);
         m_ptUi->conLayout->layout()->addWidget(ptItem);
@@ -142,7 +119,7 @@ void GroupItem::delFriendItem(const int iIndex) {
 }
 
 void GroupItem::setGroupItemTextUseCount(void) {
-    QString tNameText = QString("%1 (%2/%3)").arg(g_lsGroupTextList.at(m_iGroupIndex),
+    QString tNameText = QString("%1 (%2/%3)").arg(g_msGroupTextMap[m_iGroupIndex],
                                                   QString::number(m_tGroupUserCount.iOnlineCount),
                                                   QString::number(m_tGroupUserCount.iTotalCount));
     m_ptUi->textLabel->setText(tNameText);
@@ -207,7 +184,7 @@ void GroupItem::onAddGroupItem(void) {
 }
 
 void GroupItem::onRenameGroupItem(void) {
-    m_ptUi->lineEdit->setText(g_lsGroupTextList.at(m_iGroupIndex));
+    m_ptUi->lineEdit->setText(g_msGroupTextMap[m_iGroupIndex]);
     m_ptUi->stackedWidget->setCurrentIndex(1);
     m_ptUi->lineEdit->setFocus();
     // 服务器事件放在Edit处理事件中
@@ -224,7 +201,7 @@ void GroupItem::onDelGroupItem(void) {
     }
 
     QString sTips = QStringLiteral("删除此分组后，系统会将好友移动至\n默认分组\"");
-    sTips.append(g_lsGroupTextList.at(0));
+    sTips.append(g_msGroupTextMap.first());
     sTips.append(QStringLiteral("\"中"));
     QMessageBox tBox(QMessageBox::Warning, QStringLiteral("删除分组"), sTips);
     tBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -240,14 +217,16 @@ void GroupItem::onDelGroupItem(void) {
 }
 
 void GroupItem::onAddFriendItem(void) {
-    // 获取待添加好友的信息
-
-    // 显示添加好友界面
+    // 显示搜索好友界面
+    Friend::getInstance()->showAddFriendUi(m_iGroupIndex);
 }
 
 static bool g_bFlagEnter = false;
 void GroupItem::on_lineEdit_editingFinished() {
-
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__;
+#endif
+    // 为什么两次处理不一样？
     if (m_ptUi->lineEdit->hasFocus()) {
         g_bFlagEnter = true;
         Friend::getInstance()->sendToRenameGroupItem(m_iGroupIndex, m_ptUi->lineEdit->text());
@@ -255,7 +234,7 @@ void GroupItem::on_lineEdit_editingFinished() {
         Friend::getInstance()->setFocus();
     }
     else if(!g_bFlagEnter) {
-        g_lsGroupTextList.replace(m_iGroupIndex, m_ptUi->lineEdit->text());
+        g_msGroupTextMap[m_iGroupIndex] = m_ptUi->lineEdit->text();
         setGroupItemTextUseCount();
         m_ptUi->stackedWidget->setCurrentIndex(0);
     }

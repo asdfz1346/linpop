@@ -68,13 +68,13 @@ private:
     // 根据账号密码拉取登录用户信息
     void sendToGetLoginUserInfo(void);
     // 根据账号拉取分组信息
-    void sendToGetGroupList(void);
+    void sendToGetGroupMap(void);
 
     void parseRegisterInfo(const QJsonValue& rtData);
     void parsePosswordTip(const QJsonValue& rtData);
     void parsetModifyPossword(const QJsonValue& rtData);
     void parseLoginUserInfo(const QJsonValue& rtData);
-    void parseGroupList(const QJsonValue& rtData);
+    void parseGroupMap(const QJsonValue& rtData);
 
 private slots:
     // 服务器消息处理

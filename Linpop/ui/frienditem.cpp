@@ -39,13 +39,15 @@ void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
     QMenu* ptMoveMenu  = new QMenu(this);
 
     QAction* ptMoveAct = ptMenu->addAction(QStringLiteral("移动联系人至"));
-    int iGruopItemIndex = ((GroupItem*)m_ptGroupItem)->getGroupItemIndex();
-    for (int i = 0; i < g_lsGroupTextList.length(); ++i) {
-        if (iGruopItemIndex == i) {
+    int iGroupItemIndex = ((GroupItem*)m_ptGroupItem)->getGroupItemIndex();
+    QMap<int, QString>::iterator tIter = g_msGroupTextMap.begin();
+    while (tIter != g_msGroupTextMap.end()) {
+        if (iGroupItemIndex == tIter.key()) {
             continue;
         }
-        QAction* ptAct = ptMoveMenu->addAction(g_lsGroupTextList.at(i));
-        ptAct->setData(i);
+        QAction* ptAct = ptMoveMenu->addAction(tIter.value());
+        ptAct->setData(tIter.key());
+        ++tIter;
     }
     QObject::connect(ptMoveMenu, SIGNAL(triggered(QAction*)), this, SLOT(onMoveFriendItem(QAction*)));
     ptMoveAct->setMenu(ptMoveMenu);

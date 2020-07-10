@@ -27,7 +27,8 @@ public:
     explicit GroupItem(const int iGroupIndex, QWidget* ptParent = nullptr);
     ~GroupItem();
 
-    void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
+    void initFriendItemListAppend(const FriendInfo& rtFriendInfo);
+    void initFriendItemControls(void);
 
     void addFriendItem(const FriendInfo& rtFriendInfo);
     /**
@@ -63,8 +64,7 @@ private:
     Ui::GroupItem*     m_ptUi;
     QList<FriendItem*> m_lptFriendItem;
 
-//    QWidget*           m_ptGroup;           // 指向上一层的Group
-    int                m_iGroupIndex;       // 当前GroupItem为Group的第几个
+    int                m_iGroupIndex;       // GroupItem为GroupMap中的Index
 
     QList<FriendInfo>  m_ltFriendInfoList;
     GroupItemUserCount m_tGroupUserCount;

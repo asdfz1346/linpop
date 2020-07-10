@@ -11,9 +11,12 @@ Friend::Friend(QWidget* ptParent) : QWidget(ptParent), m_ptUi(new Ui::Friend) {
     m_ptUi->setupUi(this);
     m_ptGroup = new Group(this);
     m_ptUi->friendWidget->layout()->addWidget(m_ptGroup);
+    m_ptAddFriend = nullptr;
 }
 
 Friend::~Friend() {
+    if (m_ptAddFriend)
+        delete m_ptAddFriend;
     delete m_ptGroup;
     delete m_ptUi;
 }
@@ -26,22 +29,14 @@ void Friend::preInit(/*const UserInfo& rtMyselfInfo*/) {
     // 设置分组控件
     initGroupItemControls();
 
-    for (int i = 0; i < g_lsGroupTextList.length(); ++i) {
-        sendToGetFriendList(i);
+    QMap<int, QString>::iterator tIter = g_msGroupTextMap.begin();
+    while (tIter != g_msGroupTextMap.end()) {
+        sendToGetFriendList(tIter.key());
+        ++tIter;
     }
 
     // 添加好友请求示例（暂时未实现添加好友功能）
     //sendToAddFriendItem(0, "5");
-#if 0
-    // 获取并设置每个分组的好友信息
-    int iLength = g_lsGroupTextList.length();
-    for (int i = 0; i < iLength; ++i) {
-        // 构造
-        sendIdAndGroupIndex(i);
-        // 初始化FriendItems控件放在
-//        initFriendItemControls(i);
-    }
-#endif
 }
 
 void Friend::postInit(/*const UserInfo& rtMyselfInfo*/) {
@@ -52,8 +47,19 @@ GroupItem* Friend::getGroupitemIndex(const int iIndex) {
     return m_ptGroup->getGroupitemIndex(iIndex);
 }
 
-void Friend::addGroupItemControls(void) {
-    m_ptGroup->addGroupItemControls(GROUPITEM_NAME_DEFAULT);
+void Friend::showAddFriendUi(const int iIndex) {
+    if (nullptr == m_ptAddFriend) {
+        m_ptAddFriend = new AddFriend(iIndex);
+    }
+    else {
+        m_ptAddFriend->setGroupIndex(iIndex);
+    }
+    m_ptAddFriend->show();
+    this->hide();
+}
+
+void Friend::addGroupItemControls(const int iIndex) {
+    m_ptGroup->addGroupItemControls(iIndex, GROUPITEM_NAME_DEFAULT);
 }
 
 void Friend::renameGroupItemControls(const int iIndex, const QString& rsName) {
@@ -64,8 +70,8 @@ void Friend::delGroupItemControls(const int iSrcGroupIndex, const int iDestGroup
     m_ptGroup->delGroupItemControls(iSrcGroupIndex, iDestGroupIndex);
 }
 
-void Friend::addFriendItemControls(const int iGroupIndex, const FriendInfo& rtFriendInfo) {
-    m_ptGroup->addFriendItem(iGroupIndex, rtFriendInfo);
+void Friend::addFriendItemControls(const int iIndex, const FriendInfo& rtFriendInfo) {
+    m_ptGroup->addFriendItem(iIndex, rtFriendInfo);
 }
 
 void Friend::moveFriendItemControls(const int iSrcGroupIndex, const int iDestGroupIndex,
@@ -100,6 +106,10 @@ void Friend::initUserInofControls(/*const UserInfo& rtMyselfInfo*/) {
 
 void Friend::initGroupItemControls(/*const UserInfo& rtMyselfInfo*/) {
     m_ptGroup->initGroupItemControls();
+}
+
+void Friend::initFriendItemListAppend(const int iIndex, const FriendInfo& rtFriendInfo) {
+    m_ptGroup->initFriendItemListAppend(iIndex, rtFriendInfo);
 }
 
 void Friend::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex) {
@@ -145,6 +155,14 @@ void Friend::sendToSearchFriendItem(const int iGroupIndex, const QString& rsFrie
     m_ptSocketClient->onSendMessage(SMT_SEARCHFRIEND, tData);
 }
 
+void Friend::sendToAddFriendItemRequest(const int iGroupIndex, const QString& rsFriendId) {
+    QJsonObject tData;
+    tData.insert("GroupIndex", iGroupIndex);
+    tData.insert("Id", rsFriendId);        // 好友Id
+
+    m_ptSocketClient->onSendMessage(SMT_ADDFRIENDSENDREQUEST, tData);
+}
+
 void Friend::sendToAddFriendItem(const int iGroupIndex, const QString& rsFriendId) {
     QJsonObject tData;
     tData.insert("GroupIndex", iGroupIndex);
@@ -186,12 +204,9 @@ void Friend::parseAddGroupItem(const QJsonValue& rtData) {
         int iStatus = tObj.value("Status").toInt();
         if (SST_ADDGROUP_SUCCESS == iStatus) {
             // 添加分组
-            addGroupItemControls();
-            Q_EMIT m_ptSocketClient->sigStatus(SST_ADDGROUP_SUCCESS);
-            return ;
+            addGroupItemControls(tObj.value("GroupIndex").toInt());
         }
-        Q_EMIT m_ptSocketClient->sigStatus(SST_ADDFRIEND_FAILED);
-        return ;
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }
 }
 
@@ -205,11 +220,8 @@ void Friend::parseRenameGroupItem(const QJsonValue& rtData) {
         if (SST_RENAMEGROUP_SUCCESS == iStatus) {
             // 重命名分组
             renameGroupItemControls(tObj.value("GroupIndex").toInt(), tObj.value("GroupName").toString());
-            Q_EMIT m_ptSocketClient->sigStatus(SST_RENAMEGROUP_SUCCESS);
-            return ;
         }
-        Q_EMIT m_ptSocketClient->sigStatus(SST_RENAMEGROUP_FAILED);
-        return ;
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }
 }
 
@@ -223,20 +235,45 @@ void Friend::parseDelGroupItem(const QJsonValue& rtData) {
         if (SST_DELGROUP_SUCCESS == iStatus) {
             // 删除分组
             delGroupItemControls(tObj.value("SrcGroupIndex").toInt(), tObj.value("DestGroupIndex").toInt());
-            Q_EMIT m_ptSocketClient->sigStatus(SST_DELGROUP_SUCCESS);
-            return ;
         }
-        Q_EMIT m_ptSocketClient->sigStatus(SST_DELGROUP_FAILED);
-        return ;
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }
 }
 
 void Friend::parseSearchFriendItem(const QJsonValue& rtData) {
-
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_SEARCHFRIEND_SUCCESS == iStatus) {
+            int iIndex      = tObj.value("GroupIndex").toInt();
+            QJsonValue tVal = tObj.value("Friend");
+            // 解析出FriendInfo
+            FriendInfo tUserInfo = { 0 };
+            tUserInfo.iGroup = iIndex;
+            parseFriendInfo(tVal, tUserInfo);
+            // 显示搜索结果
+            m_ptAddFriend->showStackPage(1, tUserInfo);
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
+    }
 }
 
 void Friend::parseAddFriendItemSendRequest(const QJsonValue& rtData) {
-
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_ADDFRIENDSENDREQUEST_SUCCESS == iStatus) {
+            // 退出添加好友界面显示
+            m_ptAddFriend->showStackPage(0, { 0 });
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
+    }
 }
 
 void Friend::parseAddFriendItemRecvRequest(const QJsonValue& rtData) {
@@ -244,6 +281,9 @@ void Friend::parseAddFriendItemRecvRequest(const QJsonValue& rtData) {
 }
 
 void Friend::parseAddFriendItem(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
 
@@ -257,40 +297,84 @@ void Friend::parseAddFriendItem(const QJsonValue& rtData) {
             parseFriendInfo(tVal, tUserInfo);
             // 添加好友变量并设置界面
             addFriendItemControls(iIndex, tUserInfo);
-            Q_EMIT m_ptSocketClient->sigStatus(SST_ADDFRIEND_SUCCESS);
-            return ;
         }
-        Q_EMIT m_ptSocketClient->sigStatus(SST_ADDFRIEND_FAILED);
-        return ;
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }
 }
 
 void Friend::parseMoveFriendItem(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
 
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_MOVEFRIEND_SUCCESS == iStatus) {
+            int iIndex      = tObj.value("GroupIndex").toInt();
+            QJsonValue tVal = tObj.value("Friend");
+            // 解析出FriendInfo
+            FriendInfo tUserInfo = { 0 };
+            tUserInfo.iGroup = iIndex;
+            parseFriendInfo(tVal, tUserInfo);
+            // 添加好友变量并设置界面
+            addFriendItemControls(iIndex, tUserInfo);
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
+    }
 }
 
 void Friend::parseDelFriendItem(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
 
+        int iStatus = tObj.value("Status").toInt();
+        if (SST_ADDFRIEND_SUCCESS == iStatus) {
+            int iIndex      = tObj.value("GroupIndex").toInt();
+            QJsonValue tVal = tObj.value("Friend");
+            // 解析出FriendInfo
+            FriendInfo tUserInfo = { 0 };
+            tUserInfo.iGroup = iIndex;
+            parseFriendInfo(tVal, tUserInfo);
+            // 添加好友变量并设置界面
+            addFriendItemControls(iIndex, tUserInfo);
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
+    }
 }
 
 void Friend::parseGetFriendList(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
         QJsonArray  tArr;
         if (tObj.value("Friend").isArray()) {
             tArr = tObj.value("Friend").toArray();
         }
-
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << tArr;
+#endif
         int iStatus = tObj.value("Status").toInt();
         int iIndex  = tObj.value("GroupIndex").toInt();
-        if ((SST_GETFRIENDLIST_SUCCESS == iStatus) && tArr.size()) {
+        int iSize   = tArr.size();
+        if (SST_GETFRIENDLIST_SUCCESS == iStatus && iSize) {
             // 填充FriendItem
+            FriendInfo tUserInfo = { 0 };
+            tUserInfo.iGroup = iIndex;
+            for (int i = 0; i < iSize; ++i) {
+                QJsonValue tVal = tArr.at(i);
+                parseFriendInfo(tVal, tUserInfo);
+                initFriendItemListAppend(i, tUserInfo);
+            }
+            // 初始化界面
             initFriendItemControls(iIndex);
-            Q_EMIT m_ptSocketClient->sigStatus(SST_GETFRIENDLIST_SUCCESS);
-            return ;
         }
-        Q_EMIT m_ptSocketClient->sigStatus(SST_GETFRIENDLIST_FAILED);
-        return ;
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }
 }
 
@@ -324,7 +408,7 @@ void Friend::onSigMessage(int reType/* const Smt& reType */, const QJsonValue& r
             break;
         }
         case SMT_SEARCHFRIEND: {
-            parseAddGroupItem(rtData);
+            parseSearchFriendItem(rtData);
             break;
         }
         case SMT_ADDFRIENDSENDREQUEST: {

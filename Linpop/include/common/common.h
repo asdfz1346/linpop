@@ -5,7 +5,7 @@
 #include <config.h>
 
 #include <QString>
-#include <QStringList>
+#include <QMap>
 
 struct UserInfo {
     QString sId;                        // 账号
@@ -24,8 +24,8 @@ struct FriendInfo {
     QString sHead;                      // 头像路径
 };
 
-extern UserInfo    g_tMyselfInfo;       // 个人信息
-extern QString     g_tServerIpAddr;     // 服务器地址
-extern QStringList g_lsGroupTextList;   // 分组名，只限于Group和GroupItem使用
+extern UserInfo           g_tMyselfInfo;       // 个人信息
+extern QString            g_tServerIpAddr;     // 服务器地址
+extern QMap<int, QString> g_msGroupTextMap;    // 分组名，只限于Group和GroupItem使用
 
 #endif // LINPOP_COMMON_H
