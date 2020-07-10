@@ -1,0 +1,39 @@
+
+# QT FINISH
+1. 实现了添加好友的Socket操作
+2. 设计和添加好友的搜索界面和显示好友信息确认添加的界面
+3. 实现了添加分组的Socket操作
+4. 完成了重命名分组Socket操作，测试暂时还有一些问题
+
+# QT TODO
+1. 完成分组操作和好友操作的底层逻辑
+2. 完善注册、找回密码和登录的底层逻辑
+3. 完善其他操作相关的ID
+4. 完善错误处理
+
+#QT 传输框架
+1. JSON根据调用层级分为两层或两层以上结构，示例如下：
+	[Type, int]				// 消息类型SMT_XXX
+	[Data, object]
+	    [Status, int]		// 由服务器返回读取状态SST_XXX
+		[Id, string]
+		[Name, string]
+2. SocketClient只有在Loggin和Friend中可以使用
+3. Loggin和Friend需要提供其他界面的操作接口
+4. SocketClient分为连接操作、在客户端与服务器之间传输JSON的槽函数和在界面之间传输JSON的信号
+5. 连接操作有
+	a. 启动连接startConnect()
+	b. 检查连接checkConnect()
+	c. 关闭连接closeConnect()
+6. 在客户端与服务器之间传输JSON的槽函数有
+	a. 发送数据onSendMessage(消息类型SMT_XXX, const QJsonValue& rtData);
+	b. 接收服务器数据成功后被调用onReadyRead();
+    c. 连接服务器成功后被调用onConnected();
+    d. 断开服务器成功后被调用onDisConnected();
+
+7. 调用过程
+	a. onSendMessage()由具体交互事件调用，构造JSON并发送数据函数名设计为sendTo + SMT_XXX
+	b. onReadyRead()中只会判断JSON消息的Type，根据Type调用不同的底层解析函数
+	c. 底层解析函数名设计为parse + SST_XXX，为保证界面和变量处理的完整性，解析完成后需要发送sigStatus()信号
+	d. 具体的顶层界面接收到sigStatus()信号，处理收尾事件
+	e. parse + SST_XXX类似于预初始化、sigStatus()类似于收尾初始化，设计可以由设计者自行决定

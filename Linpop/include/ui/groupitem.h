@@ -46,6 +46,8 @@ public:
 
     int  getGroupItemCount(void);
 
+    void showStackPage(const int iIndex);
+
 protected:
     virtual bool eventFilter(QObject* ptWatched, QEvent* ptEvent);
 

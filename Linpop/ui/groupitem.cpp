@@ -160,6 +160,10 @@ int  GroupItem::getGroupItemCount(void) {
     return m_tGroupUserCount.iTotalCount;
 }
 
+void GroupItem::showStackPage(const int iIndex) {
+    m_ptUi->stackedWidget->setCurrentIndex(iIndex);
+}
+
 bool GroupItem::eventFilter(QObject* ptWatched, QEvent* ptEvent) {
     if (QEvent::MouseButtonPress != ptEvent->type()) {
         return false;
@@ -199,31 +203,54 @@ bool GroupItem::eventFilter(QObject* ptWatched, QEvent* ptEvent) {
 }
 
 void GroupItem::onAddGroupItem(void) {
-    Friend::getInstance()->addGroupItem();
-//    ((Group*)m_ptGroup)->addGroupItem();
+    Friend::getInstance()->sendToAddGroupItem();
 }
 
 void GroupItem::onRenameGroupItem(void) {
     m_ptUi->lineEdit->setText(g_lsGroupTextList.at(m_iGroupIndex));
     m_ptUi->stackedWidget->setCurrentIndex(1);
     m_ptUi->lineEdit->setFocus();
+    // 服务器事件放在Edit处理事件中
 }
 
 void GroupItem::onDelGroupItem(void) {
-    Friend::getInstance()->delGroupItem(m_iGroupIndex);
+
+    if (0 == m_iGroupIndex) {
+        QMessageBox tBox(QMessageBox::Warning, QStringLiteral("删除分组"), QStringLiteral("默认分组无法删除！"));
+        tBox.setStandardButtons(QMessageBox::Ok);
+        tBox.setButtonText(QMessageBox::Ok, QString(QStringLiteral("确定")));
+        tBox.exec();
+        return ;
+    }
+
+    QString sTips = QStringLiteral("删除此分组后，系统会将好友移动至\n默认分组\"");
+    sTips.append(g_lsGroupTextList.at(0));
+    sTips.append(QStringLiteral("\"中"));
+    QMessageBox tBox(QMessageBox::Warning, QStringLiteral("删除分组"), sTips);
+    tBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    tBox.setButtonText(QMessageBox::Yes, QString(QStringLiteral("确定")));
+    tBox.setButtonText(QMessageBox::No,  QString(QStringLiteral("取消")));
+    int iRet = tBox.exec();
+    if (QMessageBox::No == iRet) {
+        return ;
+    }
+
+    // 发送删除分组请求
+    Friend::getInstance()->sendToDelGroupItem(m_iGroupIndex, 0);
 }
 
 void GroupItem::onAddFriendItem(void) {
+    // 获取待添加好友的信息
+
     // 显示添加好友界面
 }
 
 static bool g_bFlagEnter = false;
 void GroupItem::on_lineEdit_editingFinished() {
+
     if (m_ptUi->lineEdit->hasFocus()) {
         g_bFlagEnter = true;
-        g_lsGroupTextList.replace(m_iGroupIndex, m_ptUi->lineEdit->text());
-        setGroupItemTextUseCount();
-        m_ptUi->stackedWidget->setCurrentIndex(0);
+        Friend::getInstance()->sendToRenameGroupItem(m_iGroupIndex, m_ptUi->lineEdit->text());
         g_bFlagEnter = false;
         Friend::getInstance()->setFocus();
     }

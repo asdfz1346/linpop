@@ -25,7 +25,10 @@ typedef enum SOCKET_MESSAGE_TYPE {
     SMT_DELGROUP,
     SMT_RENAMEGROUP,
 
-    SMT_GETFRIEND,                          // 拉取好友信息
+    SMT_GETFRIENDLIST,                      // 拉取好友信息
+    SMT_SEARCHFRIEND,
+    SMT_ADDFRIENDSENDREQUEST,
+    SMT_ADDFRIENDRECVREQUEST,
     SMT_ADDFRIEND,
     SMT_DELFRIEND,
     SMT_MOVEFRIEND,
@@ -46,10 +49,13 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_REGISTER_SUCCESS        = 0x20,     // 用户注册成功
     SST_REGISTER_FAILED,
 
-    SST_MODIFYPASSWORD_SUCCESS  = 0x25,     // 修改密码
+    SST_MATCHTIPS_SUCCESS       = 0x25,     // 匹配提示信息
+    SST_MATCHTIPS_FAILED,
+
+    SST_MODIFYPASSWORD_SUCCESS  = 0x30,     // 修改密码
     SST_MODIFYPASSWORD_FAILED,
 
-    SST_GETGROUP_SUCCESS        = 0x30,     // 获取分组
+    SST_GETGROUP_SUCCESS        = 0x35,     // 获取分组
     SST_GETGROUP_FAILED,
     SST_ADDGROUP_SUCCESS,                   // 添加分组
     SST_ADDGROUP_FAILED,
@@ -58,8 +64,14 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_DELGROUP_SUCCESS,                   // 删除分组
     SST_DELGROUP_FAILED,
 
-    SST_GETFRIEND_SUCCESS       = 0x40,     // 获取分组
-    SST_GETFRIEND_FAILED,
+    SST_GETFRIENDLIST_SUCCESS   = 0x45,     // 获取好友列表
+    SST_GETFRIENDLIST_FAILED,
+    SST_SEARCHFRIEND_SUCCESS,               // 搜索好友
+    SST_SEARCHFRIEND_FAILED,
+    SST_ADDFRIENDSENDREQUEST_SUCCESS,       // 添加好友请求
+    SST_ADDFRIENDSENDREQUEST_FAILED,
+    SST_ADDFRIENDRECVREQUEST_SUCCESS,       // 接收添加好友请求
+    SST_ADDFRIENDRECVREQUEST_FAILED,
     SST_ADDFRIEND_SUCCESS,                  // 添加好友
     SST_ADDFRIEND_FAILED,
     SST_MOVEFRIEND_SUCCESS,                 // 移动好友
@@ -82,7 +94,7 @@ public:
 signals:
     // 让下层自己对消息进行判断
     void sigMessage(int reType/* const Smt& reType */, const QJsonValue& rtData);
-    // 主要对全局变量进行解析，只向下层发送成功或失败的状态信号
+    // 向下层发送成功或失败的状态信号
     void sigStatus(int reType/* const Sst reType */);
 
 public slots:
@@ -102,14 +114,6 @@ private slots:
     void onDisConnected();
 
 private:
-    // 通用的全局变量相关解析放到SocketClient中，与界面相关的变量解析会放到Friend中
-    // 解析登陆返回信息并为全局的UserInfo赋值
-    void parseLoginUserInfo(const QJsonValue& rtData);
-    // 解析注册返回信息
-    void parseReisterUserInfo(const QJsonValue& rtData);
-    // 解析分组信息并为全局的QStringList赋值
-    void parseGroupList(const QJsonValue& rtData);
-
     QTcpSocket* m_ptTcpSocket;
     bool        m_bIsConnected;
 };

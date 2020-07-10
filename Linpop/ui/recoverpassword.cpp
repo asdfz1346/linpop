@@ -14,20 +14,30 @@ RecoverPassword::~RecoverPassword() {
     delete m_ptUi;
 }
 
+void RecoverPassword::showStackPage(const int iIndex) {
+    if (iIndex) {
+        m_ptUi->stackedWidget->setCurrentIndex(1);
+        m_ptUi->sureButton->setText(QStringLiteral("确 定"));
+    }
+    else {
+        on_cancelButton_clicked();
+    }
+}
+
 void RecoverPassword::on_sureButton_clicked() {
     if (0 == m_ptUi->stackedWidget->currentIndex()) {
         // 验证账号对应的提示信息是否正确
-        if (true/* 应为验证账号信息 */) {
-            m_ptUi->stackedWidget->setCurrentIndex(1);
-            m_ptUi->sureButton->setText(QStringLiteral("确 定"));
+        if (m_ptUi->idEdit->text().length() && m_ptUi->tipEdit->text().length()) {
+            Loggin* ptLoggin = Loggin::getInstance();
+            ptLoggin->sendToGetPosswordTip(m_ptUi->idEdit->text(), m_ptUi->tipEdit->text());
         }
         return ;
     }
 
-    // 输入密码之后的事件
-    // 更新数据库中的密码
-    // 退出显示
-    on_cancelButton_clicked();
+    if (m_ptUi->passwordEdit->text().length() && m_ptUi->repassEdit->text().length()) {
+        Loggin* ptLoggin = Loggin::getInstance();
+        ptLoggin->sendToGetModifyPossword(m_ptUi->idEdit->text(), m_ptUi->passwordEdit->text());
+    }
 }
 
 void RecoverPassword::on_cancelButton_clicked() {
