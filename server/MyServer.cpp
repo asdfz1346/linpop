@@ -18,6 +18,8 @@ void RENAMEGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
 void MODIFYPASSWORD(MyServer *pthis,int fd,Json::Value JsonVal);
 void DELGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
 void MATCHTIPS(MyServer *pthis,int fd,Json::Value JsonVal);
+void MOVEFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
+void SEARCHFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal);
 void sendjson(int fd,Json::Value J){
 	//Debug(J);
@@ -43,6 +45,7 @@ void work(MyServer *pthis,int fd,std::string str){
 	Json::Reader JsonRead;
 	JsonRead.parse(str, JsonVal);
 	int cmd = JsonVal["Type"].asInt();
+	//Debug(JsonVal);
 	if(cmd == SMT_REGISTER){
 		REGISTER(pthis,fd,JsonVal);
 	}
@@ -62,7 +65,6 @@ void work(MyServer *pthis,int fd,std::string str){
 		MODIFYPASSWORD(pthis,fd,JsonVal);
 	}
 	if(cmd == SMT_DELGROUP){
-		Debug(JsonVal);
 		DELGROUP(pthis,fd,JsonVal);
 	}
 	if(cmd ==SMT_RENAMEGROUP){
@@ -76,6 +78,12 @@ void work(MyServer *pthis,int fd,std::string str){
 	}
 	if(cmd == SMT_DELGROUP){
 		DELGROUP(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_MOVEFRIEND){
+		MOVEFRIEND(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_SEARCHFRIEND){
+		SEARCHFRIEND(pthis,fd,JsonVal);
 	}
 };
 
@@ -132,22 +140,24 @@ void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal){
 	J["Data"]["Status"]= SST_PASSWORD_ERROR;
 	if(result!=NULL){
 		MYSQL_ROW row = mysql_fetch_row(result);
-		std::string pswd(row[1]);
-		if(pswd==password){
-			Debug("password correct");
-			Debug(pthis->clientmap[id]);
-			if(pthis->clientmap[id]!=0){
-				Debug("SST_LOGIN_REPEAT");
-				J["Data"]["Status"]= SST_LOGIN_REPEAT;
-			}
-			else{
-				Debug("SST_LOGIN_SUCCESS");
-				J["Data"]["Status"]= SST_LOGIN_SUCCESS;
-				J["Data"]["Name"] 	= row[2];
-				J["Data"]["ip"]	 	= pthis->ipmap[fd];	 
-				J["Data"]["Head"]	="";
-				pthis->clientmap[id]=fd;
-				pthis->fdtoidmap[fd]=id;
+		if(row!=NULL){
+			std::string pswd(row[1]);
+			if(pswd==password){
+				Debug("password correct");
+				Debug(pthis->clientmap[id]);
+				if(pthis->clientmap[id]!=0){
+					Debug("SST_LOGIN_REPEAT");
+					J["Data"]["Status"]= SST_LOGIN_REPEAT;
+				}
+				else{
+					Debug("SST_LOGIN_SUCCESS");
+					J["Data"]["Status"]= SST_LOGIN_SUCCESS;
+					J["Data"]["Name"] 	= row[2];
+					J["Data"]["ip"]	 	= pthis->ipmap[fd];	 
+					J["Data"]["Head"]	="";
+					pthis->clientmap[id]=fd;
+					pthis->fdtoidmap[fd]=id;
+				}
 			}
 		}
 	}
@@ -168,9 +178,11 @@ void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 	if(result!=NULL){
 		while(row = mysql_fetch_row(result)){
 			J["Data"]["Group"][i] = row[1];
+			J["Data"]["GroupIndex"][i] = atoi(row[0]);
 			i++;
 		}
 	}
+	Debug(J);
 	sendjson(fd,J);
 }
 
@@ -186,7 +198,19 @@ void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 	J["Data"]["Status"] = SST_ADDGROUP_FAILED;
 	if(sql_alter(S1)){
 		J["Data"]["Status"] = SST_ADDGROUP_SUCCESS;
+		J["Data"]["GroupName"] = groupname;
+		S1 = "select max(groupid) from groups_"+id+';';
+		MYSQL_RES *result;
+		MYSQL_ROW row;
+		result = sql_query(S1);
+		
+		if(result!=NULL){
+			row = mysql_fetch_row(result);
+			if(row[0]!=NULL)
+				J["Data"]["GroupIndex"]=atoi(row[0]);
+		} 
 	}
+	Debug(J);
 	sendjson(fd,J);
 	
 }
@@ -250,7 +274,7 @@ void RENAMEGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 	int groupindex = JsonVal["Data"]["GroupIndex"].asInt();
 	std::string groupname = JsonVal["Data"]["GroupName"].asString();
 	std::string S1  = "UPDATE groups_"+ id +" SET groupname = '";
-	S1+= groupname+"' WHERE groupid = "+std::to_string(groupindex+1)+';';
+	S1+= groupname+"' WHERE groupid = "+std::to_string(groupindex)+';';
 	Json::Value J;
 	J["Type"] = SMT_RENAMEGROUP;
 	if(sql_alter(S1)){
@@ -333,11 +357,59 @@ void DELGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 	J["Data"]["Status"] = SST_DELGROUP_FAILED;
 	std::string S1 ="update friends_" + sourceid +" SET groups = "+std::to_string(DestGroupIndex) + " WHERE groups = "+std::to_string(SrcGroupIndex);
 	if(sql_alter(S1)){
-		J["Data"]["Status"]=SST_DELGROUP_SUCCESS;
 		J["Data"]["DestGroupIndex"] =JsonVal["Data"]["DestGroupIndex"];
 		J["Data"]["SrcGroupIndex"]=JsonVal["Data"]["SrcGroupIndex"];
-		S1 = "delete from groups_" + sourceid + "where groupid  = " +std::to_string(SrcGroupIndex+1) + ";";
-		sql_alter(S1);
+		S1 = "delete from groups_" + sourceid + " where groupid  = " +std::to_string(SrcGroupIndex) + ";";
+		if(sql_alter(S1)){
+			J["Data"]["Status"]=SST_DELGROUP_SUCCESS;
+		}
+	}
+	sendjson(fd,J);
+}
+
+void MOVEFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string sourceid = pthis->fdtoidmap[fd];
+	std::string targetid = JsonVal["Data"]["Id"].asString();
+	std::string name = JsonVal["Data"]["name"].asString();
+	int SrcGroupIndex = JsonVal["Data"]["SrcGroupIndex"].asInt();
+	int DestGroupIndex = JsonVal["Data"]["DestGroupIndex"].asInt();
+	std::string S1 = "UPDATE friends_"+ sourceid + " SET groups ="+ std::to_string(DestGroupIndex)+ " WHERE id = "+ targetid +";";
+	Json::Value J;
+	J["Type"] = SMT_MOVEFRIEND;
+	J["Data"]["Status"] = SST_MOVEFRIEND_FAILED;
+	if(sql_alter(S1)){
+		J["Data"]["Status"] = SST_MOVEFRIEND_SUCCESS;
+		J["Data"]["GroupIndex"] = DestGroupIndex;
+		J["Data"]["Id"] = targetid;
+		J["Data"]["Name"] = name;
+	}
+}
+
+void SEARCHFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string id =  JsonVal["Data"]["Id"].asString();
+	std::string S1= "select * from userinfo where id = '";//id'";
+	std::string sourceid = pthis->fdtoidmap[fd];
+	int targetfd = pthis->clientmap[id];
+	S1+=id+"';";
+	MYSQL_RES *result=NULL;
+	MYSQL_ROW row;
+	Json::Value J;
+	J["Type"] = SMT_SEARCHFRIEND;
+	J["Data"]["Status"] = SST_SEARCHFRIEND_FAILED;
+	result = sql_query(S1);
+		if(result!=NULL){
+		if(row = mysql_fetch_row(result)){
+			J["Data"]["Status"] = SST_SEARCHFRIEND_SUCCESS;
+			J["Data"]["Friend"]["Id"] = id;
+			J["Data"]["Friend"]["Name"] = row[2];
+			J["Data"]["Friend"]["Head"] = "";
+			J["Data"]["Friend"]["Ip"] = "";
+			J["Data"]["Friend"]["Online"] = 0;
+			if(pthis ->ipmap[targetfd]!=""){
+				J["Data"]["Ip"]   = pthis ->ipmap[targetfd];
+				J["Data"]["Online"] = 1;
+			}
+		}
 	}
 	sendjson(fd,J);
 }

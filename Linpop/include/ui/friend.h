@@ -104,7 +104,7 @@ public:
 
 private:
     // 获取好友列表
-    void sendToGetFriendList(const int iGroupIndex);
+    void sendToGetFriendList(void);
 
     void parseAddGroupItem(const QJsonValue& rtData);
     void parseRenameGroupItem(const QJsonValue& rtData);
@@ -115,7 +115,9 @@ private:
     void parseMoveFriendItem(const QJsonValue& rtData);
     void parseDelFriendItem(const QJsonValue& rtData);
     void parseGetFriendList(const QJsonValue& rtData);
-	// 添加好友第三级JSON解析
+    // 分组好友信息JSON解析
+    void parseGroupFriendInfo(const QJsonValue& rtData);
+    // 好友信息JSON解析
 	void parseFriendInfo(const QJsonValue& rtData, FriendInfo& rtFriendInfo);
 
 private slots:

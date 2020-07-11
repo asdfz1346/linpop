@@ -29,11 +29,7 @@ void Friend::preInit(/*const UserInfo& rtMyselfInfo*/) {
     // 设置分组控件
     initGroupItemControls();
 
-    QMap<int, QString>::iterator tIter = g_msGroupTextMap.begin();
-    while (tIter != g_msGroupTextMap.end()) {
-        sendToGetFriendList(tIter.key());
-        ++tIter;
-    }
+    sendToGetFriendList();
 
     // 添加好友请求示例（暂时未实现添加好友功能）
     //sendToAddFriendItem(0, "1");
@@ -199,11 +195,8 @@ void Friend::sendToDelFriendItem(const int iGroupIndex, const QString &rsId, con
     m_ptSocketClient->onSendMessage(SMT_DELFRIEND, tData);
 }
 
-void Friend::sendToGetFriendList(const int iGroupIndex) {
-    QJsonObject tData;
-    tData.insert("GroupIndex", iGroupIndex);
-
-    m_ptSocketClient->onSendMessage(SMT_GETFRIENDLIST, tData);
+void Friend::sendToGetFriendList(void) {
+    m_ptSocketClient->onSendMessage(SMT_GETFRIENDLIST, 0);
 }
 
 void Friend::parseAddGroupItem(const QJsonValue& rtData) {
@@ -346,13 +339,35 @@ void Friend::parseGetFriendList(const QJsonValue& rtData) {
     if (rtData.isObject()) {
         QJsonObject tObj = rtData.toObject();
         QJsonArray  tArr;
+        if (tObj.value("Group").isArray()) {
+            tArr = tObj.value("Group").toArray();
+        }
+        int iStatus = tObj.value("Status").toInt();
+        int iSize   = tArr.size();
+        if (SST_GETFRIENDLIST_SUCCESS == iStatus && iSize) {
+            // 读取所有分组的好友信息
+            for (int i = 0; i < iSize; ++i) {
+                QJsonValue tVal = tArr.at(i);
+                parseGroupFriendInfo(tVal);
+            }
+        }
+        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
+    }
+}
+
+void Friend::parseGroupFriendInfo(const QJsonValue& rtData) {
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
+#endif
+    if (rtData.isObject()) {
+        QJsonObject tObj = rtData.toObject();
+        QJsonArray  tArr;
         if (tObj.value("Friend").isArray()) {
             tArr = tObj.value("Friend").toArray();
         }
-        int iStatus = tObj.value("Status").toInt();
-        int iIndex  = tObj.value("GroupIndex").toInt();
-        int iSize   = tArr.size();
-        if (SST_GETFRIENDLIST_SUCCESS == iStatus && iSize) {
+        int iIndex = tObj.value("GroupIndex").toInt();
+        int iSize  = tArr.size();
+        if (iSize) {
             // 填充FriendItem
             FriendInfo tUserInfo = { 0 };
             tUserInfo.iGroup = iIndex;
@@ -364,7 +379,6 @@ void Friend::parseGetFriendList(const QJsonValue& rtData) {
             // 初始化界面
             initFriendItemControls(iIndex);
         }
-        Q_EMIT m_ptSocketClient->sigStatus(iStatus);
     }
 }
 
