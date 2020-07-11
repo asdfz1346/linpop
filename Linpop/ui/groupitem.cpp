@@ -207,22 +207,19 @@ void GroupItem::onAddFriendItem(void) {
     Friend::getInstance()->showAddFriendUi(m_iGroupIndex);
 }
 
-static bool g_bFlagEnter = false;
 void GroupItem::on_lineEdit_editingFinished() {
     // 为什么两次处理不一样？
     if (m_ptUi->lineEdit->hasFocus()) {
 #ifdef _DEBUG_STATE
         qDebug() << __FUNCTION__ << __LINE__;
 #endif
-        g_bFlagEnter = true;
-        Friend::getInstance()->sendToRenameGroupItem(m_iGroupIndex, m_ptUi->lineEdit->text());
-        g_bFlagEnter = false;
         Friend::getInstance()->setFocus();
     }
-    else if(!g_bFlagEnter) {
+    else {
 #ifdef _DEBUG_STATE
         qDebug() << __FUNCTION__ << __LINE__;
 #endif
+        Friend::getInstance()->sendToRenameGroupItem(m_iGroupIndex, m_ptUi->lineEdit->text());
         g_msGroupTextMap[m_iGroupIndex] = m_ptUi->lineEdit->text();
         setGroupItemTextUseCount();
         m_ptUi->stackedWidget->setCurrentIndex(0);
