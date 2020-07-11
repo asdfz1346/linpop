@@ -23,6 +23,7 @@ void SEARCHFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal);
 void ADDFRIENDRECVREADY(MyServer *pthis,int fd,Json::Value JsonVal);
 void ADDFRIENDSENDREQUEST(MyServer *pthis,int fd,Json::Value JsonVal);
+void DELFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 template <typename T>
 void Debug(T a){
 	std::cout << a<<std::endl;
@@ -88,6 +89,9 @@ void work(MyServer *pthis,int fd,std::string str){
 	}
 	if(cmd == SMT_ADDFRIENDSENDREQUEST){
 		ADDFRIENDSENDREQUEST(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_DELFRIEND){
+		DELFRIEND(pthis,fd,JsonVal);
 	}
 };
 
@@ -468,6 +472,54 @@ void ADDFRIENDSENDREQUEST(MyServer *pthis,int fd,Json::Value JsonVal){
 		}
 	}
 	sendjson(fd,J);
+}
+
+void DELFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
+	int groupindex = JsonVal["Data"]["GroupIndex"].asInt();
+	int friendindex = JsonVal["Data"]["FriendIndex"].asInt();
+	std::string targetid = JsonVal["Data"]["Id"].asString();
+	std::string sourceid = pthis->fdtoidmap[fd];
+	Json::Value J;
+	Json::Value J2;
+	int targetfd =  pthis->clientmap[targetid];
+	J["Type"] = SMT_DELFRIEND;
+	J["Data"]["Status"] =  SST_DELFRIEND_FAILED;
+	//删除发送方的好友
+	std::string S1 = "DELETE FROM friends_"+ sourceid+ " Where id = '"+ targetid +"';";
+	if(sql_alter(S1)){
+		J["Data"]["Status"] =  SST_DELFRIEND_SUCCESS;
+		J["Data"]["GroupIndex"] = groupindex;
+		J["Data"]["FriendIndex"] = friendindex;
+		J["Data"]["IsFriendIndex"] =1;
+	}
+	//如果对方online
+	if(pthis -> clientmap[targetid]!=0){
+		J2["Type"] = SMT_DELFRIEND;
+		J2["Data"]["Status"] =  SST_DELFRIEND_FAILED;
+		J2["Data"]["IsFriendIndex"] = 0;
+		S1 = " SELECT groups FROM friends_ "+targetid + " WHERE id = '"+ sourceid +"';";
+		MYSQL_RES *result = NULL;
+		MYSQL_ROW 	row;
+		result = sql_query(S1);
+		int targetgroupindex;
+		if(result!=NULL){
+			targetgroupindex = atoi(row[0]);
+		}
+		S1 = "DELETE FROM friends_"+ targetid+ " Where id = '"+ sourceid +"';";
+		if(sql_alter(S1)){
+			J2["Data"]["Status"] =  SST_DELFRIEND_SUCCESS;
+			J2["Data"]["GroupIndex"] = targetgroupindex;
+			J2["Data"]["FriendId"] = sourceid;
+			J2["Data"]["IsFriendIndex"] =0;
+		}
+		Debug(J2);
+		sendjson(targetfd,J2);
+	}
+	S1 = "DELETE FROM friends_"+ targetid+ " Where id = '"+ sourceid +"';";
+	sql_alter(S1);
+	sendjson(fd,J);
+
+
 }
 
 MYSQL_RES *sql_query(std::string S){
