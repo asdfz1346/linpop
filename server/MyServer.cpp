@@ -21,15 +21,19 @@ void MATCHTIPS(MyServer *pthis,int fd,Json::Value JsonVal);
 void MOVEFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 void SEARCHFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal);
-void sendjson(int fd,Json::Value J){
-	//Debug(J);
-	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
-}
+void ADDFRIENDRECVREADY(MyServer *pthis,int fd,Json::Value JsonVal);
+void ADDFRIENDSENDREQUEST(MyServer *pthis,int fd,Json::Value JsonVal);
 template <typename T>
 void Debug(T a){
 	std::cout << a<<std::endl;
 	return ;
 }
+
+void sendjson(int fd,Json::Value J){
+	//Debug(J);
+	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
+}
+
 MYSQL * sql_conn(){
 	MYSQL *m_conn = mysql_init(NULL);
 	MYSQL *m_sql = mysql_real_connect(m_conn,"localhost","root","a123456","linpop",0,NULL,0);
@@ -76,14 +80,14 @@ void work(MyServer *pthis,int fd,std::string str){
 	if(cmd == SMT_GETFRIENDLIST){
 		GETFRIEND(pthis,fd,JsonVal);
 	}
-	if(cmd == SMT_DELGROUP){
-		DELGROUP(pthis,fd,JsonVal);
-	}
 	if(cmd == SMT_MOVEFRIEND){
 		MOVEFRIEND(pthis,fd,JsonVal);
 	}
 	if(cmd == SMT_SEARCHFRIEND){
 		SEARCHFRIEND(pthis,fd,JsonVal);
+	}
+	if(cmd == SMT_ADDFRIENDSENDREQUEST){
+		ADDFRIENDSENDREQUEST(pthis,fd,JsonVal);
 	}
 };
 
@@ -113,7 +117,7 @@ void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal){
 		J["Data"]["Status"]=SST_REGISTER_SUCCESS;
 		S1 = "CREATE TABLE friends_";
 		S1 +=id;
-		S1+="(id VARCHAR(50),name VARCHAR(50),groups int);";
+		S1+="(id VARCHAR(50) PRIMARY KEY,name VARCHAR(50),groups int);";
 		sql_alter(S1);
 
 		S1= "insert into groups_"+id+" (groupname) value ('"+groupname+"');";
@@ -143,14 +147,11 @@ void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal){
 		if(row!=NULL){
 			std::string pswd(row[1]);
 			if(pswd==password){
-				Debug("password correct");
-				Debug(pthis->clientmap[id]);
 				if(pthis->clientmap[id]!=0){
 					Debug("SST_LOGIN_REPEAT");
 					J["Data"]["Status"]= SST_LOGIN_REPEAT;
 				}
 				else{
-					Debug("SST_LOGIN_SUCCESS");
 					J["Data"]["Status"]= SST_LOGIN_SUCCESS;
 					J["Data"]["Name"] 	= row[2];
 					J["Data"]["ip"]	 	= pthis->ipmap[fd];	 
@@ -182,7 +183,6 @@ void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 			i++;
 		}
 	}
-	Debug(J);
 	sendjson(fd,J);
 }
 
@@ -210,7 +210,6 @@ void ADDGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
 				J["Data"]["GroupIndex"]=atoi(row[0]);
 		} 
 	}
-	Debug(J);
 	sendjson(fd,J);
 	
 }
@@ -243,9 +242,7 @@ void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
 			}
 			/*update friends_*/
 			//insert into friends_zhangsan (id,name,groups) VALUE ('id','name',groupindex);
-			S1 = " insert INTO friends_";
-			S1 += sourceid + " (id,name,groups) VALUE ('";
-			S1 +=id + "','" + row[2] + "'," + groupindex + ");";
+			S1 = " insert INTO friends_" + sourceid + " (id,name,groups) VALUE ('" + id + "','" + row[2] + "'," + groupindex + ");";
 			sql_alter(S1);
 		}
 	}else{
@@ -313,39 +310,40 @@ void MATCHTIPS(MyServer *pthis,int fd,Json::Value JsonVal){
 void GETFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
 	std::string sourceid = pthis->fdtoidmap[fd];
 	std::string targetid ,targetip;
+	//int groupindex = JsonVal["Data"]["GroupIndex"].asInt();
 	int targetfd;
-	std::string S1 = "select * from friends_" + sourceid ;
+	std::string S1 = "select * from friends_" + sourceid  ;
 	MYSQL_RES *result=NULL;
 	MYSQL_ROW row;
 	result = sql_query(S1);
 	Json::Value J;
 	J["Type"]=SMT_GETFRIENDLIST;
-	J["Data"]["Status"]=SST_GETFRIEND_SUCCESS;
+	J["Data"]["Status"]=SST_GETFRIENDLIST_SUCCESS;
 	if(result!=NULL){
 		int i=0;
 		while(row = mysql_fetch_row(result)){
+			int groupid =atoi(row[2]);
+			J["Data"]["Group"][groupid]["GroupIndex"]= groupid;
 			if(row[0]!=NULL){
-				J["Data"]["Friend"][i]["Id"] = row[0];
+				J["Data"]["Group"][groupid]["Friend"][i]["Id"]= row[0];
 				targetid = row[0];
 			}
 			if(row[1]!=NULL){
-				J["Data"]["Friend"][i]["Name"] = row[1];
+				J["Data"]["Group"][groupid]["Friend"][i]["Name"]= row[1];
 			}
-			if(row[2]!=NULL){
-				J["Data"]["Friend"][i]["GroupIndex"] = row[2];
-			}
-			J["Data"]["Friend"][i]["Head"] ="";
-			J["Data"]["Friend"][i]["Ip"] = "";
-			J["Data"]["Friend"][i]["Online"] = 0;
+			J["Data"]["Group"][groupid]["Friend"][i]["Head"]= "";
+			J["Data"]["Group"][groupid]["Friend"][i]["Ip"]= "";
+			J["Data"]["Group"][groupid]["Friend"][i]["Online"]= 0;
 			if(pthis->clientmap[targetid]!=0){
 				targetfd = pthis->clientmap[targetid];
 				targetip = pthis->ipmap[targetfd];
-				J["Data"]["Friend"][i]["Ip"] = targetip;
-				J["Data"]["Friend"][i]["Online"] = 1;
+				J["Data"]["Group"][groupid]["Friend"][i]["Ip"]= targetip;
+				J["Data"]["Group"][groupid]["Friend"][i]["Online"]= 1;
 			}
+			i++;
 		}
 	}
-		sendjson(fd,J);
+	sendjson(fd,J);
 }
 
 void DELGROUP(MyServer *pthis,int fd,Json::Value JsonVal){
@@ -414,6 +412,64 @@ void SEARCHFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
 	sendjson(fd,J);
 }
 
+void ADDFRIENDRECVREADY(MyServer *pthis,int fd,Json::Value JsonVal){
+	pthis->addfriendrecvready[fd] = true;
+}
+
+void ADDFRIENDSENDREQUEST(MyServer *pthis,int fd,Json::Value JsonVal){
+	std::string sourcename ;
+	std::string targetid =  JsonVal["Data"]["Id"].asString();
+	int groupindex = JsonVal["Data"]["GroupIndex"].asInt();
+	std::string S1= "select * from userinfo where id = '" + targetid+ "';";
+	std::string sourceid = pthis->fdtoidmap[fd];
+	int targetfd = pthis->clientmap[targetid];
+	Json::Value J;
+	Json::Value J2;
+	MYSQL_RES *result=NULL;
+	MYSQL_ROW row;
+	result = sql_query(S1);
+	if(result!=NULL){
+		row = mysql_fetch_row(result);
+		J["Type"] = SMT_ADDFRIEND;
+		J2["Type"] = SMT_ADDFRIEND;
+		J["Data"]["GroupIndex"] = groupindex;
+		J["Data"]["Friend"]["Id"] = targetid;
+		J["Data"]["Friend"]["Name"] = row[2];
+		J["Data"]["Friend"]["Head"] = "";
+		J["Data"]["Friend"]["Ip"] = "";
+		J["Data"]["Friend"]["Online"] = 0;
+		S1 = " insert INTO friends_" + sourceid + " (id,name,groups) VALUE ('" + targetid + "','" + row[2] + "'," + std::to_string(groupindex) + ");";
+		if(sql_alter(S1))
+			J["Data"]["Status"]= SST_ADDFRIEND_SUCCESS;
+		else
+			J["Data"]["Status"]= SST_ADDFRIEND_FAILED;
+		//获取发送方的name
+		S1 = "select * from userinfo where id = '" + sourceid+ "';";
+		result = sql_query(S1);
+		if(result!=NULL){
+			row = mysql_fetch_row(result);
+			sourcename = row[2];
+		}
+		S1 = " insert INTO friends_" + targetid + " (id,name,groups) VALUE ('" + sourceid + "','" + sourcename + "',1);";
+		sql_alter(S1);
+		//如果对方在线
+		if(pthis ->ipmap[targetfd]!=""){
+				J2["Data"]["Friend"]["Ip"] = pthis ->ipmap[fd];
+				J2["Data"]["Friend"]["Id"] = sourceid;
+				J2["Data"]["Friend"]["Name"] = sourcename;
+				J2["Data"]["GroupIndex"] = 1;
+				J2["Data"]["Friend"]["Head"] = "";
+				J2["Data"]["Friend"]["Online"] = 1;
+				J["Data"]["Friend"]["Ip"] = pthis->ipmap[targetfd];
+				J["Data"]["Friend"]["Online"] = 1;
+				J2["Data"]["Status"]= SST_ADDFRIEND_SUCCESS;
+				Debug(J2);
+				sendjson(targetfd,J2);
+		}
+	}
+	sendjson(fd,J);
+}
+
 MYSQL_RES *sql_query(std::string S){
 	MYSQL *m_sql = sql_conn();
 	MYSQL_RES *ret;
@@ -425,11 +481,11 @@ MYSQL_RES *sql_query(std::string S){
 
 }
 bool sql_alter(std::string S){
-	MYSQL *m_sql = sql_conn();
-	bool ret = mysql_query(m_sql, const_cast<char *>(S.c_str()));
-	mysql_close(m_sql);
-	return !ret;
-}
+		MYSQL *m_sql = sql_conn();
+		bool ret = mysql_query(m_sql, const_cast<char *>(S.c_str()));
+		mysql_close(m_sql);
+		return !ret;
+	}
 
 
 
@@ -545,7 +601,6 @@ void *MyServer::accept_thread_proc(void *args){
 	return NULL;
 }
 
-
 void MyServer::main_loop(){	
 	while(nstop){
 		struct 	epoll_event ev[1024];
@@ -569,8 +624,6 @@ void MyServer::main_loop(){
 		}
 	}
 }
-
-
 
 void *MyServer::worker_thread_proc(void *args){
 
@@ -604,6 +657,7 @@ void *MyServer::worker_thread_proc(void *args){
        				e.data.fd = fd;
 					e.events=EPOLLIN;
        				epoll_ctl(pthis->epollfd, EPOLL_CTL_DEL, fd,&e);
+					pthis->addfriendrecvready[fd] = false;
        				close(fd);
 				}
 				std::string ctos(rcv_buf);

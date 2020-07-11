@@ -1,0 +1,605 @@
+main threadid = 140087519090496
+new client connect fd:5
+117.157.71.16
+new client connect fd:5
+83.97.20.25
+new client connect fd:5
+83.97.20.25
+new client connect fd:5
+83.97.20.25
+new client connect fd:5
+42.178.93.68
+
+{
+	"Data" : 
+	{
+		"Status" : 22
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Head" : "",
+		"Name" : "77",
+		"Status" : 21,
+		"ip" : "42.178.93.68"
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Group" : [ "我的好友" ],
+		"GroupIndex" : [ 1 ],
+		"Status" : 53
+	},
+	"Type" : 32
+}
+
+
+{
+	"Data" : 
+	{
+		"Friend" : 
+		[
+			
+			{
+				"GroupIndex" : "1",
+				"Head" : "",
+				"Id" : "55",
+				"Ip" : "",
+				"Name" : "55",
+				"Online" : 0
+			}
+		],
+		"Status" : 69
+	},
+	"Type" : 48
+}
+
+new client connect fd:6
+42.178.93.68
+SST_LOGIN_REPEAT
+
+{
+	"Data" : 
+	{
+		"Status" : 23
+	},
+	"Type" : 17
+}
+
+REGISTER SUCCESS
+
+{
+	"Data" : 
+	{
+		"Status" : 32
+	},
+	"Type" : 16
+}
+
+
+{
+	"Data" : 
+	{
+		"Head" : "",
+		"Name" : "10",
+		"Status" : 21,
+		"ip" : "42.178.93.68"
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Group" : [ "我的好友" ],
+		"GroupIndex" : [ 1 ],
+		"Status" : 53
+	},
+	"Type" : 32
+}
+
+
+{
+	"Data" : 
+	{
+		"Status" : 69
+	},
+	"Type" : 48
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 2,
+		"GroupName" : "我的好友",
+		"Status" : 55
+	},
+	"Type" : 33
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 3,
+		"GroupName" : "我的好友",
+		"Status" : 55
+	},
+	"Type" : 33
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 3,
+		"GroupName" : "你好",
+		"Status" : 57
+	},
+	"Type" : 35
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 2,
+		"GroupName" : "再见",
+		"Status" : 57
+	},
+	"Type" : 35
+}
+
+new client connect fd:6
+42.178.93.68
+
+{
+	"Data" : 
+	{
+		"Head" : "",
+		"Name" : "10",
+		"Status" : 21,
+		"ip" : "42.178.93.68"
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Group" : [ "我的好友", "再见", "你好" ],
+		"GroupIndex" : [ 1, 2, 3 ],
+		"Status" : 53
+	},
+	"Type" : 32
+}
+
+
+{
+	"Data" : 
+	{
+		"Status" : 69
+	},
+	"Type" : 48
+}
+
+new client connect fd:6
+42.178.93.68
+
+{
+	"Data" : 
+	{
+		"Head" : "",
+		"Name" : "10",
+		"Status" : 21,
+		"ip" : "42.178.93.68"
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Group" : [ "我的好友", "再见", "你好" ],
+		"GroupIndex" : [ 1, 2, 3 ],
+		"Status" : 53
+	},
+	"Type" : 32
+}
+
+
+{
+	"Data" : 
+	{
+		"Status" : 69
+	},
+	"Type" : 48
+}
+
+new client connect fd:6
+42.178.93.68
+
+{
+	"Data" : 
+	{
+		"Head" : "",
+		"Name" : "10",
+		"Status" : 21,
+		"ip" : "42.178.93.68"
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Group" : [ "我的好友", "再见", "你好" ],
+		"GroupIndex" : [ 1, 2, 3 ],
+		"Status" : 53
+	},
+	"Type" : 32
+}
+
+
+{
+	"Data" : 
+	{
+		"Status" : 69
+	},
+	"Type" : 48
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 2,
+		"GroupName" : "再见",
+		"Status" : 57
+	},
+	"Type" : 35
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 2,
+		"GroupName" : "再见",
+		"Status" : 57
+	},
+	"Type" : 35
+}
+
+
+{
+	"Data" : 
+	{
+		"DestGroupIndex" : 1,
+		"SrcGroupIndex" : 3,
+		"Status" : 59
+	},
+	"Type" : 34
+}
+
+
+{
+	"Data" : 
+	{
+		"DestGroupIndex" : 1,
+		"SrcGroupIndex" : 3,
+		"Status" : 59
+	},
+	"Type" : 34
+}
+
+new client connect fd:7
+42.178.93.68
+SST_LOGIN_REPEAT
+
+{
+	"Data" : 
+	{
+		"Status" : 23
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Status" : 22
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Status" : 22
+	},
+	"Type" : 17
+}
+
+SST_LOGIN_REPEAT
+
+{
+	"Data" : 
+	{
+		"Status" : 23
+	},
+	"Type" : 17
+}
+
+REGISTER FAIL
+
+{
+	"Data" : 
+	{
+		"Status" : 33
+	},
+	"Type" : 16
+}
+
+
+{
+	"Data" : 
+	{
+		"Head" : "",
+		"Name" : "55",
+		"Status" : 21,
+		"ip" : "42.178.93.68"
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Group" : [ "我的好友" ],
+		"GroupIndex" : [ 1 ],
+		"Status" : 53
+	},
+	"Type" : 32
+}
+
+
+{
+	"Data" : 
+	{
+		"Friend" : 
+		[
+			
+			{
+				"GroupIndex" : "1",
+				"Head" : "",
+				"Id" : "77",
+				"Ip" : "42.178.93.68",
+				"Name" : "77",
+				"Online" : 1
+			}
+		],
+		"Status" : 69
+	},
+	"Type" : 48
+}
+
+new client connect fd:8
+42.178.93.68
+SST_LOGIN_REPEAT
+
+{
+	"Data" : 
+	{
+		"Status" : 23
+	},
+	"Type" : 17
+}
+
+new client connect fd:8
+42.178.93.68
+REGISTER SUCCESS
+
+{
+	"Data" : 
+	{
+		"Status" : 32
+	},
+	"Type" : 16
+}
+
+
+{
+	"Data" : 
+	{
+		"Head" : "",
+		"Name" : "11",
+		"Status" : 21,
+		"ip" : "42.178.93.68"
+	},
+	"Type" : 17
+}
+
+
+{
+	"Data" : 
+	{
+		"Group" : [ "我的好友" ],
+		"GroupIndex" : [ 1 ],
+		"Status" : 53
+	},
+	"Type" : 32
+}
+
+
+{
+	"Data" : 
+	{
+		"Status" : 69
+	},
+	"Type" : 48
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 2,
+		"GroupName" : "我的好友",
+		"Status" : 55
+	},
+	"Type" : 33
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 3,
+		"GroupName" : "我的好友",
+		"Status" : 55
+	},
+	"Type" : 33
+}
+
+
+{
+	"Data" : 
+	{
+		"GroupIndex" : 4,
+		"GroupName" : "我的好友",
+		"Status" : 55
+	},
+	"Type" : 33
+}
+
+
+{
+	"Data" : 
+	{
+		"DestGroupIndex" : 1,
+		"SrcGroupIndex" : 4,
+		"Status" : 59
+	},
+	"Type" : 34
+}
+
+
+{
+	"Data" : 
+	{
+		"DestGroupIndex" : 1,
+		"SrcGroupIndex" : 4,
+		"Status" : 59
+	},
+	"Type" : 34
+}
+
+new client connect fd:9
+42.178.93.68
+main threadid = 139874310313792
+new client connect fd:5
+117.59.91.120
+
+{
+	"Data" : 
+	{
+		"Friend" : 
+		[
+			
+			{
+				"Head" : "",
+				"Id" : "77",
+				"Ip" : "",
+				"Name" : "77",
+				"Online" : 0
+			},
+			
+			{
+				"Head" : "",
+				"Id" : "2",
+				"Ip" : "",
+				"Name" : "2号昵称",
+				"Online" : 0
+			},
+			
+			{
+				"Head" : "",
+				"Id" : "a1",
+				"Ip" : "",
+				"Name" : "1",
+				"Online" : 0
+			},
+			
+			{
+				"Head" : "",
+				"Id" : "20",
+				"Ip" : "",
+				"Name" : "20",
+				"Online" : 0
+			}
+		],
+		"GroupIndex" : 1,
+		"Status" : 75
+	},
+	"Type" : 67
+}
+
+main threadid = 139651279976256
+main threadid = 140352909469504
+new client connect fd:5
+117.59.91.120
+
+{
+	"Data" : 
+	{
+		"Friend" : 
+		{
+			"Head" : "",
+			"Id" : "5",
+			"Ip" : "",
+			"Name" : "5",
+			"Online" : 0
+		},
+		"GroupIndex" : 1,
+		"Status" : 69
+	},
+	"Type" : 64
+}
+
+new client connect fd:5
+117.59.91.120
+
+{
+	"Data" : 
+	{
+		"Friend" : 
+		{
+			"Head" : "",
+			"Id" : "3",
+			"Ip" : "",
+			"Name" : "3",
+			"Online" : 0
+		},
+		"GroupIndex" : 1,
+		"Status" : 69
+	},
+	"Type" : 64
+}
+
