@@ -12,6 +12,7 @@ AddFriend::AddFriend(const int iGroupIndex, QWidget* ptParent) :
     this->setWindowFlags(windowFlags() &~Qt::WindowMinMaxButtonsHint);
 
     m_iGroupIndex = iGroupIndex;
+    m_ptUi->idEdit->setFocus();
 }
 
 AddFriend::~AddFriend() {
@@ -45,6 +46,9 @@ void AddFriend::showStackPage(const int iIndex, const FriendInfo& rtFriendInfo) 
 
 void AddFriend::setGroupIndex(const int iIndex) {
     m_iGroupIndex = iIndex;
+
+    // 额外设置
+    m_ptUi->idEdit->setFocus();
 }
 
 void AddFriend::on_sureButton_clicked() {

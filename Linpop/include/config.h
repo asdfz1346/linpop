@@ -28,6 +28,6 @@
 
 #define GROUPITEM_NAME_DEFAULT	QStringLiteral("我的好友")
 
-#define USER_HEAD_DEFAULT       (":/head/6.png")
+#define USER_HEAD_DEFAULT       (":/head/1.png")
 
 #endif // LINPOP_CONFIG_H

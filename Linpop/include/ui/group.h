@@ -23,9 +23,11 @@ public:
     void initGroupItemControls(/*const UserInfo& rtMyselfInfo*/);
     void initFriendItemListAppend(const int iIndex, const FriendInfo& rtFriendInfo);
     void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
+    void updateFriendItemControls(const int iGroupIndex, const int iFriendIndex, const bool bIsOnline, const QString& rsIp);
 
     GroupItem* getGroupitemIndex(const int iIndex);
     const int getDefaultGroupitemIndex(void);
+    const int getFriendIndexById(const int iGroupIndex, const QString& rsId);
 
     // 分组操作，添加分组直接添加到分组列表的末尾
     void addGroupItemControls(const int iIndex, const QString& rsName);

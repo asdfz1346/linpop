@@ -29,6 +29,7 @@ public:
 
     void initFriendItemListAppend(const FriendInfo& rtFriendInfo);
     void initFriendItemControls(void);
+    void updateFriendItemControls(const int iIndex, const bool bIsOnline, const QString& rsIp);
 
     void addFriendItem(const FriendInfo& rtFriendInfo);
     /**
@@ -44,8 +45,8 @@ public:
 
     int  getGroupItemIndex(void);
     void setGroupItemIndex(const int iIndex);
-
     int  getGroupItemCount(void);
+    const int getFriendIndexById(const QString &rtId);
 
     void showStackPage(const int iIndex);
 

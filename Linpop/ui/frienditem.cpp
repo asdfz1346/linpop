@@ -34,6 +34,11 @@ void FriendItem::setFriendItemIndex(const int iIndex) {
     m_iFriendIndex = iIndex;
 }
 
+void FriendItem::updateFriendItemControls(const bool bIsOnline, const QString& rsIp) {
+    m_ptUi->headLabel->setEnabled(bIsOnline);
+    m_ptUi->ipLabel->setText(rsIp);
+}
+
 void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
     Q_UNUSED(ptEvent);
     QMenu* ptMenu      = new QMenu(this);
@@ -43,17 +48,14 @@ void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
     int iGroupItemIndex = ((GroupItem*)m_ptGroupItem)->getGroupItemIndex();
 
     QMap<int, QString>::iterator tIter = g_msGroupTextMap.begin();
-//    while (tIter != g_msGroupTextMap.end()) {
-#ifdef _DEBUG_STATE
-        qDebug() << __FUNCTION__ << __LINE__ << tIter.key() << tIter.value();
-#endif
-//        if (iGroupItemIndex == tIter.key()) {
-//            continue;
-//        }
-//        QAction* ptAct = ptMoveMenu->addAction(tIter.value());
-//        ptAct->setData(tIter.key());
-//        ++tIter;
-//    }
+    while (tIter != g_msGroupTextMap.end()) {
+        QAction* ptAct = ptMoveMenu->addAction(tIter.value());
+        ptAct->setData(tIter.key());
+        if (iGroupItemIndex == tIter.key()) {
+            ptAct->setDisabled(true);
+        }
+        ++tIter;
+    }
     QObject::connect(ptMoveMenu, SIGNAL(triggered(QAction*)), this, SLOT(onMoveFriendItem(QAction*)));
     ptMoveAct->setMenu(ptMoveMenu);
 
@@ -64,6 +66,13 @@ void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
 
     ptMoveMenu->deleteLater();
     ptMenu->deleteLater();
+}
+
+void FriendItem::mouseDoubleClickEvent(QMouseEvent* ptEvent) {
+    Q_UNUSED(ptEvent);
+    // 发送更新好友信息
+    Friend::getInstance()->sendToUpdateFriendStatus(((GroupItem*)m_ptGroupItem)->getGroupItemIndex(),
+                                                    m_ptUi->idLabel->text(), m_iFriendIndex);
 }
 
 void FriendItem::onMoveFriendItem(QAction* ptAct) {

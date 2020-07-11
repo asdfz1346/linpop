@@ -19,9 +19,11 @@ public:
     ~FriendItem();
 
     void setFriendItemIndex(const int iIndex);
+    void updateFriendItemControls(const bool bIsOnline, const QString& rsIp);
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent* ptEvent);
+    virtual void mouseDoubleClickEvent(QMouseEvent* ptEvent);
 
 private slots:
     void onMoveFriendItem(QAction* ptAct);
