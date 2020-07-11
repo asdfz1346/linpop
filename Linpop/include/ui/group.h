@@ -25,6 +25,7 @@ public:
     void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
 
     GroupItem* getGroupitemIndex(const int iIndex);
+    const int getDefaultGroupitemIndex(void);
 
     // 分组操作，添加分组直接添加到分组列表的末尾
     void addGroupItemControls(const int iIndex, const QString& rsName);
@@ -37,8 +38,6 @@ public:
     void delFriendItem(const int iGroupIndex, const int iIndex);
 
 private:
-    int  findDefaultGroupItem(const int iIndex);
-
     Ui::Group*            m_ptUi;
     QMap<int, GroupItem*> m_mptGroupItem;
 };

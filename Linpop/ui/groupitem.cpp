@@ -12,25 +12,6 @@
 #include <QLayoutItem>
 #include <QMessageBox>
 
-#ifndef _USE_SQL
-#include <QTime>
-
-static QString nameLib[18] = {
-    "adsa", "sss", "ddd", "fff", "ggg", "qqq",
-    "www", "esa", "rrr", "ddsa", "zzz", "xxx",
-    "ccc", "vvv" "bbb", "ttt", "gdsa", "oo",
-};
-
-static QString ipLib[18] = {
-    "7.124.4.15", "192.168.36.55", "158.6.9.5",
-    "7.124.5.25", "192.111.26.5", "151.5.19.5",
-    "7.124.6.35", "192.101.16.45", "14.7.29.5",
-    "7.124.7.45", "192.8.76.25", "16.8.39.5",
-    "7.124.8.55", "192.9.66.5", "182.9.49.5",
-    "7.124.9.65", "192.7.6.15", "142.10.59.5",
-};
-#endif
-
 GroupItem::GroupItem(const int iGroupIndex, QWidget* ptParent) : QWidget(ptParent), m_ptUi(new Ui::GroupItem) {
     m_ptUi->setupUi(this);
 
@@ -162,11 +143,13 @@ bool GroupItem::eventFilter(QObject* ptWatched, QEvent* ptEvent) {
     }
     else if (Qt::RightButton == ptMouseEvent->button()) {
 //        m_ptUi->itemLayout->setStyleSheet("itemLayout {\n\tbackground-color: rgb(215, 215, 215);\n}");
+        // 获取存储待删除分组好友的目标分组
+        int iDestGroupIndex = Friend::getInstance()->getDefaultGroupitemIndex();
 
         QMenu* ptMenu = new QMenu(this);
         ptMenu->addAction(QStringLiteral("添加分组"), this, &GroupItem::onAddGroupItem);
         ptMenu->addAction(QStringLiteral("重命名"), this, &GroupItem::onRenameGroupItem);
-        if (m_iGroupIndex) {
+        if (iDestGroupIndex != m_iGroupIndex) {
             ptMenu->addAction(QStringLiteral("删除此分组"), this, &GroupItem::onDelGroupItem);
         }
         ptMenu->addAction(QStringLiteral("向此分组添加好友"), this, &GroupItem::onAddFriendItem);
@@ -191,8 +174,11 @@ void GroupItem::onRenameGroupItem(void) {
 }
 
 void GroupItem::onDelGroupItem(void) {
-
-    if (0 == m_iGroupIndex) {
+    // 获取存储待删除分组好友的目标分组
+    Friend* ptFriend = Friend::getInstance();
+    int iDestGroupIndex = ptFriend->getDefaultGroupitemIndex();
+    // 不允许删除默认分组
+    if (iDestGroupIndex == m_iGroupIndex) {
         QMessageBox tBox(QMessageBox::Warning, QStringLiteral("删除分组"), QStringLiteral("默认分组无法删除！"));
         tBox.setStandardButtons(QMessageBox::Ok);
         tBox.setButtonText(QMessageBox::Ok, QString(QStringLiteral("确定")));
@@ -213,7 +199,7 @@ void GroupItem::onDelGroupItem(void) {
     }
 
     // 发送删除分组请求
-    Friend::getInstance()->sendToDelGroupItem(m_iGroupIndex, 0);
+    ptFriend->sendToDelGroupItem(m_iGroupIndex, iDestGroupIndex);
 }
 
 void GroupItem::onAddFriendItem(void) {
@@ -223,17 +209,20 @@ void GroupItem::onAddFriendItem(void) {
 
 static bool g_bFlagEnter = false;
 void GroupItem::on_lineEdit_editingFinished() {
-#ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__;
-#endif
     // 为什么两次处理不一样？
     if (m_ptUi->lineEdit->hasFocus()) {
+#ifdef _DEBUG_STATE
+        qDebug() << __FUNCTION__ << __LINE__;
+#endif
         g_bFlagEnter = true;
         Friend::getInstance()->sendToRenameGroupItem(m_iGroupIndex, m_ptUi->lineEdit->text());
         g_bFlagEnter = false;
         Friend::getInstance()->setFocus();
     }
     else if(!g_bFlagEnter) {
+#ifdef _DEBUG_STATE
+        qDebug() << __FUNCTION__ << __LINE__;
+#endif
         g_msGroupTextMap[m_iGroupIndex] = m_ptUi->lineEdit->text();
         setGroupItemTextUseCount();
         m_ptUi->stackedWidget->setCurrentIndex(0);

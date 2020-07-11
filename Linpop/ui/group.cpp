@@ -36,6 +36,10 @@ GroupItem* Group::getGroupitemIndex(const int iIndex) {
     return m_mptGroupItem[iIndex];
 }
 
+const int Group::getDefaultGroupitemIndex(void) {
+    return m_mptGroupItem.firstKey();
+}
+
 void Group::addGroupItemControls(const int iIndex, const QString& rsName) {
     // 在GroupItem的构造函数中使用了index对应的g_msGroupTextMap
     g_msGroupTextMap.insert(iIndex, rsName);
@@ -74,6 +78,3 @@ void Group::delFriendItem(const int iGroupIndex, const int iIndex) {
     m_mptGroupItem[iGroupIndex]->delFriendItem(iIndex);
 }
 
-int  Group::findDefaultGroupItem(const int iIndex) {
-    return iIndex ? 0 : -1;
-}

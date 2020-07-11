@@ -96,7 +96,6 @@ void SocketClient::onReadyRead() {
                 case SMT_DELGROUP:
                 case SMT_SEARCHFRIEND:
                 case SMT_ADDFRIENDSENDREQUEST:
-                case SMT_ADDFRIENDRECVREQUEST:
                 case SMT_ADDFRIEND:
                 case SMT_MOVEFRIEND:
                 case SMT_DELFRIEND:

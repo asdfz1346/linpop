@@ -2,6 +2,7 @@
 #include <frienditem.h>
 #include <ui_frienditem.h>
 #include <groupitem.h>
+#include <friend.h>
 
 #include <QPixmap>
 #include <QMenu>
@@ -62,7 +63,9 @@ void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
 }
 
 void FriendItem::onMoveFriendItem(QAction* ptAct) {
-    ((GroupItem*)m_ptGroupItem)->moveFriendItem(m_iFriendIndex, ptAct->data().toInt());
+    int iSrcGroupIndex = ((GroupItem*)m_ptGroupItem)->getGroupItemIndex();
+
+    Friend::getInstance()->sendToMoveFriendItem(iSrcGroupIndex, ptAct->data().toInt(), m_ptUi->idLabel->text(), m_iFriendIndex);
 }
 
 void FriendItem::onDelFriendItem(void) {
@@ -80,5 +83,6 @@ void FriendItem::onDelFriendItem(void) {
         return ;
     }
 
-    ((GroupItem*)m_ptGroupItem)->delFriendItem(m_iFriendIndex);
+    int iGroupIndex = ((GroupItem*)m_ptGroupItem)->getGroupItemIndex();
+    Friend::getInstance()->sendToDelFriendItem(iGroupIndex, m_ptUi->idLabel->text(), m_iFriendIndex);
 }
