@@ -24,6 +24,11 @@ typedef enum SOCKET_MESSAGE_TYPE {
     SMT_MOVEFRIEND,
     SMT_DELFRIEND,
     SMT_GETFRIENDLIST,
+
+    SMT_UPDATENAME              = 0x50,     // 修改昵称
+    SMT_UPDATEHEAD,                         // 修改头像
+
+    SMT_UPDATEFRIENDSTATUS      = 0x55,     // 更新好友状态
 } Smt;
 
 typedef enum SOCKET_STATUS_TYPE {
@@ -60,10 +65,18 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_ADDFRIEND_FAILED,
     SST_MOVEFRIEND_SUCCESS,                 // 移动好友
     SST_MOVEFRIEND_FAILED,
-    SST_DELFRIEND_SUCCESS,                  // 删除还有
+    SST_DELFRIEND_SUCCESS,                  // 删除好友
     SST_DELFRIEND_FAILED,
     SST_GETFRIENDLIST_SUCCESS,              // 获取好友列表
     SST_GETFRIENDLIST_FAILED,
+
+    SST_UPDATENAME_SUCCESS      = 0x55,     // 修改昵称
+    SST_UPDATENAME_FAILED,
+    SST_UPDATEHEAD_SUCCESS,                 // 修改头像
+    SST_UPDATEHEAD_FAILED,
+
+    SST_UPDATEFRIENDSTATUS_SUCCESS  = 0x60,
+    SST_UPDATEFRIENDSTATUS_FAILED,
 } Sst;
 
 #endif
