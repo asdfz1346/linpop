@@ -32,6 +32,8 @@ typedef enum SOCKET_MESSAGE_TYPE {
     SMT_MOVEFRIEND,
     SMT_DELFRIEND,
     SMT_GETFRIENDLIST,
+
+    SMT_UPDATEFRIENDSTATUS      = 0x50,     // 更新好友状态
 } Smt;
 
 typedef enum SOCKET_STATUS_TYPE {
@@ -72,6 +74,9 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_DELFRIEND_FAILED,
     SST_GETFRIENDLIST_SUCCESS,              // 获取好友列表
     SST_GETFRIENDLIST_FAILED,
+
+    SST_UPDATEFRIENDSTATUS_SUCCESS  = 0x50,
+    SST_UPDATEFRIENDSTATUS_FAILED,
 } Sst;
 
 class SocketClient : public QObject, public Singleton<SocketClient> {

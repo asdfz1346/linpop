@@ -48,6 +48,13 @@ void GroupItem::initFriendItemControls(void) {
     // 从此处开始，m_lptFriendItem、m_tGroupUserCount和m_ltFriendInfoList的设置都由客户端同步完成
 }
 
+void GroupItem::updateFriendItemControls(const int iIndex, const bool bIsOnline, const QString& rsIp) {
+    m_ltFriendInfoList[iIndex].bOnline    = bIsOnline;
+    m_ltFriendInfoList[iIndex].sIp     = rsIp;
+
+    m_lptFriendItem.at(iIndex)->updateFriendItemControls(bIsOnline, rsIp);
+}
+
 void GroupItem::addFriendItem(const FriendInfo& rtFriendInfo) {
     FriendItem* ptItem = new FriendItem(rtFriendInfo, m_ltFriendInfoList.length(), this);
     m_ptUi->conLayout->layout()->addWidget(ptItem);
@@ -116,6 +123,17 @@ void GroupItem::setGroupItemIndex(const int iIndex) {
 
 int  GroupItem::getGroupItemCount(void) {
     return m_tGroupUserCount.iTotalCount;
+}
+
+const int GroupItem::getFriendIndexById(const QString& rtId) {
+    int iRet = -1;
+    for (int i = 0; i < m_tGroupUserCount.iTotalCount; ++i) {
+        if (rtId == m_ltFriendInfoList.at(i).sId) {
+            return i;
+        }
+    }
+
+    return iRet;
 }
 
 void GroupItem::showStackPage(const int iIndex) {

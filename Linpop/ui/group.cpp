@@ -32,12 +32,21 @@ void Group::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int i
     m_mptGroupItem[iIndex]->initFriendItemControls();
 }
 
+void Group::updateFriendItemControls(const int iGroupIndex, const int iFriendIndex,
+                                     const bool bIsOnline, const QString& rsIp) {
+    m_mptGroupItem[iGroupIndex]->updateFriendItemControls(iFriendIndex, bIsOnline, rsIp);
+}
+
 GroupItem* Group::getGroupitemIndex(const int iIndex) {
     return m_mptGroupItem[iIndex];
 }
 
 const int Group::getDefaultGroupitemIndex(void) {
     return m_mptGroupItem.firstKey();
+}
+
+const int Group::getFriendIndexById(const int iGroupIndex, const QString& rsId) {
+    return m_mptGroupItem[iGroupIndex]->getFriendIndexById(rsId);
 }
 
 void Group::addGroupItemControls(const int iIndex, const QString& rsName) {

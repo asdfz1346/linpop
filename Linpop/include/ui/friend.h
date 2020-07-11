@@ -51,6 +51,8 @@ public:
 
     GroupItem* getGroupitemIndex(const int iIndex);
     const int getDefaultGroupitemIndex(void);
+    const int getFriendIndexById(const int iGroupIndex, const QString& rsId);
+
     void showAddFriendUi(const int iIndex);
 
     // 分组操作，添加分组直接添加到分组列表的末尾
@@ -77,6 +79,7 @@ private:
     void initGroupItemControls(/*const UserInfo& rtMyselfInfo*/);
     void initFriendItemListAppend(const int iIndex, const FriendInfo& rtFriendInfo);
     void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
+    void updateFriendItemControls(const int iGroupIndex, const int iFriendIndex, const bool bIsOnline, const QString& rsIp);
 
 /** 以下函数均为客户端操作 */
     // 设置SocketClient
@@ -101,6 +104,8 @@ public:
     void sendToMoveFriendItem(const int iSrcGroupIndex, const int iDestGroupIndex, const QString& rsId, const int iIndex);
     // 删除好友
     void sendToDelFriendItem(const int iGroupIndex, const QString& rsId, const int iIndex);
+    // 更新好友状态
+    void sendToUpdateFriendStatus(const int iGroupIndex, const QString& rsId, const int iIndex);
 
 private:
     // 获取好友列表
@@ -115,6 +120,7 @@ private:
     void parseMoveFriendItem(const QJsonValue& rtData);
     void parseDelFriendItem(const QJsonValue& rtData);
     void parseGetFriendList(const QJsonValue& rtData);
+    void parseUpdateFriendStatus(const QJsonValue &rtData);
     // 分组好友信息JSON解析
     void parseGroupFriendInfo(const QJsonValue& rtData);
     // 好友信息JSON解析

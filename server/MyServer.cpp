@@ -2,12 +2,15 @@
 
 MyServer::MyServer(){}
 MyServer::~MyServer(){}
-struct ARG{
+
+struct ARG {
 	MyServer* p;
 };
+
 bool sql_alter(std::string S);
 MYSQL * sql_conn();
 MYSQL_RES *sql_query(std::string S);
+
 void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal);
 void GETFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 void GETGROUP(MyServer *pthis,int fd,Json::Value JsonVal);
@@ -24,6 +27,8 @@ void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal);
 void ADDFRIENDRECVREADY(MyServer *pthis,int fd,Json::Value JsonVal);
 void ADDFRIENDSENDREQUEST(MyServer *pthis,int fd,Json::Value JsonVal);
 void DELFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
+
+
 template <typename T>
 void Debug(T a){
 	std::cout << a<<std::endl;
