@@ -118,7 +118,7 @@ private:
     // 分组好友信息JSON解析
     void parseGroupFriendInfo(const QJsonValue& rtData);
     // 好友信息JSON解析
-	void parseFriendInfo(const QJsonValue& rtData, FriendInfo& rtFriendInfo);
+    void parseFriendInfo(const QJsonValue& rtData, FriendInfo& rtFriendInfo);
 
 private slots:
     // 服务器消息处理

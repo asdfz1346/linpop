@@ -34,6 +34,7 @@ void AddFriend::showStackPage(const int iIndex, const FriendInfo& rtFriendInfo) 
     }
     else {
         m_ptUi->stackedWidget->setCurrentIndex(0);
+        m_ptUi->idEdit->setText("");
         m_ptUi->sureButton->setText(QStringLiteral("查 找"));
         m_ptUi->cancelButton->setText(QStringLiteral("取 消"));
 
@@ -50,6 +51,8 @@ void AddFriend::on_sureButton_clicked() {
     if (m_ptUi->stackedWidget->currentIndex()) {
         // 发送添加好友请求
         Friend::getInstance()->sendToAddFriendItemRequest(m_iGroupIndex, m_ptUi->idLabel->text());
+        // 退出添加好友界面显示
+        showStackPage(0, { 0 });
     }
     else {
         // 发送搜索好友请求

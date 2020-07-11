@@ -288,6 +288,9 @@ void Friend::parseAddFriendItem(const QJsonValue& rtData) {
         QJsonObject tObj = rtData.toObject();
 
         int iStatus = tObj.value("Status").toInt();
+#ifdef _DEBUG_STATE
+        qDebug() << __FUNCTION__ << __LINE__ << iStatus << SST_ADDFRIEND_SUCCESS;
+#endif
         if (SST_ADDFRIEND_SUCCESS == iStatus) {
             int iIndex      = tObj.value("GroupIndex").toInt();
             QJsonValue tVal = tObj.value("Friend");
@@ -348,6 +351,9 @@ void Friend::parseGetFriendList(const QJsonValue& rtData) {
             // 读取所有分组的好友信息
             for (int i = 0; i < iSize; ++i) {
                 QJsonValue tVal = tArr.at(i);
+                if (tVal.isNull()) {
+                    continue;
+                }
                 parseGroupFriendInfo(tVal);
             }
         }
@@ -373,6 +379,9 @@ void Friend::parseGroupFriendInfo(const QJsonValue& rtData) {
             tUserInfo.iGroup = iIndex;
             for (int i = 0; i < iSize; ++i) {
                 QJsonValue tVal = tArr.at(i);
+                if (tVal.isNull()) {
+                    continue;
+                }
                 parseFriendInfo(tVal, tUserInfo);
                 initFriendItemListAppend(iIndex, tUserInfo);
             }
@@ -419,6 +428,7 @@ void Friend::onSigMessage(int reType/* const Smt& reType */, const QJsonValue& r
             break;
         }
         case SMT_ADDFRIENDSENDREQUEST: {
+            // 取消获取返回状态，防止TCP粘包
             parseAddFriendItemSendRequest(rtData);
             break;
         }
