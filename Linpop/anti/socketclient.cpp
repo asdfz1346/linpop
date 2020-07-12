@@ -100,7 +100,11 @@ void SocketClient::onReadyRead() {
                 case SMT_MOVEFRIEND:
                 case SMT_DELFRIEND:
                 case SMT_GETFRIENDLIST:
-                case SMT_UPDATEFRIENDSTATUS: {
+                case SMT_UPDATEFRIENDSTATUS:
+                case SMT_UPDATENAME:
+                case SMT_UPDATEHEAD:
+                case SMT_SENDMESSAGE:
+                case SMT_RECVMESSAGE: {
                     Q_EMIT sigMessage(iType, tData);
                     break;
                 }

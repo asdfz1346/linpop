@@ -7,11 +7,13 @@
 #include <group.h>
 #include <groupitem.h>
 #include <addfriend.h>
+#include <chat.h>
 #include <socketclient.h>
 
 #include <QWidget>
 #include <QStringList>
 #include <QList>
+#include <QMap>
 
 /**
  * UI eg:
@@ -65,6 +67,12 @@ public:
     void moveFriendItemControls(const int iSrcGroupIndex, const int iDestGroupIndex, const int iIndex);
     void delFriendItemControls(const int iGroupIndex, const int iIndex);
 
+    // 聊天界面接口
+    void showChatWindow(const int iGroupIndex, const int iIndex);
+    void addSendMessageItemControls(const int iGroupIndex, const int iIndex);
+    void addRecvMessageItemControls(const int iGroupIndex, const int iIndex,
+                                    const int iMessageType, const QString& rsString);
+
 protected:
     friend class Singleton<Friend>;
     explicit Friend(QWidget *ptParent = nullptr);
@@ -106,10 +114,14 @@ public:
     void sendToDelFriendItem(const int iGroupIndex, const QString& rsId, const int iIndex);
     // 更新好友状态
     void sendToUpdateFriendStatus(const int iGroupIndex, const QString& rsId, const int iIndex);
+    // 发送消息
+    void sendToSendMessage(const QString& rsString, const int iGroupIndex, const QString& rsId, const int iIndex);
 
 private:
     // 获取好友列表
     void sendToGetFriendList(void);
+    // 更新昵称
+    void sendToUpdateName(void);
 
     void parseAddGroupItem(const QJsonValue& rtData);
     void parseRenameGroupItem(const QJsonValue& rtData);
@@ -121,6 +133,9 @@ private:
     void parseDelFriendItem(const QJsonValue& rtData);
     void parseGetFriendList(const QJsonValue& rtData);
     void parseUpdateFriendStatus(const QJsonValue &rtData);
+    void parseUpdateName(const QJsonValue &rtData);
+    void parseSendMessage(const QJsonValue &rtData);
+    void parseRecvMessage(const QJsonValue &rtData);
     // 分组好友信息JSON解析
     void parseGroupFriendInfo(const QJsonValue& rtData);
     // 好友信息JSON解析
@@ -132,10 +147,14 @@ private slots:
     // 服务器信息处理
     void onSigStatus(int reType/* const Sst& reType */);
 
+    void on_nameEdit_editingFinished();
+
 private:
     Ui::Friend*   m_ptUi;
     Group*        m_ptGroup;
     AddFriend*    m_ptAddFriend;
+    QMap<Chat*, FriendPosition> m_mpChatMap;      // iGroupIndex, iFriendIndex, 聊天框
+
     SocketClient* m_ptSocketClient;
 };
 

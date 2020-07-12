@@ -71,6 +71,8 @@ void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
 void FriendItem::mouseDoubleClickEvent(QMouseEvent* ptEvent) {
     Q_UNUSED(ptEvent);
     // 发送更新好友信息
+//    Friend::getInstance()->sendToSendMessage(QStringLiteral("你好，再见，谢谢，不客气！"), ((GroupItem*)m_ptGroupItem)->getGroupItemIndex(),
+//                                             m_ptUi->idLabel->text(), m_iFriendIndex);
     Friend::getInstance()->sendToUpdateFriendStatus(((GroupItem*)m_ptGroupItem)->getGroupItemIndex(),
                                                     m_ptUi->idLabel->text(), m_iFriendIndex);
 }

@@ -47,6 +47,7 @@ public:
     void setGroupItemIndex(const int iIndex);
     int  getGroupItemCount(void);
     const int getFriendIndexById(const QString &rtId);
+    const FriendInfo& getFriendInfo(const int iIndex);
 
     void showStackPage(const int iIndex);
 

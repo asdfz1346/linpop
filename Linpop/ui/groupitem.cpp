@@ -136,6 +136,10 @@ const int GroupItem::getFriendIndexById(const QString& rtId) {
     return iRet;
 }
 
+const FriendInfo& GroupItem::getFriendInfo(const int iIndex) {
+    return m_ltFriendInfoList.at(iIndex);
+}
+
 void GroupItem::showStackPage(const int iIndex) {
     m_ptUi->stackedWidget->setCurrentIndex(iIndex);
 }
