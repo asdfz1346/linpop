@@ -32,6 +32,8 @@ typedef enum SOCKET_MESSAGE_TYPE {
 
     SMT_SENDMESSAGE             = 0x60,     // 发送消息
     SMT_RECVMESSAGE,
+
+    SMT_GETHISTORY              = 0x65,     // 获取历史消息
 } Smt;
 
 typedef enum SOCKET_STATUS_TYPE {
@@ -85,6 +87,9 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_SENDMESSAGE_FAILED,
     SST_RECVMESSAGE_SUCCESS,
     SST_RECVMESSAGE_FAILED,
+
+    SST_GETHISTORY_SUCCESS      = 0x70,     // 获取历史消息
+    SST_GETHISTORY_FAILED,
 } Sst;
 
 typedef enum SOCKET_CHAT_MESSAGE_TYPE {
@@ -94,4 +99,5 @@ typedef enum SOCKET_CHAT_MESSAGE_TYPE {
     SCMT_PICTURE,
     SCMT_OTHERFILE,
 } Scmt;
+
 #endif

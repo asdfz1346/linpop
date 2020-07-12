@@ -30,7 +30,7 @@ void UPDATEFRIENDSTATUS(MyServer *pthis,int fd,Json::Value JsonVal);
 void DELFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 void UPDATENAME(MyServer *pthis,int fd,Json::Value JsonVal);
 void SENDSTRING(MyServer *pthis,int fd,Json::Value JsonVal);
-void GETHISTRIOY(MyServer *pthis,int fd,Json::Value JsonVal);
+void GETHISTROY(MyServer *pthis,int fd,Json::Value JsonVal);
 
 template <typename T>
 void Debug(T a){
@@ -117,8 +117,8 @@ void work(MyServer *pthis,int fd,std::string str){
 		if(JsonVal["Data"]["MessageType"].asInt() == SCMT_STRING){
 			SENDSTRING(pthis,fd,JsonVal);
 		}
-	}if(cmd == 1){
-		GETHISTRIOY(pthis,fd,JsonVal);
+	}if(cmd == SMT_GETHISTORY){
+		GETHISTROY(pthis,fd,JsonVal);
 	}if(cmd ==SMT_ADDFRIENDRECVREADY){
 		ADDFRIENDRECVREADY(pthis,fd,JsonVal);
 	}
@@ -343,9 +343,10 @@ void MATCHTIPS(MyServer *pthis,int fd,Json::Value JsonVal){
 void GETFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
 	std::string sourceid = pthis->fdtoidmap[fd];
 	std::string targetid ,targetip;
-	//int groupindex = JsonVal["Data"]["GroupIndex"].asInt();
 	int targetfd;
-	std::string S1 = "select * from friends_" + sourceid  ;
+	//select friends_2.id,userinfo.name,friends_2.groups from friends_2,userinfo WHERE userinfo.id = friends_2.id;
+	std::string tablename = "friends_"+ sourceid ;
+	std::string S1 = "select " + tablename +".id,userinfo.name,"+tablename+".groups from "+tablename+",userinfo WHERE userinfo.id="+tablename+".id;";
 	MYSQL_RES *result=NULL;
 	MYSQL_ROW row;
 	result = sql_query(S1);
@@ -669,12 +670,14 @@ void SENDSTRING(MyServer *pthis,int fd,Json::Value JsonVal){
 	sql_alter(S1);
 }
 
-void GETHISTRIOY(MyServer *pthis,int fd,Json::Value JsonVal){
+void GETHISTROY(MyServer *pthis,int fd,Json::Value JsonVal){
 	std::string targetid =  JsonVal["Data"]["Id"].asString();
 	std::string sourceid = pthis->fdtoidmap[fd];
 	Json::Value J ;
-	J["Type"] = 1;
-	
+	J["Type"] = SMT_GETHISTORY;
+	J["Data"]["GroupIndex"] = JsonVal["Data"]["GroupIndex"] ;
+	J["Data"]["FriendIndex"] = JsonVal["Data"]["FriendIndex"] ;
+	J["Data"]["Status"] = SST_GETHISTORY_FAILED;
 
 	std::string S1 = "SELECT * FROM histroy WHERE (sourceid = '"+sourceid+"' AND targetid = '"+targetid+"')  or(sourceid = '";
 	S1 += targetid +"' AND targetid = '"+sourceid +"');";
@@ -683,15 +686,18 @@ void GETHISTRIOY(MyServer *pthis,int fd,Json::Value JsonVal){
 	result = sql_query(S1);
 	if(result!=NULL){
 		int i=0;
-		while((row = mysql_fetch_row(result))!=NULL){
+		while(row = mysql_fetch_row(result)){
 			J["Data"]["Content"][i]["SourceId"] =  row[0];
 			J["Data"]["Content"][i]["TargetId"] =  row[1];
 			J["Data"]["Content"][i]["DateTime"] =  row[2];
 			J["Data"]["Content"][i]["Message"] =  row[3];
+			J["Data"]["Content"][i]["MessageType"]=SCMT_STRING;
+			i++;
 		}
-
+		J["Data"]["Status"] = SST_GETHISTORY_SUCCESS;
 	}
-
+	Debug(J);
+	sendjson(fd,J);
 }
 
 MYSQL_RES *sql_query(std::string S){
