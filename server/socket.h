@@ -29,6 +29,9 @@ typedef enum SOCKET_MESSAGE_TYPE {
     SMT_UPDATEHEAD,                         // 修改头像
 
     SMT_UPDATEFRIENDSTATUS      = 0x55,     // 更新好友状态
+
+    SMT_SENDMESSAGE             = 0x60,     // 发送消息
+    SMT_RECVMESSAGE,
 } Smt;
 
 typedef enum SOCKET_STATUS_TYPE {
@@ -77,6 +80,18 @@ typedef enum SOCKET_STATUS_TYPE {
 
     SST_UPDATEFRIENDSTATUS_SUCCESS  = 0x60,
     SST_UPDATEFRIENDSTATUS_FAILED,
+
+    SST_SENDMESSAGE_SUCCESS     = 0x65,     // 发送消息
+    SST_SENDMESSAGE_FAILED,
+    SST_RECVMESSAGE_SUCCESS,
+    SST_RECVMESSAGE_FAILED,
 } Sst;
 
+typedef enum SOCKET_CHAT_MESSAGE_TYPE {
+    SCMT_UNKNOW,
+    SCMT_HEAD                    = 0x10,
+    SCMT_STRING,
+    SCMT_PICTURE,
+    SCMT_OTHERFILE,
+} Scmt;
 #endif

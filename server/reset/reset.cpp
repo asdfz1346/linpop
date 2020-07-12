@@ -24,5 +24,9 @@ int main(){
     if(!mysql_query(m_sql,const_cast<char *>(S1.c_str()))){
         cout << "reset userinfo success"<<endl;
     }
+    S1 = "DELETE FROM histroy;";
+    if(!mysql_query(m_sql,const_cast<char *>(S1.c_str()))){
+        cout << "reset histroy success"<<endl;
+    }
     return 0;
 }
