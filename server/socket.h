@@ -100,4 +100,9 @@ typedef enum SOCKET_CHAT_MESSAGE_TYPE {
     SCMT_OTHERFILE,
 } Scmt;
 
+typedef struct fileinfo{
+    char FileName[100];
+    char TargetId[52];
+    int FileLen;
+}FILEINFO;
 #endif
