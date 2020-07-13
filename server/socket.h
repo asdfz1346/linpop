@@ -105,4 +105,22 @@ typedef struct fileinfo{
     char TargetId[52];
     int FileLen;
 }FILEINFO;
+typedef enum SOCKET_FILE_STATUS_TYPE {
+    SFST_UNKNOW,
+
+    SFST_CONNECTED              = 0x90,     // 用于发送连接信号
+    SFST_DISCONNECTED,                      // 用于发送取消连接信号
+
+    SFST_SENDFILE_SUCCESS       = 0x95,     // 发送成功
+    SFST_SENDFILE_FAILED,
+    SFST_RECVFILE_SUCCESS,                  // 接收成功
+    SFST_RECVFILE_FAILED,
+} Sfst;
+typedef enum SOCKET_FILE_TYPE {
+    SFT_UNKNOW,
+
+    SFT_SENDFILE                = 0x90,     // 发送文件
+    SFT_RECVFILE,                           // 接收文件
+} Slt;
+
 #endif

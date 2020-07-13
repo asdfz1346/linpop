@@ -31,7 +31,7 @@ void DELFRIEND(MyServer *pthis,int fd,Json::Value JsonVal);
 void UPDATENAME(MyServer *pthis,int fd,Json::Value JsonVal);
 void SENDSTRING(MyServer *pthis,int fd,Json::Value JsonVal);
 void GETHISTROY(MyServer *pthis,int fd,Json::Value JsonVal);
-
+void SendFile(MyServer *pthis,int fd,Json::Value JsonVal);
 template <typename T>
 void Debug(T a){
 	std::cout << a<<std::endl;
@@ -72,7 +72,7 @@ void work(MyServer *pthis,int fd,std::string str){
 	Json::Reader JsonRead;
 	JsonRead.parse(str, JsonVal);
 	int cmd = JsonVal["Type"].asInt();
-	//Debug(JsonVal);
+	
 	if(cmd == SMT_REGISTER){
 		REGISTER(pthis,fd,JsonVal);
 	}
@@ -127,6 +127,8 @@ void work(MyServer *pthis,int fd,std::string str){
 		GETHISTROY(pthis,fd,JsonVal);
 	}if(cmd ==SMT_ADDFRIENDRECVREADY){
 		ADDFRIENDRECVREADY(pthis,fd,JsonVal);
+	}if(cmd == SFT_RECVFILE){
+		SendFile(pthis,fd,JsonVal);
 	}
 };
 
@@ -147,7 +149,6 @@ void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal){
 	Json::Value J;
 	J["Type"] = SMT_REGISTER;
 	if(sql_alter(S1)){
-		Debug("REGISTER SUCCESS");
 		S1 = "CREATE TABLE groups_";
 		S1 +=id;
 		S1+="(groupid int PRIMARY KEY auto_increment,groupname VARCHAR(50));";
@@ -163,7 +164,6 @@ void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal){
 		sql_alter(S1);
 	
 	}else{
-		Debug("REGISTER FAIL");
 		J["Data"]["Status"]=SST_REGISTER_FAILED;
 	}
 	sendjson(fd,J);
@@ -187,7 +187,6 @@ void LOGIN(MyServer *pthis,int fd,Json::Value JsonVal){
 			std::string pswd(row[1]);
 			if(pswd==password){
 				if(pthis->clientmap[id]!=0){
-					Debug("SST_LOGIN_REPEAT");
 					J["Data"]["Status"]= SST_LOGIN_REPEAT;
 				}
 				else{
@@ -267,7 +266,6 @@ void ADDFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
 	J["Data"]["Status"] = SST_ADDFRIEND_FAILED;
 	result = sql_query(S1);
 	if(result!=NULL){
-		Debug("regiested");
 		if(row = mysql_fetch_row(result)){
 			J["Data"]["Status"] = SST_ADDFRIEND_SUCCESS;
 			J["Data"]["Friend"]["Id"] = id;
@@ -704,46 +702,71 @@ void GETHISTROY(MyServer *pthis,int fd,Json::Value JsonVal){
 		}
 		J["Data"]["Status"] = SST_GETHISTORY_SUCCESS;
 	}
-	
-	Debug(sendjson(fd,J));
+	sendjson(fd,J);
 }
-std::ofstream	OsWrite;
-void TransFile(MyServer *pthis,int fd,char *c){
-	//带头信息
+
+void TransFile(MyServer *pthis,int fd,char *c,int rcv_num){
 	std::string s;
+	s.clear();
+	std::ofstream OsWrite;
 	if(strlen(pthis->fileinfomap[fd].FileName)<1){
 		FILEINFO F;
 		memcpy(&F,c,sizeof F);
+		std::string filename(F.FileName);
+		filename = "file/"+filename;
+		memcpy(F.FileName,filename.c_str(),100);
 		pthis->fileinfomap[fd] = F;
 		int length = F.FileLen;
 		std::string targetid = F.TargetId;
-		s =(&c[156]);
-		int i=s.length();
+		for(int i=156,j=0;i<rcv_num;i++,j++){
+			s[j] = c[i];
+		}
 		OsWrite.open(pthis->fileinfomap[fd].FileName);
 	}else{
-		s = c;
+		for(int i=0;i<rcv_num;i++){
+			s+= c[i];
+		}
 		OsWrite.open(pthis->fileinfomap[fd].FileName,std::ofstream::app);
 	}
-	
+	Debug(rcv_num);
 	OsWrite<<s;
 	OsWrite.close();
-
-	FILE * pFile;
-    int size;
-    pFile = fopen (pthis->fileinfomap[fd].FileName,"rb");
-    if (pFile==NULL)
-        ;//perror ("Error opening file");
-    else
-    {
-        fseek (pFile, 0, SEEK_END);   ///将文件指针移动文件结尾
-        size=ftell (pFile); ///求出当前文件指针距离文件开始的字节数
-        fclose (pFile);
-    }
-	if(size >= pthis->fileinfomap[fd].FileLen){
-		pthis->fileinfomap.erase(fd);
-	}
   	return;
 
+}
+
+void SendFile(MyServer *pthis,int fd,Json::Value JsonVal){
+	FILEINFO F;
+	std::string filename = JsonVal["Data"]["FileName"].asString();
+	filename = "file/"+ filename;
+	memcpy(F.FileName ,JsonVal["Data"]["FileName"].asString().c_str() ,100);
+
+	std::ifstream srcFile;
+	srcFile.open(filename,std::ios::binary);
+	if(!srcFile){
+		return;
+	}
+	srcFile.seekg(0, std::ios::end); //设置文件指针到文件流的尾部
+	F.FileLen = srcFile.tellg(); //读取文件指针的位置
+	srcFile.seekg(0, std::ios::beg);
+	//发送头信息
+	char snd_buf[SND_BUF_SIZE];
+	memset(snd_buf,0,SND_BUF_SIZE);
+	memcpy(snd_buf,&F,SND_BUF_SIZE);
+	send(fd,snd_buf,SND_BUF_SIZE,0);
+	
+	int haveSend = 0;
+	const int bufferSize = 1024;
+	char buffer[bufferSize];
+	memset(buffer,0,bufferSize);
+	int readLen = 0;
+	while(!srcFile.eof()){
+		srcFile.read(buffer,bufferSize);
+		readLen = srcFile.gcount();
+		send(fd,buffer,readLen,0);
+		haveSend += readLen;	
+	}
+	srcFile.close();
 }
 
 MYSQL_RES *sql_query(std::string S){
@@ -763,9 +786,6 @@ bool sql_alter(std::string S){
 		mysql_close(m_sql);
 		return !ret;
 	}
-
-
-
 
 
 /*server_listen(),accept,io,work*/
@@ -941,7 +961,7 @@ void *MyServer::worker_thread_proc(void *args){
 				if(ctos[0]=='{'){
 					work(pthis ,fd, ctos);	
 				}else{
-					TransFile(pthis,fd,rcv_buf);
+					TransFile(pthis,fd,rcv_buf,num_rcv);
 				}
 			}
 		}
