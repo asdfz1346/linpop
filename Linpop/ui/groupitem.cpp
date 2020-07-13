@@ -48,11 +48,23 @@ void GroupItem::initFriendItemControls(void) {
     // 从此处开始，m_lptFriendItem、m_tGroupUserCount和m_ltFriendInfoList的设置都由客户端同步完成
 }
 
-void GroupItem::updateFriendItemControls(const int iIndex, const bool bIsOnline, const QString& rsIp) {
-    m_ltFriendInfoList[iIndex].bOnline    = bIsOnline;
-    m_ltFriendInfoList[iIndex].sIp     = rsIp;
+void GroupItem::updateFriendItemControls(const FriendInfo& rtFriendInfo, const int iIndex) {
+    if (m_ltFriendInfoList[iIndex].bOnline != rtFriendInfo.bOnline) {
+        if (rtFriendInfo.bOnline) {
+            ++(m_tGroupUserCount.iOnlineCount);
+        }
+        else {
+            --(m_tGroupUserCount.iOnlineCount);
+        }
+        setGroupItemTextUseCount();
+    }
 
-    m_lptFriendItem.at(iIndex)->updateFriendItemControls(bIsOnline, rsIp);
+    m_ltFriendInfoList[iIndex].bOnline = rtFriendInfo.bOnline;
+//    m_ltFriendInfoList[iIndex].sHead   = rtFriendInfo.sHead;
+    m_ltFriendInfoList[iIndex].sIp     = rtFriendInfo.sIp;
+    m_ltFriendInfoList[iIndex].sName   = rtFriendInfo.sName;
+
+    m_lptFriendItem.at(iIndex)->updateFriendItemControls(rtFriendInfo);
 }
 
 void GroupItem::addFriendItem(const FriendInfo& rtFriendInfo) {

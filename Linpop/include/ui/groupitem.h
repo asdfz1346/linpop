@@ -29,7 +29,7 @@ public:
 
     void initFriendItemListAppend(const FriendInfo& rtFriendInfo);
     void initFriendItemControls(void);
-    void updateFriendItemControls(const int iIndex, const bool bIsOnline, const QString& rsIp);
+    void updateFriendItemControls(const FriendInfo &rtFriendInfo, const int iIndex);
 
     void addFriendItem(const FriendInfo& rtFriendInfo);
     /**

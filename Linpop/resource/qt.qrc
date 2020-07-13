@@ -20,5 +20,12 @@
         <file>head/5.png</file>
         <file>head/3.png</file>
         <file>head/6.png</file>
+        <file>chat/file.png</file>
+        <file>chat/search.png</file>
+        <file>chat/history.png</file>
+        <file>head/7.png</file>
+        <file>head/8.png</file>
+        <file>head/9.png</file>
+        <file>head/10.png</file>
     </qresource>
 </RCC>

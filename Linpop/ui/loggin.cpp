@@ -13,6 +13,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QTime>
 
 Loggin::Loggin(QWidget *ptParent) : MoveableFramelessWindow(ptParent), m_ptUi(new Ui::Loggin) {
     m_ptUi->setupUi(this);
@@ -163,6 +164,9 @@ void Loggin::sendToGetRegisterInfo(const QString& rsId,  const QString& rsPasswo
     tData.insert("Tip", rsTip);
     tData.insert("Name", rsName);
     tData.insert("Group", GROUPITEM_NAME_DEFAULT);
+
+    qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
+    tData.insert("Head", QString(":/head/%1.png").arg(qrand() % 11));
 
     m_ptSocketClient->onSendMessage(SMT_REGISTER, tData);
 }
@@ -346,11 +350,7 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
             break;
         }
         case SST_MATCHTIPS_FAILED: {
-            showTipWindow(QStringLiteral("警告"), QStringLiteral("当前账号名称已存在！\n请重新输入！"));
-            break;
-        }
-        case SST_MODIFYPASSWORD_FAILED: {
-            showTipWindow(QStringLiteral("错误"), QStringLiteral("初始化失败！\n请重试！"));
+            showTipWindow(QStringLiteral("警告"), QStringLiteral("密码提示匹配失败！\n请重新输入！"));
             break;
         }
         case SST_PASSWORD_ERROR: {
@@ -361,9 +361,9 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
             showTipWindow(QStringLiteral("警告"), QStringLiteral("登录失败！\n此账号当前已经登录！"));
             break;
         } 
+        case SST_MODIFYPASSWORD_FAILED:
         case SST_GETGROUP_FAILED: {
-            // 退出当前登录状态
-            showTipWindow(QStringLiteral("错误"), QStringLiteral("初始化失败！\n请重试！"));
+            showTipWindow(QStringLiteral("内部错误"), QStringLiteral("初始化失败！\n请重试！"));
             break;
         }
         default:

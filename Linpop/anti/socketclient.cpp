@@ -63,19 +63,30 @@ void SocketClient::onSendMessage(int reType/* const Smt& reType */, const QJsonV
 #endif
 }
 
+static QByteArray tReadArray;
 void SocketClient::onReadyRead() {
-    QByteArray      tReadArray = m_ptTcpSocket->readAll();
+    QByteArray tTempArray = 0;
+    while (!m_ptTcpSocket->atEnd()) {
+        tTempArray = m_ptTcpSocket->readAll();
+        tReadArray.append(tTempArray);
+    }
+
+    if ((tReadArray.at(tReadArray.length()-2) == '}') && (tReadArray.at(tReadArray.length()-3) == '\n') &&
+        (tReadArray.at(tReadArray.length()-1) == '\n')) {
+        /* Nothing */
+    }
+    else {
+        return ;
+    }
+
     QJsonParseError tJsonError;
     QJsonDocument   tDocm = QJsonDocument::fromJson(tReadArray, &tJsonError);
     if (!tDocm.isNull() && (QJsonParseError::NoError == tJsonError.error)) {
         if (tDocm.isObject()) {
             QJsonObject tObj = tDocm.object();
             QJsonValue tData = tObj.value("Data");
-
+            tReadArray.clear();
             int iType = tObj.value("Type").toInt();
-#ifdef _DEBUG_STATE
-            qDebug() << __FUNCTION__ << __LINE__ << iType;
-#endif
             switch (iType) {
                 // Loggin
                 case SMT_REGISTER:
@@ -104,7 +115,8 @@ void SocketClient::onReadyRead() {
                 case SMT_UPDATENAME:
                 case SMT_UPDATEHEAD:
                 case SMT_SENDMESSAGE:
-                case SMT_RECVMESSAGE: {
+                case SMT_RECVMESSAGE:
+                case SMT_GETHISTORY: {
                     Q_EMIT sigMessage(iType, tData);
                     break;
                 }

@@ -24,6 +24,7 @@ SOURCES += \
     common/clientfile.cpp \
     common/singleton.cpp \
     anti/socketclient.cpp \
+    anti/socketfileclient.cpp \
     ui/moveableframelesswindow.cpp \
     ui/loggin.cpp \
     ui/recoverpassword.cpp \
@@ -44,6 +45,7 @@ INCLUDEPATH += \
 
 HEADERS += \
     include/anti/socketclient.h \
+    include/anti/socketfileclient.h \
     include/ui/moveableframelesswindow.h \
     include/ui/loggin.h \
     include/ui/recoverpassword.h \

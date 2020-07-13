@@ -19,7 +19,7 @@ public:
     ~FriendItem();
 
     void setFriendItemIndex(const int iIndex);
-    void updateFriendItemControls(const bool bIsOnline, const QString& rsIp);
+    void updateFriendItemControls(const FriendInfo& rtFriendInfo);
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent* ptEvent);

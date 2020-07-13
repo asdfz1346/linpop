@@ -16,4 +16,3 @@ bool operator==(const FriendPosition& rtA, const FriendPosition& rtB) {
     }
     return false;
 }
-
