@@ -46,9 +46,15 @@ std::string GetTime(){
 	return row[0];
 }
 
-void sendjson(int fd,Json::Value J){
+bool isJson(std::string c){
+	Json::Value JsonVal;
+	Json::Reader R;
+	return R.parse(c, JsonVal);
+}
+
+int sendjson(int fd,Json::Value J){
 	//Debug(J);
-	send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
+	return send(fd,J.toStyledString().c_str(),strlen(J.toStyledString().c_str()),0);
 }
 
 MYSQL * sql_conn(){
@@ -579,6 +585,8 @@ void DELFRIEND(MyServer *pthis,int fd,Json::Value JsonVal){
 	}
 	S1 = "DELETE FROM friends_"+ targetid+ " Where id = '"+ sourceid +"';";
 	sql_alter(S1);
+	S1 = "DELETE FROM histroy WHERE (sourceid = '"+sourceid+"' AND targetid= '"+targetid +"') OR(sourceid = '";
+	S1 += targetid +"' AND targetid = '"+sourceid+"')";
 	sendjson(fd,J);
 }
 
@@ -696,8 +704,46 @@ void GETHISTROY(MyServer *pthis,int fd,Json::Value JsonVal){
 		}
 		J["Data"]["Status"] = SST_GETHISTORY_SUCCESS;
 	}
-	Debug(J);
-	sendjson(fd,J);
+	
+	Debug(sendjson(fd,J));
+}
+std::ofstream	OsWrite;
+void TransFile(MyServer *pthis,int fd,char *c){
+	//带头信息
+	std::string s;
+	if(strlen(pthis->fileinfomap[fd].FileName)<1){
+		FILEINFO F;
+		memcpy(&F,c,sizeof F);
+		pthis->fileinfomap[fd] = F;
+		int length = F.FileLen;
+		std::string targetid = F.TargetId;
+		s =(&c[156]);
+		int i=s.length();
+		OsWrite.open(pthis->fileinfomap[fd].FileName);
+	}else{
+		s = c;
+		OsWrite.open(pthis->fileinfomap[fd].FileName,std::ofstream::app);
+	}
+	
+	OsWrite<<s;
+	OsWrite.close();
+
+	FILE * pFile;
+    int size;
+    pFile = fopen (pthis->fileinfomap[fd].FileName,"rb");
+    if (pFile==NULL)
+        ;//perror ("Error opening file");
+    else
+    {
+        fseek (pFile, 0, SEEK_END);   ///将文件指针移动文件结尾
+        size=ftell (pFile); ///求出当前文件指针距离文件开始的字节数
+        fclose (pFile);
+    }
+	if(size >= pthis->fileinfomap[fd].FileLen){
+		pthis->fileinfomap.erase(fd);
+	}
+  	return;
+
 }
 
 MYSQL_RES *sql_query(std::string S){
@@ -892,7 +938,11 @@ void *MyServer::worker_thread_proc(void *args){
        				close(fd);
 				}
 				std::string ctos(rcv_buf);
-				work(pthis ,fd, ctos);	
+				if(ctos[0]=='{'){
+					work(pthis ,fd, ctos);	
+				}else{
+					TransFile(pthis,fd,rcv_buf);
+				}
 			}
 		}
 		else {
