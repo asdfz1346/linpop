@@ -21,6 +21,7 @@
 	#include <time.h>
 	#include <sstream>
 	#include <deque>
+	#include <fstream>
 	#include <vector>
 	#include <iomanip> //for std::setw()/setfill()
 	#include <mysql/mysql.h>
@@ -35,8 +36,8 @@
 	#define THREAD_NUM 1
 
 	#define MAXSIZE 1000
-	#define SND_BUF_SIZE 1068
-	#define RCV_BUF_SIZE 1068
+	#define SND_BUF_SIZE 10680
+	#define RCV_BUF_SIZE 56800
 
 
 	class MyServer{
@@ -49,6 +50,7 @@
 		std::map<int,std::string> fdtoidmap; // [fd]= id;
 		std::map<int,std::string> ipmap; //[fd] =ip;
 		bool addfriendrecvready[1024];
+		std::map<int,FILEINFO> 	fileinfomap;
 
 	private:
 		MyServer(const MyServer& a);//拷贝构造
