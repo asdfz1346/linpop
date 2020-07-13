@@ -20,10 +20,10 @@ typedef enum SOCKET_FILE_TYPE {
 typedef enum SOCKET_FILE_STATUS_TYPE {
     SFST_UNKNOW,
 
-    SFST_CONNECTED              = 0x05,     // 用于发送连接信号
+    SFST_CONNECTED              = 0x90,     // 用于发送连接信号
     SFST_DISCONNECTED,                      // 用于发送取消连接信号
 
-    SFST_SENDFILE_SUCCESS       = 0x10,     // 发送成功
+    SFST_SENDFILE_SUCCESS       = 0x95,     // 发送成功
     SFST_SENDFILE_FAILED,
     SFST_RECVFILE_SUCCESS,                  // 接收成功
     SFST_RECVFILE_FAILED,
