@@ -14,13 +14,9 @@ FriendItem::FriendItem(const FriendInfo& rtFriendInfo, const int iFriendIndex, Q
     QWidget(ptParent), m_ptUi(new Ui::FriendItem) {
     m_ptUi->setupUi(this);
 
-    m_ptUi->headLabel->setPixmap(QPixmap(rtFriendInfo.sHead));
-    if (!rtFriendInfo.bOnline) {
-        m_ptUi->headLabel->setDisabled(true);
-    }
-    m_ptUi->nameLabel->setText(rtFriendInfo.sName);
     m_ptUi->idLabel->setText(rtFriendInfo.sId);
-    m_ptUi->ipLabel->setText(rtFriendInfo.sIp);
+    m_ptUi->headLabel->setPixmap(QPixmap(rtFriendInfo.sHead));
+    updateFriendItemControls(rtFriendInfo);
 
     m_ptGroupItem  = ptParent;
     m_iFriendIndex = iFriendIndex;
@@ -34,9 +30,19 @@ void FriendItem::setFriendItemIndex(const int iIndex) {
     m_iFriendIndex = iIndex;
 }
 
-void FriendItem::updateFriendItemControls(const bool bIsOnline, const QString& rsIp) {
-    m_ptUi->headLabel->setEnabled(bIsOnline);
-    m_ptUi->ipLabel->setText(rsIp);
+void FriendItem::updateFriendItemControls(const FriendInfo& rtFriendInfo) {
+//    m_ptUi->headLabel->setPixmap(QPixmap(rtFriendInfo.sHead));
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << rtFriendInfo.bOnline;
+#endif
+    if (rtFriendInfo.bOnline) {
+        m_ptUi->headLabel->setDisabled(false);
+    }
+    else {
+        m_ptUi->headLabel->setDisabled(true);
+    }
+    m_ptUi->nameLabel->setText(rtFriendInfo.sName);
+    m_ptUi->ipLabel->setText(rtFriendInfo.sIp);
 }
 
 void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
@@ -71,6 +77,8 @@ void FriendItem::contextMenuEvent(QContextMenuEvent* ptEvent) {
 void FriendItem::mouseDoubleClickEvent(QMouseEvent* ptEvent) {
     Q_UNUSED(ptEvent);
     // 发送更新好友信息
+//    Friend::getInstance()->sendToSendMessage(QStringLiteral("你好，再见，谢谢，不客气！"), ((GroupItem*)m_ptGroupItem)->getGroupItemIndex(),
+//                                             m_ptUi->idLabel->text(), m_iFriendIndex);
     Friend::getInstance()->sendToUpdateFriendStatus(((GroupItem*)m_ptGroupItem)->getGroupItemIndex(),
                                                     m_ptUi->idLabel->text(), m_iFriendIndex);
 }

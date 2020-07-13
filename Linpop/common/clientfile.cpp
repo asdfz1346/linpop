@@ -4,34 +4,27 @@
 #include <common.h>
 #include <loggin.h>
 
+#include <QDir>
 #include <QString>
 #include <QSettings>
 
-QString ClientFile::m_sIdPath     = "";                 // 账户名路径
-QString ClientFile::m_sDataPath   = "";                 // 聊天记录路径
-QString ClientFile::m_sFilePath   = "";                 // 文件路径
-QString ClientFile::m_sHeadPath   = "";                 // 头像路径
-QString ClientFile::m_sConfigPath = CLIENT_SET_FILE;    // 配置文件路径
-
-void ClientFile::initClientDir(void) {
-    // 读取用户名和密码
-    
-    
-    // 
-    
-    // 注意，点击登录按键后需要更新SETTINGS_RM_KEY
-    // 点击设置服务器地址时需要更新SETTINGS_SERVER_KEY
-}
-
 void ClientFile::checkClientDir(void) {
-    
+    // 个人根文件夹
+    QDir tDir;
+    // 接收文件目录
+    if (!tDir.exists(CLIENT_FILE_DIR)) {
+        tDir.mkdir(CLIENT_FILE_DIR);
+#ifdef Q_WS_QWS
+        QProcess::execute("sync");
+#endif
+    }
 }
 
 void ClientFile::createConfigFile(void) {
-    QSettings tSet(m_sConfigPath, QSettings::IniFormat);
+    QSettings tSet(CLIENT_SET_FILE, QSettings::IniFormat);
     QString   sGroups = tSet.childGroups().join("");
     
-    if (!QFile::exists(m_sConfigPath) || (sGroups.isEmpty())) {
+    if (!QFile::exists(CLIENT_SET_FILE) || (sGroups.isEmpty())) {
         tSet.beginGroup(SETTINGS_USER_GROUP);
         tSet.setValue(SETTINGS_ID_KEY, "");
         tSet.setValue(SETTINGS_PW_KEY, "");
@@ -45,7 +38,7 @@ void ClientFile::createConfigFile(void) {
 }
 
 void ClientFile::readConfigFile(void) {
-    QSettings tSet(m_sConfigPath, QSettings::IniFormat);
+    QSettings tSet(CLIENT_SET_FILE, QSettings::IniFormat);
     tSet.setIniCodec("UTF8");
     tSet.beginGroup(SETTINGS_USER_GROUP);
     g_tMyselfInfo.sId       = tSet.value(SETTINGS_ID_KEY).toString();
@@ -58,7 +51,7 @@ void ClientFile::readConfigFile(void) {
 }
 
 void ClientFile::writeConfigFile(bool bIsSavePassword) {
-    QSettings tSet(m_sConfigPath, QSettings::IniFormat);
+    QSettings tSet(CLIENT_SET_FILE, QSettings::IniFormat);
 
     tSet.beginGroup(SETTINGS_USER_GROUP);
     tSet.setValue(SETTINGS_ID_KEY, g_tMyselfInfo.sId);
@@ -77,14 +70,14 @@ void ClientFile::writeConfigFile(bool bIsSavePassword) {
 }
 
 void ClientFile::setConfigString(const QString& rsGroup, const QString& rsKey, const QString& rtValue) {
-    QSettings tSet(m_sConfigPath, QSettings::IniFormat);
+    QSettings tSet(CLIENT_SET_FILE, QSettings::IniFormat);
     tSet.beginGroup(rsGroup);
     tSet.setValue(rsKey, rtValue);
     tSet.sync();
 }
 
 QString ClientFile::getConfigString(const QString& rsGroup, const QString& rsKey, const QString& rtValue) {
-    QSettings tSet(m_sConfigPath, QSettings::IniFormat);
+    QSettings tSet(CLIENT_SET_FILE, QSettings::IniFormat);
     tSet.beginGroup(rsGroup);
     return tSet.value(rsKey, rtValue).toString();
 }

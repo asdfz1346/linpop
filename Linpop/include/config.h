@@ -15,8 +15,6 @@
 
 // 客户端文件夹
 #define CLIENT_FILE_DIR         ("File/")
-#define CLIENT_DATA_DIR         ("Data/")
-#define CLIENT_HEAD_DIR         ("Head/")
 #define CLIENT_SET_FILE		("config.ini")
 
 // 服务器相关
@@ -28,6 +26,6 @@
 
 #define GROUPITEM_NAME_DEFAULT	QStringLiteral("我的好友")
 
-#define USER_HEAD_DEFAULT       (":/head/1.png")
+#define USER_HEAD_DEFAULT       (":/head/8.png")
 
 #endif // LINPOP_CONFIG_H

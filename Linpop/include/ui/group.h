@@ -23,7 +23,7 @@ public:
     void initGroupItemControls(/*const UserInfo& rtMyselfInfo*/);
     void initFriendItemListAppend(const int iIndex, const FriendInfo& rtFriendInfo);
     void initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int iIndex);
-    void updateFriendItemControls(const int iGroupIndex, const int iFriendIndex, const bool bIsOnline, const QString& rsIp);
+    void updateFriendItemControls(const FriendInfo &rtFriendInfo, const int iFriendIndex);
 
     GroupItem* getGroupitemIndex(const int iIndex);
     const int getDefaultGroupitemIndex(void);

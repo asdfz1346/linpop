@@ -24,6 +24,14 @@ struct FriendInfo {
     QString sHead;                      // 头像路径
 };
 
+struct FriendPosition {
+    FriendPosition(int iGroupIndex = 0, int iFriendIndex = 0);
+    friend bool operator==(const FriendPosition& rtA, const FriendPosition& rtB);
+
+    int iGroupIndex;
+    int iFriendIndex;
+};
+
 extern UserInfo           g_tMyselfInfo;       // 个人信息
 extern QString            g_tServerIpAddr;     // 服务器地址
 extern QMap<int, QString> g_msGroupTextMap;    // 分组名，只限于Group和GroupItem使用

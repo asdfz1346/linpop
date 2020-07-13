@@ -32,9 +32,8 @@ void Group::initFriendItemControls(/*const UserInfo& rtMyselfInfo,*/ const int i
     m_mptGroupItem[iIndex]->initFriendItemControls();
 }
 
-void Group::updateFriendItemControls(const int iGroupIndex, const int iFriendIndex,
-                                     const bool bIsOnline, const QString& rsIp) {
-    m_mptGroupItem[iGroupIndex]->updateFriendItemControls(iFriendIndex, bIsOnline, rsIp);
+void Group::updateFriendItemControls(const FriendInfo& rtFriendInfo, const int iFriendIndex) {
+    m_mptGroupItem[rtFriendInfo.iGroup]->updateFriendItemControls(rtFriendInfo, iFriendIndex);
 }
 
 GroupItem* Group::getGroupitemIndex(const int iIndex) {

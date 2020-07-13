@@ -189,6 +189,9 @@ QPushButton#logButton:pressed {
    <property name="text">
     <string/>
    </property>
+   <property name="maxLength">
+    <number>15</number>
+   </property>
    <property name="echoMode">
     <enum>QLineEdit::Normal</enum>
    </property>
@@ -317,6 +320,9 @@ QPushButton#logButton:pressed {
    </property>
    <property name="text">
     <string/>
+   </property>
+   <property name="maxLength">
+    <number>15</number>
    </property>
    <property name="echoMode">
     <enum>QLineEdit::Normal</enum>

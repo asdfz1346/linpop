@@ -33,7 +33,15 @@ typedef enum SOCKET_MESSAGE_TYPE {
     SMT_DELFRIEND,
     SMT_GETFRIENDLIST,
 
-    SMT_UPDATEFRIENDSTATUS      = 0x50,     // 更新好友状态
+    SMT_UPDATENAME              = 0x50,     // 修改昵称
+    SMT_UPDATEHEAD,                         // 修改头像
+
+    SMT_UPDATEFRIENDSTATUS      = 0x55,     // 更新好友状态
+
+    SMT_SENDMESSAGE             = 0x60,     // 发送消息
+    SMT_RECVMESSAGE,
+
+    SMT_GETHISTORY              = 0x65,     // 获取历史消息
 } Smt;
 
 typedef enum SOCKET_STATUS_TYPE {
@@ -75,9 +83,30 @@ typedef enum SOCKET_STATUS_TYPE {
     SST_GETFRIENDLIST_SUCCESS,              // 获取好友列表
     SST_GETFRIENDLIST_FAILED,
 
-    SST_UPDATEFRIENDSTATUS_SUCCESS  = 0x50,
+    SST_UPDATENAME_SUCCESS      = 0x55,     // 修改昵称
+    SST_UPDATENAME_FAILED,
+    SST_UPDATEHEAD_SUCCESS,                 // 修改头像
+    SST_UPDATEHEAD_FAILED,
+
+    SST_UPDATEFRIENDSTATUS_SUCCESS  = 0x60,
     SST_UPDATEFRIENDSTATUS_FAILED,
+
+    SST_SENDMESSAGE_SUCCESS     = 0x65,     // 发送消息
+    SST_SENDMESSAGE_FAILED,
+    SST_RECVMESSAGE_SUCCESS,
+    SST_RECVMESSAGE_FAILED,
+
+    SST_GETHISTORY_SUCCESS      = 0x70,     // 获取历史消息
+    SST_GETHISTORY_FAILED,
 } Sst;
+
+typedef enum SOCKET_CHAT_MESSAGE_TYPE {
+    SCMT_UNKNOW,
+    SCMT_HEAD                    = 0x10,
+    SCMT_STRING,
+    SCMT_PICTURE,
+    SCMT_OTHERFILE,
+} Scmt;
 
 class SocketClient : public QObject, public Singleton<SocketClient> {
     Q_OBJECT
@@ -114,7 +143,6 @@ private slots:
 
 private:
     QTcpSocket* m_ptTcpSocket;
-    bool        m_bIsConnected;
 };
 
 #endif // LINPOP_SOCKETCLIENT_H

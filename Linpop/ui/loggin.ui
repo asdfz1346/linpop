@@ -497,6 +497,9 @@ QPushButton#cancelSetButton:pressed {
    <property name="focusPolicy">
     <enum>Qt::NoFocus</enum>
    </property>
+   <property name="toolTip">
+    <string>设置</string>
+   </property>
    <property name="styleSheet">
     <string notr="true">QPushButton#setButton {
 	border-image: url(:/loggin/set_normal.png);
