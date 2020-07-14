@@ -363,7 +363,7 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
         } 
         case SST_MODIFYPASSWORD_FAILED:
         case SST_GETGROUP_FAILED: {
-            showTipWindow(QStringLiteral("内部错误"), QStringLiteral("初始化失败！\n请重试！"));
+            showTipWindow(QStringLiteral("内部错误"), QStringLiteral("初始化失败！\n请检查网络连接！"));
             break;
         }
         default:

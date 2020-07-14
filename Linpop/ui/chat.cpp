@@ -249,9 +249,6 @@ void Chat::SltUpdateProgress(quint64 bytes, quint64 total) {
 
 void Chat::onMsgAnchorClicked(const QUrl& rtUrl) {
     QString sFilePath = rtUrl.toString();
-#ifdef _DEBUG_STATE
-        qDebug() << __FUNCTION__ << __LINE__ << sFilePath;
-#endif
     QFile   tFile(sFilePath);
     if (!tFile.exists()) {
         // 接收文件
@@ -273,9 +270,6 @@ void Chat::onMsgAnchorClicked(const QUrl& rtUrl) {
 
 void Chat::onRcdAnchorClicked(const QUrl& rtUrl) {
     QString sFilePath = rtUrl.toString();
-#ifdef _DEBUG_STATE
-        qDebug() << __FUNCTION__ << __LINE__ << sFilePath;
-#endif
     QFile   tFile(sFilePath);
     if (!tFile.exists()) {
         // 接收文件

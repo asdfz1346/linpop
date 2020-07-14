@@ -242,7 +242,6 @@ void GroupItem::onAddFriendItem(void) {
 }
 
 void GroupItem::on_lineEdit_editingFinished() {
-    // 为什么两次处理不一样？
     if (m_ptUi->lineEdit->hasFocus()) {
 #ifdef _DEBUG_STATE
         qDebug() << __FUNCTION__ << __LINE__;

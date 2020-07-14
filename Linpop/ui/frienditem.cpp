@@ -33,7 +33,7 @@ void FriendItem::setFriendItemIndex(const int iIndex) {
 void FriendItem::updateFriendItemControls(const FriendInfo& rtFriendInfo) {
 //    m_ptUi->headLabel->setPixmap(QPixmap(rtFriendInfo.sHead));
 #ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__ << rtFriendInfo.bOnline;
+    qDebug() << __FUNCTION__ << __LINE__;
 #endif
     if (rtFriendInfo.bOnline) {
         m_ptUi->headLabel->setDisabled(false);

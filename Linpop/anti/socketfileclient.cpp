@@ -209,9 +209,7 @@ void SocketFileClient::onReadyRead() {
             ullRecvTotalBytes = g_tHead.iFileLen + nlen;
             fileReadName      = QString("%1%2").arg(CLIENT_FILE_DIR).arg(g_tHead.FileName);
             fileNameSize      = strlen(g_tHead.FileName);
-#ifdef _DEBUG_STATE
-            qDebug() << __FUNCTION__ << __LINE__ << ullRecvTotalBytes << fileReadName;
-#endif
+
             if (0 != ullRecvTotalBytes) {
                 bytesReceived += nlen;
             }
@@ -244,7 +242,9 @@ void SocketFileClient::onReadyRead() {
         fileNameSize = 0;
         memset((char*)&g_tHead, 0, sizeof(SocketFileHead));
 
-        qDebug() << "File recv ok" << fileToRecv->fileName();
+#ifdef _DEBUG_STATE
+        qDebug() << __FUNCTION__ << __LINE__ << "Recv File Ok" << fileToRecv->fileName();
+#endif
         // 数据接受完成
         endTransfer();
     }
