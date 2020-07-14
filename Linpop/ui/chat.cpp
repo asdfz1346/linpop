@@ -46,7 +46,7 @@ Chat::Chat(const FriendPosition &rtPosition, const QString& rsId, const QString&
     // 文件服务器
     m_tcpFileSocket = new SocketFileClient(this);
 
-    connect(m_tcpFileSocket, SIGNAL(sigFileRecvOk(QString)), this, SLOT(SltFileRecvFinished(QString)));
+    connect(m_tcpFileSocket, SIGNAL(sigFileRecvOk()), this, SLOT(SltFileRecvFinished()));
     connect(m_tcpFileSocket, SIGNAL(sigUpdateProgress(quint64,quint64)), this, SLOT(SltUpdateProgress(quint64,quint64)));
 }
 
@@ -215,12 +215,12 @@ void Chat::sendToRecvFile(const QString& rsFileName) {
     m_tcpFileSocket->onSendMessage(SFT_RECVFILE, tData);
 }
 
-void Chat::SltFileRecvFinished(const QString &filePath) {
-    if (filePath.isEmpty()) {
-        return;
-    }
-
-//    m_ptUi->winMsg->append(QString("%1 %2\n").arg(QStringLiteral("文件接收完成：")).arg(filePath));
+void Chat::SltFileRecvFinished(void) {
+    QString sPath = QString("%1/%2").arg(QDir::currentPath()).arg(CLIENT_FILE_DIR);
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << sPath;
+#endif
+    QDesktopServices::openUrl(QUrl::fromLocalFile(sPath));
 }
 
 void Chat::SltUpdateProgress(quint64 bytes, quint64 total) {

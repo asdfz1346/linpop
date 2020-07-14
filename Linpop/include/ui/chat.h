@@ -41,7 +41,7 @@ private slots:
     void on_searchButton_clicked();
     void on_fileButton_clicked();
     // 文件
-    void SltFileRecvFinished(const QString &filePath);
+    void SltFileRecvFinished(void);
     void SltUpdateProgress(quint64 bytes, quint64 total);
     // 超链接
     void onMsgAnchorClicked(const QUrl& rtUrl);

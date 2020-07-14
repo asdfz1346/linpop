@@ -49,7 +49,7 @@ public:
 
 signals:
     void sigSendFinished();
-    void sigFileRecvOk(const QString &filePath);
+    void sigFileRecvOk();
     void sigUpdateProgress(quint64 currSize, quint64 total);
     void sigConnected();
 

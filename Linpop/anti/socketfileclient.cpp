@@ -196,6 +196,7 @@ void SocketFileClient::onUpdateClientProgress(qint64 numBytes) {
 }
 
 static SocketFileHead g_tHead = { 0 };
+static int iSize = 0;
 void SocketFileClient::onReadyRead() {
 //    connect(m_ptTcpSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(onUpdateClientProgress(qint64)));
 
@@ -204,23 +205,20 @@ void SocketFileClient::onReadyRead() {
 
     // 头文件信息
     if (bytesReceived < sizeof(SocketFileHead)) {
-        int nlen = sizeof(SocketFileHead);
         // 接收文件名和文件大小
-        if ((m_ptTcpSocket->bytesAvailable() >= nlen) && (fileNameSize == 0)) {
+        if ((m_ptTcpSocket->bytesAvailable() >=  sizeof(SocketFileHead)) && (fileNameSize == 0)) {
             char tTemp[sizeof(SocketFileHead)] = { 0 };
             in.readRawData((char*)(&tTemp[0]), sizeof(SocketFileHead));
             memcpy((char*)&g_tHead, tTemp, 100);
             memcpy((char*)&g_tHead + 152, tTemp + 152, 4);
 #ifdef _DEBUG_STATE
-            qDebug() << __FUNCTION__ << __LINE__ << g_tHead.FileName << g_tHead.iFileLen;
+            qDebug() << __FUNCTION__ << __LINE__ << g_tHead.FileName << g_tHead.iFileLen << sizeof(SocketFileHead);
 #endif
-            ullRecvTotalBytes = g_tHead.iFileLen + nlen;
+            ullRecvTotalBytes = g_tHead.iFileLen + sizeof(SocketFileHead);
             fileReadName      = QString("%1%2").arg(CLIENT_FILE_DIR).arg(g_tHead.FileName);
             fileNameSize      = strlen(g_tHead.FileName);
 
-            if (0 != ullRecvTotalBytes) {
-                bytesReceived += nlen;
-            }
+            bytesReceived += sizeof(SocketFileHead);
 
             fileToRecv->setFileName(fileReadName);
             if (!fileToRecv->open(QFile::WriteOnly | QIODevice::Truncate)) {
@@ -233,7 +231,6 @@ void SocketFileClient::onReadyRead() {
     if (bytesReceived < ullRecvTotalBytes) {
         bytesReceived += m_ptTcpSocket->bytesAvailable();
         inBlock = m_ptTcpSocket->readAll();
-
         if (fileToRecv->isOpen())
             fileToRecv->write(inBlock);
 
@@ -244,8 +241,6 @@ void SocketFileClient::onReadyRead() {
 
     // 接收数据完成时
     if ((bytesReceived >= ullRecvTotalBytes) && (0 != ullRecvTotalBytes)) {
-        Q_EMIT sigFileRecvOk(QString(g_tHead.FileName));
-
         fileToRecv->close();
         bytesReceived = 0;
         ullRecvTotalBytes = 0;
@@ -257,6 +252,8 @@ void SocketFileClient::onReadyRead() {
 #endif
         // 数据接受完成
         endTransfer();
+
+        Q_EMIT sigFileRecvOk();
     }
 }
 
