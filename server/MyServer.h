@@ -22,6 +22,7 @@
 	#include <sstream>
 	#include <deque>
 	#include <fstream>
+	
 	#include <vector>
 	#include <iomanip> //for std::setw()/setfill()
 	#include <mysql/mysql.h>
@@ -33,10 +34,10 @@
 	#include <json/json.h>
 
 	#define LISTEN_NUM 1
-	#define THREAD_NUM 1
+	#define THREAD_NUM 3
 
 	#define MAXSIZE 1000
-	#define SND_BUF_SIZE 10680
+	#define SND_BUF_SIZE 156
 	#define RCV_BUF_SIZE 56800
 
 
