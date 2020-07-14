@@ -164,7 +164,6 @@ void Loggin::sendToGetRegisterInfo(const QString& rsId,  const QString& rsPasswo
     tData.insert("Tip", rsTip);
     tData.insert("Name", rsName);
     tData.insert("Group", GROUPITEM_NAME_DEFAULT);
-
     qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
     tData.insert("Head", QString(":/head/%1.png").arg(qrand() % 11));
 

@@ -46,7 +46,7 @@ Chat::Chat(const FriendPosition &rtPosition, const QString& rsId, const QString&
     // 文件服务器
     m_tcpFileSocket = new SocketFileClient(this);
 
-    connect(m_tcpFileSocket, SIGNAL(sigFileRecvOk(quint8,QString)), this, SLOT(SltFileRecvFinished(quint8,QString)));
+    connect(m_tcpFileSocket, SIGNAL(sigFileRecvOk(QString)), this, SLOT(SltFileRecvFinished(QString)));
     connect(m_tcpFileSocket, SIGNAL(sigUpdateProgress(quint64,quint64)), this, SLOT(SltUpdateProgress(quint64,quint64)));
 }
 
@@ -68,6 +68,8 @@ void Chat::setTitleString(const QString& rsName, const QString& rsIp) {
 }
 
 void Chat::addSendMessageItemControls(const int iMessageType, const QString& rsString, const QString& rsTime) {
+    Q_UNUSED(iMessageType);
+
     m_ptUi->winMsg->append("<font color=\"#FF0000\">" + g_tMyselfInfo.sName + "</font>  " + rsTime);
 #ifdef _DEBUG_STATE
     qDebug() << __FUNCTION__ << __LINE__ << rsString;
@@ -77,6 +79,8 @@ void Chat::addSendMessageItemControls(const int iMessageType, const QString& rsS
 }
 
 void Chat::addRecvMessageItemControls(const int iMessageType, const QString& rsString, const QString& rsTime) {
+    Q_UNUSED(iMessageType);
+
     m_ptUi->winMsg->append("<font color=\"#FFAA00\">" + m_sName + "</font>  " + rsTime);
     m_ptUi->winMsg->append("<font color=\"#000000\">" + rsString + "</font><p></p>");
     m_ptUi->msgInput->setFocus();
@@ -84,6 +88,8 @@ void Chat::addRecvMessageItemControls(const int iMessageType, const QString& rsS
 
 void Chat::addHistoryItemControls(const int iMessageType, const QString& rsString, const QString& rsTime,
                                   const QString& rsId) {
+    Q_UNUSED(iMessageType);
+
     if (rsId == g_tMyselfInfo.sId) {
         m_ptUi->recordBrowser->append("<font color=\"#FF0000\">" + g_tMyselfInfo.sName + "</font>  " + rsTime);
     }
@@ -183,7 +189,7 @@ void Chat::on_fileButton_clicked() {
     // 关闭界面放在完成传输
 
     // 标志位
-    g_iRepeat = 0;
+    g_iRepeat = 0xA0;
 
     // 开始传输文件
     m_tcpFileSocket->startTransfer(m_strFileName);
@@ -209,12 +215,12 @@ void Chat::sendToRecvFile(const QString& rsFileName) {
     m_tcpFileSocket->onSendMessage(SFT_RECVFILE, tData);
 }
 
-void Chat::SltFileRecvFinished(const quint8 &type, const QString &filePath) {
+void Chat::SltFileRecvFinished(const QString &filePath) {
     if (filePath.isEmpty()) {
         return;
     }
 
-    m_ptUi->winMsg->append(QString("文件接收完成:\n") + filePath);
+//    m_ptUi->winMsg->append(QString("%1 %2\n").arg(QStringLiteral("文件接收完成：")).arg(filePath));
 }
 
 void Chat::SltUpdateProgress(quint64 bytes, quint64 total) {
@@ -232,8 +238,11 @@ void Chat::SltUpdateProgress(quint64 bytes, quint64 total) {
     m_ptUi->progressBar->setValue(bytes);
 
    // 文件接收完成，发送消息给服务器，转发至对端
-    if ((bytes >= total) && (0 == g_iRepeat)) {
+    if ((0xA0 == g_iRepeat) && (bytes >= total)) {
         // 发送消息
+#ifdef _DEBUG_STATE
+        qDebug() << __FUNCTION__ << __LINE__ << "sendToSendMessage SCMT_STRING";
+#endif
         m_ptFriend->sendToSendMessage(SCMT_STRING, QString("<a href=\"%1\">%2</a>").arg(m_strFileName).arg(m_strFileName),
                                      m_tPosition.iGroupIndex, m_sId, m_tPosition.iFriendIndex);
         // 关闭传输界面
@@ -243,7 +252,7 @@ void Chat::SltUpdateProgress(quint64 bytes, quint64 total) {
            m_bIsParentEven = false;
            m_ptUi->parentWidget->setVisible(false);
         }
-        g_iRepeat = 1;
+        g_iRepeat = 0;
     }
 }
 
@@ -259,12 +268,11 @@ void Chat::onMsgAnchorClicked(const QUrl& rtUrl) {
         sendToRecvFile(sFileName);
     }
     else {
-        QString sPath = QString("%1/%2").arg(QCoreApplication::applicationDirPath())
-                .arg(sFilePath.left(sFilePath.size() - sFilePath.lastIndexOf('/') - 1));
+        QString sPath = QString("%1/%2").arg(QDir::currentPath()).arg(CLIENT_FILE_DIR);
 #ifdef _DEBUG_STATE
         qDebug() << __FUNCTION__ << __LINE__ << sPath;
 #endif
-        QDesktopServices::openUrl(sPath);
+        QDesktopServices::openUrl(QUrl::fromLocalFile(sPath));
     }
 }
 
@@ -280,12 +288,11 @@ void Chat::onRcdAnchorClicked(const QUrl& rtUrl) {
         sendToRecvFile(sFileName);
     }
     else {
-        QString sPath = QString("%1/%2").arg(QCoreApplication::applicationDirPath())
-                .arg(sFilePath.left(sFilePath.size() - sFilePath.lastIndexOf('/') - 1));
+        QString sPath = QString("%1/%2").arg(QDir::currentPath()).arg(CLIENT_FILE_DIR);
 #ifdef _DEBUG_STATE
         qDebug() << __FUNCTION__ << __LINE__ << sPath;
 #endif
-        QDesktopServices::openUrl(sPath);
+        QDesktopServices::openUrl(QUrl::fromLocalFile(sPath));
     }
 }
 

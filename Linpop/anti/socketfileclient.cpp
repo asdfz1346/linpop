@@ -100,6 +100,10 @@ void SocketFileClient::startTransfer(const QString& sName) {
     memcpy(ptHead, currentFileName.toStdString().c_str(), 100);
     ptHead->iFileLen = (int)fileToSend->size();
 
+#ifdef _DEBUG_STATE
+        qDebug() << __FUNCTION__ << __LINE__ << ptHead->FileName << ptHead->iFileLen;
+#endif
+
     m_ptTcpSocket->write((char*)ptHead, sizeof(SocketFileHead));
     free(ptHead);
 
@@ -153,6 +157,10 @@ void SocketFileClient::onUpdateClientProgress(qint64 numBytes) {
     if (0 < bytesToWrite) {
         // 每次发送loadSize大小的数据，这里设置为4KB，如果剩余的数据不足4KB，就发送剩余数据的大小
         outBlock = fileToSend->read(qMin(bytesToWrite, loadSize));
+
+#ifdef _DEBUG_STATE
+        qDebug() << __FUNCTION__ << __LINE__ << outBlock.length();
+#endif
 
         // 发送完一次数据后还剩余数据的大小
         bytesToWrite -= (int)m_ptTcpSocket->write(outBlock);
@@ -236,6 +244,8 @@ void SocketFileClient::onReadyRead() {
 
     // 接收数据完成时
     if ((bytesReceived >= ullRecvTotalBytes) && (0 != ullRecvTotalBytes)) {
+        Q_EMIT sigFileRecvOk(QString(g_tHead.FileName));
+
         fileToRecv->close();
         bytesReceived = 0;
         ullRecvTotalBytes = 0;

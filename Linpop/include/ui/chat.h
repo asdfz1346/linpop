@@ -32,6 +32,7 @@ public:
     void addRecvMessageItemControls(const int iMessageType, const QString& rsString, const QString &rsTime);
     void addHistoryItemControls(const int iMessageType, const QString& rsString, const QString& rsTime,
                                 const QString& rsId);
+    void addRecvFileItemControls(const int iMessageType, const QString& rsString, const QString &rsTime);
 
 private slots:
     void on_sendButton_clicked();
@@ -40,7 +41,7 @@ private slots:
     void on_searchButton_clicked();
     void on_fileButton_clicked();
     // 文件
-    void SltFileRecvFinished(const quint8 &type, const QString &filePath);
+    void SltFileRecvFinished(const QString &filePath);
     void SltUpdateProgress(quint64 bytes, quint64 total);
     // 超链接
     void onMsgAnchorClicked(const QUrl& rtUrl);
