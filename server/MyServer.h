@@ -34,7 +34,7 @@
 	#include <json/json.h>
 
 	#define LISTEN_NUM 1
-	#define THREAD_NUM 1
+	#define THREAD_NUM 10
 
 	#define MAXSIZE 1000
 	#define SND_BUF_SIZE 1024
