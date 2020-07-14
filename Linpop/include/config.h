@@ -22,10 +22,8 @@
 #define SOCKET_PORT_DEFAULT     (12345)
 
 // QT界面相关
-#define LOGGIN_SET_FILE_LINES	(3)
-
 #define GROUPITEM_NAME_DEFAULT	QStringLiteral("我的好友")
 
-#define USER_HEAD_DEFAULT       (":/head/8.png")
+#define USER_HEAD_DEFAULT       (":/head/3.png")
 
 #endif // LINPOP_CONFIG_H

@@ -59,7 +59,7 @@ void SocketClient::onSendMessage(int reType/* const Smt& reType */, const QJsonV
     tDocm.setObject(tJson);
     m_ptTcpSocket->write(tDocm.toJson(QJsonDocument::Compact));
 #ifdef _DEBUG_STATE
-    qDebug() << __FUNCTION__ << __LINE__;
+    qDebug() << __FUNCTION__ << __LINE__ << rtData;
 #endif
 }
 

@@ -164,7 +164,6 @@ void Loggin::sendToGetRegisterInfo(const QString& rsId,  const QString& rsPasswo
     tData.insert("Tip", rsTip);
     tData.insert("Name", rsName);
     tData.insert("Group", GROUPITEM_NAME_DEFAULT);
-
     qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
     tData.insert("Head", QString(":/head/%1.png").arg(qrand() % 11));
 
@@ -363,7 +362,7 @@ void Loggin::onSigStatus(int reType/* const Sst& reType */) {
         } 
         case SST_MODIFYPASSWORD_FAILED:
         case SST_GETGROUP_FAILED: {
-            showTipWindow(QStringLiteral("内部错误"), QStringLiteral("初始化失败！\n请重试！"));
+            showTipWindow(QStringLiteral("内部错误"), QStringLiteral("初始化失败！\n请检查网络连接！"));
             break;
         }
         default:

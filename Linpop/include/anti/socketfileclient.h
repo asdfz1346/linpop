@@ -49,9 +49,13 @@ public:
 
 signals:
     void sigSendFinished();
-    void sigFileRecvOk(const quint8 &type, const QString &filePath);
+    void sigFileRecvOk(const QString &filePath);
     void sigUpdateProgress(quint64 currSize, quint64 total);
     void sigConnected();
+
+public slots:
+    // 发送消息函数
+    void onSendMessage(int reType, const QJsonValue& rtData);
 
 private slots:
     // 更新进度条
