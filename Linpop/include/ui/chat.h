@@ -9,6 +9,8 @@
 #include <QWidget>
 #include <QString>
 #include <QTime>
+#include <QUrl>
+#include <QTextBrowser>
 
 namespace Ui {
 class Chat;
@@ -40,10 +42,15 @@ private slots:
     // 文件
     void SltFileRecvFinished(const quint8 &type, const QString &filePath);
     void SltUpdateProgress(quint64 bytes, quint64 total);
+    // 超链接
+    void onMsgAnchorClicked(const QUrl& rtUrl);
+    void onRcdAnchorClicked(const QUrl& rtUrl);
 
 private:
     void imgPathToHtml(QString& rsPath);
     void setRecordWidgetVisible(bool bIsVisible);
+
+    void sendToRecvFile(const QString& rsFileName);
 
     Ui::Chat* m_ptUi;
     Friend*   m_ptFriend;

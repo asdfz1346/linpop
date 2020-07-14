@@ -74,12 +74,16 @@ bool SocketFileClient::isBusy(void) {
 }
 
 void SocketFileClient::startTransfer(const QString& sName) {
-    if (m_bBusy) return;
+    if (m_bBusy) {
+        return;
+    }
 
     // 如果没有连接服务器，重新连接下
     if (!m_ptTcpSocket->isOpen()) {
         startConnect(g_tServerIpAddr);
     }
+
+    connect(m_ptTcpSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(onUpdateClientProgress(qint64)));
 
     // 要发送的文件
     fileToSend = new QFile(sName);
@@ -94,7 +98,6 @@ void SocketFileClient::startTransfer(const QString& sName) {
     SocketFileHead* ptHead = (SocketFileHead*)malloc(sizeof(SocketFileHead));
     memset(ptHead, 0, sizeof(SocketFileHead));
     memcpy(ptHead, currentFileName.toStdString().c_str(), 100);
-    memcpy(ptHead + 100, "5", 52);
     ptHead->iFileLen = (int)fileToSend->size();
 
     m_ptTcpSocket->write((char*)ptHead, sizeof(SocketFileHead));
@@ -107,20 +110,7 @@ void SocketFileClient::startTransfer(const QString& sName) {
     QDataStream sendOut(&outBlock, QIODevice::WriteOnly);
     sendOut.setVersion(QDataStream::Qt_5_9);
 
-//    qDebug() << __FUNCTION__ << currentFileName;
-
-    // 依次写入总大小信息空间，文件名大小信息空间，文件名
-//    sendOut << qint64(0) << qint64(0) << currentFileName;
-
-    // 这里的总大小是文件名大小等信息和实际文件大小的总和
-//    ullSendTotalBytes += outBlock.size();
-
-    // 返回outBolock的开始，用实际的大小信息代替两个qint64(0)空间
-    //sendOut.device()->seek(0);
-//    sendOut << ullSendTotalBytes << qint64((outBlock.size() - sizeof(qint64)*2));
-
     // 发送完头数据后剩余数据的大小
-//    bytesToWrite = ullSendTotalBytes - m_ptTcpSocket->write(outBlock);
     bytesToWrite = ullSendTotalBytes;
 
     outBlock.resize(0);
@@ -136,6 +126,25 @@ void SocketFileClient::endTransfer(void) {
     bytesToWrite        = 0;
     bytesReceived       = 0;
     fileNameSize        = 0;
+}
+
+void SocketFileClient::onSendMessage(int reType, const QJsonValue& rtData) {
+    // 如果没有连接服务器，重新连接下
+    if (!m_ptTcpSocket->isOpen()) {
+        startConnect(g_tServerIpAddr);
+    }
+
+    disconnect(m_ptTcpSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(onUpdateClientProgress(qint64)));
+    QJsonObject tJson;
+    tJson.insert("Type", reType);
+    tJson.insert("Data", rtData);
+
+    QJsonDocument tDocm;
+    tDocm.setObject(tJson);
+    m_ptTcpSocket->write(tDocm.toJson(QJsonDocument::Compact));
+#ifdef _DEBUG_STATE
+    qDebug() << __FUNCTION__ << __LINE__ << reType << rtData;
+#endif
 }
 
 void SocketFileClient::onUpdateClientProgress(qint64 numBytes) {
@@ -178,27 +187,34 @@ void SocketFileClient::onUpdateClientProgress(qint64 numBytes) {
     }
 }
 
+static SocketFileHead g_tHead = { 0 };
 void SocketFileClient::onReadyRead() {
+//    connect(m_ptTcpSocket, SIGNAL(bytesWritten(qint64)), this, SLOT(onUpdateClientProgress(qint64)));
+
     QDataStream in(m_ptTcpSocket);
     in.setVersion(QDataStream::Qt_5_9);
 
-    // 如果接收到的数据小于等于20个字节，那么是刚开始接收数据，我们保存为头文件信息
-    if (bytesReceived <= (sizeof(qint64)*2)) {
-        int nlen = sizeof(qint64) * 2;
-        // 接收数据总大小信息和文件名大小信息
+    // 头文件信息
+    if (bytesReceived < sizeof(SocketFileHead)) {
+        int nlen = sizeof(SocketFileHead);
+        // 接收文件名和文件大小
         if ((m_ptTcpSocket->bytesAvailable() >= nlen) && (fileNameSize == 0)) {
-            in >> ullRecvTotalBytes >> fileNameSize;
+            char tTemp[sizeof(SocketFileHead)] = { 0 };
+            in.readRawData((char*)(&tTemp[0]), sizeof(SocketFileHead));
+            memcpy((char*)&g_tHead, tTemp, 100);
+            memcpy((char*)&g_tHead + 152, tTemp + 152, 4);
+#ifdef _DEBUG_STATE
+            qDebug() << __FUNCTION__ << __LINE__ << g_tHead.FileName << g_tHead.iFileLen;
+#endif
+            ullRecvTotalBytes = g_tHead.iFileLen + nlen;
+            fileReadName      = QString("%1%2").arg(CLIENT_FILE_DIR).arg(g_tHead.FileName);
+            fileNameSize      = strlen(g_tHead.FileName);
+#ifdef _DEBUG_STATE
+            qDebug() << __FUNCTION__ << __LINE__ << ullRecvTotalBytes << fileReadName;
+#endif
             if (0 != ullRecvTotalBytes) {
                 bytesReceived += nlen;
             }
-        }
-
-        // 接收文件名，并建立文件
-        if((m_ptTcpSocket->bytesAvailable() >= (qint64)fileNameSize) &&
-                ((qint64)fileNameSize != 0) && (0 != ullRecvTotalBytes)) {
-            in >> fileReadName;
-            fileReadName  =  CLIENT_FILE_DIR + fileReadName;
-            bytesReceived += fileNameSize;
 
             fileToRecv->setFileName(fileReadName);
             if (!fileToRecv->open(QFile::WriteOnly | QIODevice::Truncate)) {
@@ -226,6 +242,7 @@ void SocketFileClient::onReadyRead() {
         bytesReceived = 0;
         ullRecvTotalBytes = 0;
         fileNameSize = 0;
+        memset((char*)&g_tHead, 0, sizeof(SocketFileHead));
 
         qDebug() << "File recv ok" << fileToRecv->fileName();
         // 数据接受完成
