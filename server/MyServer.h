@@ -34,10 +34,10 @@
 	#include <json/json.h>
 
 	#define LISTEN_NUM 1
-	#define THREAD_NUM 3
+	#define THREAD_NUM 1
 
 	#define MAXSIZE 1000
-	#define SND_BUF_SIZE 156
+	#define SND_BUF_SIZE 1024
 	#define RCV_BUF_SIZE 56800
 
 
@@ -52,6 +52,7 @@
 		std::map<int,std::string> ipmap; //[fd] =ip;
 		bool addfriendrecvready[1024];
 		std::map<int,FILEINFO> 	fileinfomap;
+		std::map<int,std::string> fdjsonmap;
 
 	private:
 		MyServer(const MyServer& a);//拷贝构造

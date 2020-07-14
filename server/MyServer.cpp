@@ -47,9 +47,11 @@ std::string GetTime(){
 }
 
 bool isJson(std::string c){
-	Json::Value JsonVal;
-	Json::Reader R;
-	return R.parse(c, JsonVal);
+	int len = c.length();
+	if(len>2&&c[0]=='{'&&c[1]=='"'&&c[len-1]=='}'){
+		return true;
+	}
+	return false;
 }
 
 int sendjson(int fd,Json::Value J){
@@ -72,7 +74,6 @@ void work(MyServer *pthis,int fd,std::string str){
 	Json::Reader JsonRead;
 	JsonRead.parse(str, JsonVal);
 	int cmd = JsonVal["Type"].asInt();
-	
 	if(cmd == SMT_REGISTER){
 		REGISTER(pthis,fd,JsonVal);
 	}
@@ -135,12 +136,13 @@ void work(MyServer *pthis,int fd,std::string str){
 void REGISTER(MyServer *pthis,int fd,Json::Value JsonVal){
 	Json::Value tData;
 	tData = JsonVal["Data"];
-	std::string  id,password,tip,name,S1,groupname;
+	std::string  id,password,tip,name,S1,groupname,head;
 	id = tData["Id"].asString();
 	groupname = JsonVal["Data"]["Group"].asString();
 	password = tData["Password"].asString();
 	tip = tData["Tip"].asString();
 	name = tData["Name"].asString();
+	head = JsonVal["Data"]["Head"].asString();
 	S1 = "INSERT INTO userinfo (id,passwd,name,tip)VALUE('";//asdfz1346','a123456','a','fu');";
 	S1 = S1 + id +"','";//a123456','a','fu');"
 	S1 = S1 + password +"','";//a','fu');"
@@ -709,8 +711,9 @@ void TransFile(MyServer *pthis,int fd,char *c,int rcv_num){
 	std::string s;
 	s.clear();
 	std::ofstream OsWrite;
-	if(strlen(pthis->fileinfomap[fd].FileName)<1){
-		FILEINFO F;
+	FILEINFO F;
+	
+	if(rcv_num==156&&strlen(pthis->fileinfomap[fd].FileName)<1){
 		memcpy(&F,c,sizeof F);
 		std::string filename(F.FileName);
 		filename = "file/"+filename;
@@ -728,7 +731,6 @@ void TransFile(MyServer *pthis,int fd,char *c,int rcv_num){
 		}
 		OsWrite.open(pthis->fileinfomap[fd].FileName,std::ofstream::app);
 	}
-	Debug(rcv_num);
 	OsWrite<<s;
 	OsWrite.close();
   	return;
@@ -750,22 +752,39 @@ void SendFile(MyServer *pthis,int fd,Json::Value JsonVal){
 	F.FileLen = srcFile.tellg(); //读取文件指针的位置
 	srcFile.seekg(0, std::ios::beg);
 	//发送头信息
-	char snd_buf[SND_BUF_SIZE];
-	memset(snd_buf,0,SND_BUF_SIZE);
-	memcpy(snd_buf,&F,SND_BUF_SIZE);
-	send(fd,snd_buf,SND_BUF_SIZE,0);
+	char snd_buf[156];
+	memset(snd_buf,0,156);
+	memcpy(snd_buf,&F,156);
+	send(fd,snd_buf,156,0);
 	
 	int haveSend = 0;
-	const int bufferSize = 1024;
-	char buffer[bufferSize];
+	int bufferSize = 0;
+	char buffer[SND_BUF_SIZE];
 	memset(buffer,0,bufferSize);
 	int readLen = 0;
-	while(!srcFile.eof()){
-		srcFile.read(buffer,bufferSize);
-		readLen = srcFile.gcount();
-		send(fd,buffer,readLen,0);
-		haveSend += readLen;	
+	while(haveSend<F.FileLen&&!srcFile.eof()){
+		srcFile.read(buffer,SND_BUF_SIZE);
+		while(readLen<SND_BUF_SIZE&&haveSend<F.FileLen){
+			readLen=send(fd,&buffer[bufferSize],std::min(SND_BUF_SIZE-bufferSize,F.FileLen-haveSend),0);	
+			if(readLen<0){
+			readLen = 0;
+			}
+			bufferSize +=readLen;
+			haveSend+=readLen;
+		}
+		readLen = 0;
+		bufferSize = 0;
+		Debug(haveSend);
+		if(haveSend>20000&&haveSend<22000){
+			sleep(5);
+		}
+		if(haveSend>50000&&haveSend<52000){
+			sleep(5);
+		}
+
 	}
+	Debug("");
+	Debug(F.FileLen);
 	srcFile.close();
 }
 
@@ -860,7 +879,7 @@ void *MyServer::accept_thread_proc(void *args){
 		pthread_mutex_unlock(&pthis->accept_mutex);
 		if(newfd==-1) continue;
 		/*set newfd sndbuf*/
-		int nSndBufferLen = 4*1024*1024;
+		int nSndBufferLen = 14*1024*1024;
 		int nLen          = sizeof(int);
 		setsockopt(newfd,SOL_SOCKET,SO_SNDBUF,(char*)&nSndBufferLen,nLen);
 
@@ -955,14 +974,28 @@ void *MyServer::worker_thread_proc(void *args){
 					e.events=EPOLLIN;
        				epoll_ctl(pthis->epollfd, EPOLL_CTL_DEL, fd,&e);
 					pthis->addfriendrecvready[fd] = false;
+					memset(pthis->fileinfomap[fd].FileName,0,100);
        				close(fd);
 				}
 				std::string ctos(rcv_buf);
-				if(ctos[0]=='{'){
-					work(pthis ,fd, ctos);	
+			if(strlen(pthis->fileinfomap[fd].FileName)<1&&(isJson(ctos)|| pthis->fdtoidmap[fd].length()>0)){
+					if(isJson(ctos)){
+						work(pthis ,fd, ctos);	
+					}else if(ctos[0] == '{')
+					{
+						pthis->fdjsonmap[fd] =ctos;
+					}else{
+						std::string s = pthis->fdjsonmap[fd] +=ctos;
+						if(isJson(s)){
+							work(pthis,fd,s);
+							pthis->fdjsonmap[fd].erase();
+						}
+					}
 				}else{
+					
 					TransFile(pthis,fd,rcv_buf,num_rcv);
 				}
+				memset(rcv_buf,0,sizeof rcv_buf);
 			}
 		}
 		else {
