@@ -5,7 +5,7 @@
 #ifndef LINPOP_CONFIG_H
 #define LINPOP_CONFIG_H
 
-#define _DEBUG_STATE
+//#define _DEBUG_STATE
 //#define _USE_SQL
 #define _USE_GROUP_LIST_INIT
 
